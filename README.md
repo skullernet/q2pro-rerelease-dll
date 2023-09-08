@@ -9,3 +9,8 @@ server and client built from experimental branch is required! This is a work in
 progress, don't expect it to function properly yet.
 
 Source code currently builds on Linux with Meson.
+
+## Known bugs
+
+* mgu6m1 requires `map_allsolid_bug 0` to be complete-able, otherwise
+  `func_object` falls and blocks passage.
