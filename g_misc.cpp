@@ -681,7 +681,7 @@ void SP_func_object(edict_t *self)
         self->solid = SOLID_BSP;
         self->movetype = MOVETYPE_PUSH;
         self->think = func_object_release;
-        self->nextthink = level.time + 20_hz;
+        self->nextthink = level.time + 5_hz;
     } else {
         self->solid = SOLID_NOT;
         self->movetype = MOVETYPE_PUSH;
@@ -1013,7 +1013,7 @@ void SP_misc_explobox(edict_t *self)
 
     // PGM - change so barrels will think and hence, blow up
     self->think = barrel_start;
-    self->nextthink = level.time + 20_hz;
+    self->nextthink = level.time + 5_hz;
     // PGM
 
     gi.linkentity(self);
@@ -1067,7 +1067,7 @@ void SP_misc_blackhole(edict_t *ent)
     ent->s.renderfx = RF_TRANSLUCENT;
     ent->use = misc_blackhole_use;
     ent->think = misc_blackhole_think;
-    ent->nextthink = level.time + 20_hz;
+    ent->nextthink = level.time + 5_hz;
 
     if (ent->spawnflags.has(SPAWNFLAG_BLACKHOLE_AUTO_NOISE)) {
         ent->s.sound = gi.soundindex("world/blackhole.wav");
@@ -1099,7 +1099,7 @@ void SP_misc_eastertank(edict_t *ent)
     ent->s.modelindex = gi.modelindex("models/monsters/tank/tris.md2");
     ent->s.frame = 254;
     ent->think = misc_eastertank_think;
-    ent->nextthink = level.time + 20_hz;
+    ent->nextthink = level.time + 5_hz;
     gi.linkentity(ent);
 }
 
@@ -1125,7 +1125,7 @@ void SP_misc_easterchick(edict_t *ent)
     ent->s.modelindex = gi.modelindex("models/monsters/bitch/tris.md2");
     ent->s.frame = 208;
     ent->think = misc_easterchick_think;
-    ent->nextthink = level.time + 20_hz;
+    ent->nextthink = level.time + 5_hz;
     gi.linkentity(ent);
 }
 
@@ -1151,7 +1151,7 @@ void SP_misc_easterchick2(edict_t *ent)
     ent->s.modelindex = gi.modelindex("models/monsters/bitch/tris.md2");
     ent->s.frame = 248;
     ent->think = misc_easterchick2_think;
-    ent->nextthink = level.time + 20_hz;
+    ent->nextthink = level.time + 5_hz;
     gi.linkentity(ent);
 }
 
@@ -1198,7 +1198,7 @@ void SP_monster_commander_body(edict_t *self)
     gi.soundindex("tank/pain.wav");
 
     self->think = commander_body_drop;
-    self->nextthink = level.time + 50_hz;
+    self->nextthink = level.time + 2_hz;
 }
 
 /*QUAKED misc_banner (1 .5 0) (-4 -4 -4) (4 4 4)

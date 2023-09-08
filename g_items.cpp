@@ -1333,7 +1333,7 @@ void SpawnItem(edict_t *ent, gitem_t *item)
     }
 
     ent->item = item;
-    ent->nextthink = level.time + 20_hz; // items start after other solids
+    ent->nextthink = level.time + 5_hz; // items start after other solids
     ent->think = droptofloor;
     ent->s.effects = item->world_model_flags;
     ent->s.renderfx = RF_GLOW | RF_NO_LOD;
