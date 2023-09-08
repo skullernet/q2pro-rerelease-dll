@@ -343,7 +343,7 @@ public:
 
     int64_t frames() const
     {
-        return _ms * 1000 / TICK_RATE;
+        return _ms * TICK_RATE / 1000;
     }
 
     // check if non-zero
