@@ -61,7 +61,7 @@ src = [
   'q_std.cpp',
 ]
 
-rogue_src = [
+src += [
   'rogue/g_rogue_combat.cpp',
   'rogue/g_rogue_func.cpp',
   'rogue/g_rogue_items.cpp',
@@ -87,7 +87,7 @@ rogue_src = [
   'rogue/rogue_dm_tag.cpp',
 ]
 
-xatrix_src = [
+src += [
   'xatrix/g_xatrix_func.cpp',
   'xatrix/g_xatrix_items.cpp',
   'xatrix/g_xatrix_misc.cpp',
@@ -99,7 +99,7 @@ xatrix_src = [
   'xatrix/p_xatrix_weapon.cpp',
 ]
 
-ctf_src = [
+src += [
   'ctf/g_ctf.cpp',
   'ctf/p_ctf_menu.cpp',
 ]
@@ -158,7 +158,7 @@ deps = [
   dependency('jsoncpp', default_options: fallback_opt),
 ]
 
-shared_library('game' + cpu, src, rogue_src, xatrix_src, ctf_src,
+shared_library('game' + cpu, src,
   name_prefix:           '',
   gnu_symbol_visibility: 'hidden',
   dependencies:          deps,
