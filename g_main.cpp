@@ -361,6 +361,8 @@ void InitGame()
     // ROGUE
     //======
 
+    G_LoadL10nFile();
+
     // how far back we should support lag origins for
     game.max_lag_origins = 20 * (0.1f / FRAME_TIME.seconds());
     game.lag_origins = (vec3_t *) gi.TagMalloc(game.maxclients * sizeof(vec3_t) * game.max_lag_origins, TAG_GAME);

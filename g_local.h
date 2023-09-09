@@ -3452,3 +3452,5 @@ inline void local_game_import_t::WriteEntity(const edict_t *e)
     game_import_t::WriteShort((int)(e - g_edicts));
 }
 
+void G_LoadL10nFile();
+const char *G_GetL10nString(const char *key);

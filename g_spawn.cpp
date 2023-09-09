@@ -666,7 +666,19 @@ static const std::initializer_list<field_t> entity_fields = {
     FIELD_AUTO(itemtarget),
     FIELD_AUTO(killtarget),
     FIELD_AUTO(combattarget),
-    FIELD_AUTO(message),
+    {
+        "message", [](edict_t *e, const char *value)
+        {
+            if (*value == '$') {
+                const char *s = G_GetL10nString(value + 1);
+                if (*s) {
+                    e->message = ED_NewString(s);
+                    return;
+                }
+            }
+            e->message = ED_NewString(value);
+        }
+    },
     FIELD_AUTO(team),
     FIELD_AUTO(wait),
     FIELD_AUTO(delay),
