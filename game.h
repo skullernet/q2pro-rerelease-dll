@@ -80,10 +80,18 @@ using bit_t = std::conditional_t<n >= 32, uint64_t, uint32_t >;
 template<size_t n>
 constexpr bit_t<n> bit_v = 1ull << n;
 
+#ifdef _WIN32
+#define q_exported __declspec(dllexport)
+#define q_imported __declspec(dllimport)
+#else
+#define q_exported __attribute__((visibility("default")))
+#define q_imported
+#endif
+
 #if defined(KEX_Q2GAME_EXPORTS)
-#define Q2GAME_API extern "C" __attribute__((visibility("default")))
+#define Q2GAME_API extern "C" q_exported
 #elif defined(KEX_Q2GAME_IMPORTS)
-#define Q2GAME_API extern "C" //__declspec( dllimport )
+#define Q2GAME_API extern "C" q_imported
 #else
 #define Q2GAME_API
 #endif

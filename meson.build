@@ -106,29 +106,56 @@ ctf_src = [
 
 cpp = meson.get_compiler('cpp')
 
+win32 = host_machine.system() == 'windows'
+x86 = host_machine.cpu_family() == 'x86'
+
+cpuremap = {
+  'x86': win32 ? 'x86' : 'i386',
+  'aarch64': 'arm64',
+}
+
+cpu = host_machine.cpu_family()
+if cpu in cpuremap
+  cpu = cpuremap[cpu]
+endif
+
 args = [
   '-DKEX_Q2GAME_DYNAMIC',
   '-DKEX_Q2GAME_EXPORTS',
   '-DNO_FMT_SOURCE',
 ]
 
-warns = [
-  '-Wformat-security',
-  '-Wno-class-memaccess',
-  '-Wno-narrowing',
-  '-Wno-sign-compare',
-  '-Wno-unused',
-  '-Wpointer-arith',
-]
+link_args = []
 
-args += cpp.get_supported_arguments(warns)
+if cpp.get_argument_syntax() == 'gcc'
+  if x86
+    add_global_arguments('-msse2', '-mfpmath=sse', language: 'cpp')
+  endif
+
+  test_args = [
+    '-Wformat-security',
+    '-Wno-class-memaccess',
+    '-Wno-narrowing',
+    '-Wno-sign-compare',
+    '-Wno-unused',
+    '-Wpointer-arith',
+  ]
+
+  args += cpp.get_supported_arguments(test_args)
+
+  if win32
+    link_args += ['-static-libgcc', '-static-libstdc++']
+  endif
+endif
+
 add_project_arguments(args, language: 'cpp')
+add_project_link_arguments(link_args, language: 'cpp')
 
-cpu = host_machine.cpu_family()
+fallback_opt = ['default_library=static']
 
 deps = [
-  dependency('fmt'),
-  dependency('jsoncpp'),
+  dependency('fmt', default_options: fallback_opt),
+  dependency('jsoncpp', default_options: fallback_opt),
 ]
 
 shared_library('game' + cpu, src, rogue_src, xatrix_src, ctf_src,
