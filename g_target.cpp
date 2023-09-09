@@ -263,7 +263,7 @@ void G_PlayerNotifyGoal(edict_t *player)
         player->client->pers.helpchanged = 1;
         player->client->pers.help_time = level.time + 5_sec;
 
-        if (*game.helpmessage1)
+        if (*game.helpmessage1 && false)
             // [Sam-KEX] Print objective to screen
             gi.cprintf(player, PRINT_TYPEWRITER, "Primary Objective:\n%s", game.helpmessage1);
     }
@@ -273,7 +273,7 @@ void G_PlayerNotifyGoal(edict_t *player)
         player->client->pers.helpchanged = 1;
         player->client->pers.help_time = level.time + 5_sec;
 
-        if (*game.helpmessage2)
+        if (*game.helpmessage2 && false)
             // [Sam-KEX] Print objective to screen
             gi.cprintf(player, PRINT_TYPEWRITER, "Secondary Objective:\n%s", game.helpmessage2);
     }
