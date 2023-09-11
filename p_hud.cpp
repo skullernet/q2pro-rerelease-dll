@@ -83,25 +83,25 @@ void G_UpdateLevelEntry()
     level.entry->total_monsters = level.total_monsters;
 }
 
-inline void G_EndOfUnitEntry(std::stringstream &layout, const int &y, const level_entry_t &entry)
+inline void G_EndOfUnitEntry(statusbar_t &sb, const int y, const level_entry_t &entry, const size_t maxlen)
 {
-    layout << G_Fmt("yv {} ", y);
+    sb.yv(y);
 
     // we didn't visit this level, so print it as an unknown entry
     if (!*entry.pretty_name) {
-        layout << "table_row 1 ??? ";
+        sb.string("???");
         return;
     }
 
-    layout << G_Fmt("table_row 4 \"{}\" ", entry.pretty_name) <<
-           G_Fmt("{}/{} ", entry.killed_monsters, entry.total_monsters) <<
-           G_Fmt("{}/{} ", entry.found_secrets, entry.total_secrets);
-
     int32_t minutes = entry.time.milliseconds() / 60000;
     int32_t seconds = (entry.time.milliseconds() / 1000) % 60;
-    int32_t milliseconds = entry.time.milliseconds() % 1000;
+    int32_t tensofsec = (entry.time.milliseconds() / 100) % 10;
 
-    layout << G_Fmt("{:02}:{:02}:{:03} ", minutes, seconds, milliseconds);
+    sb.string(G_Fmt("{:{}} {:3}/{:<3} {:3}/{:<3} {:02}:{:02}.{}",
+                    entry.pretty_name, maxlen,
+                    entry.killed_monsters, entry.total_monsters,
+                    entry.found_secrets, entry.total_secrets,
+                    minutes, seconds, tensofsec).data());
 }
 
 void G_EndOfUnitMessage()
@@ -109,7 +109,7 @@ void G_EndOfUnitMessage()
     // [Paril-KEX] update game level entry
     G_UpdateLevelEntry();
 
-    std::stringstream layout;
+    statusbar_t sb;
 
     // sort entries
     std::sort(game.level_entries.begin(), game.level_entries.end(), [](const level_entry_t &a, const level_entry_t &b) {
@@ -119,9 +119,16 @@ void G_EndOfUnitMessage()
         return a_order < b_order;
     });
 
-    layout << "start_table 4 $m_eou_level $m_eou_kills $m_eou_secrets $m_eou_time ";
+    size_t maxlen = 0;
+    for (auto &entry : game.level_entries) {
+        if (!*entry.map_name)
+            break;
+        maxlen = std::max(maxlen, strlen(entry.pretty_name));
+    }
 
-    int y = 16;
+    sb.xv(-40).yv(26).string2(G_Fmt("{:{}}  Kills  Secrets  Time", "Level", maxlen).data());
+
+    int y = 34;
     level_entry_t totals {};
     int32_t num_rows = 0;
 
@@ -129,8 +136,7 @@ void G_EndOfUnitMessage()
         if (!*entry.map_name)
             break;
 
-        G_EndOfUnitEntry(layout, y, entry);
-
+        G_EndOfUnitEntry(sb, y, entry, maxlen);
         y += 8;
 
         totals.found_secrets += entry.found_secrets;
@@ -143,21 +149,18 @@ void G_EndOfUnitMessage()
             num_rows++;
     }
 
-    y += 8;
+    y += 8; // empty row to separate totals
 
     // make this a space so it prints totals
     if (num_rows > 1) {
-        layout << "table_row 0 "; // empty row to separate totals
         totals.pretty_name[0] = ' ';
-        G_EndOfUnitEntry(layout, y, totals);
+        G_EndOfUnitEntry(sb, y, totals, maxlen);
     }
 
-    layout << "xv 160 yt 0 draw_table ";
-
-    layout << "ifgef " << (level.intermission_server_frame + (5_sec).frames()) << " yb -48 xv 0 cstring2 \"Press any button to continue.\" endif ";
+    sb.yb(-48).xv(0).cstring2("Press any button to continue.");
 
     gi.WriteByte(svc_layout);
-    gi.WriteString(layout.str().c_str());
+    gi.WriteString(sb.sb.str().c_str());
     gi.multicast(vec3_origin, MULTICAST_ALL_R);
 
     for (auto player : active_players())
