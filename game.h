@@ -190,6 +190,7 @@ enum cvar_flags_t : uint32_t {
     CVAR_NOSET = bit_v<3>,       // don't allow change from console at all,
                                  // but can be set from the command line
     CVAR_LATCH = bit_v<4>,       // save changes until server restart
+    CVAR_ROM = bit_v<7>,         // can't be changed even from cmdline
 };
 MAKE_ENUM_BITFLAGS(cvar_flags_t);
 

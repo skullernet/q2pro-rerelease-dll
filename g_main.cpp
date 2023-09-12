@@ -207,7 +207,7 @@ void InitGame()
     gi.dprintf("==== InitGame ====\n");
 
     auto cv = gi.cvar("sv_features", NULL, CVAR_NOFLAGS);
-    if (!cv || !(cv->flags & bit_v<7>) || ((int)cv->value & G_FEATURES) != G_FEATURES)
+    if (!cv || !(cv->flags & CVAR_ROM) || ((int)cv->value & G_FEATURES) != G_FEATURES)
         gi.error("This game library requires enhanced Q2PRO server");
     gi.cvar_forceset("g_features", G_Fmt("{}", G_FEATURES).data());
 
