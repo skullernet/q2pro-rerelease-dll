@@ -9,7 +9,7 @@ void monster_muzzleflash(edict_t *self, const vec3_t &start, monster_muzzleflash
 {
     int entnum = self - g_edicts;
     gi.WriteByte(svc_muzzleflash2);
-    gi.WriteShort(entnum | (id & 0x700) << 5);
+    gi.WriteShort(entnum | id >> 8 << ENTITYNUM_BITS);
     gi.WriteByte(id & 255);
     gi.multicast(start, MULTICAST_PHS);
 }
