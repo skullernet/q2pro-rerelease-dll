@@ -80,7 +80,9 @@ void SP_target_speaker(edict_t *ent)
         ent->noise_index = gi.soundindex(st.noise);
 
     if (!ent->volume)
-        ent->volume = ent->x.loop_volume = 1.0;
+        ent->volume = 1;
+    if (ent->volume != 1)
+        ent->x.loop_volume = ent->volume;
 
     if (!ent->attenuation) {
         if (ent->spawnflags.has(SPAWNFLAG_SPEAKER_LOOPED_OFF | SPAWNFLAG_SPEAKER_LOOPED_ON))
@@ -95,7 +97,8 @@ void SP_target_speaker(edict_t *ent)
             ent->attenuation = ATTN_NONE;
     }
 
-    ent->x.loop_attenuation = ent->attenuation;
+    if (ent->attenuation != ATTN_STATIC)
+        ent->x.loop_attenuation = ent->attenuation;
 
     // check for prestarted looping sound
     if (ent->spawnflags.has(SPAWNFLAG_SPEAKER_LOOPED_ON))
