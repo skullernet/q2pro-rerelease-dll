@@ -898,8 +898,6 @@ SAVE_STRUCT_START
     // s.solid is set by linkentity
     // events are cleared on each frame, no need to save
     FIELD_AUTO(s.sound),
-    FIELD_AUTO(x.alpha),
-    FIELD_AUTO(x.scale),
 
     // server stuff
     // client is auto-set
@@ -915,6 +913,13 @@ SAVE_STRUCT_START
     FIELD_AUTO(solid),
     FIELD_AUTO(clipmask),
     FIELD_AUTO(owner),
+
+    // entity_state_extension_t
+    FIELD_AUTO(x.morefx),
+    FIELD_AUTO(x.alpha),
+    FIELD_AUTO(x.scale),
+    FIELD_AUTO(x.loop_volume),
+    FIELD_AUTO(x.loop_attenuation),
 
     // game stuff
     FIELD_AUTO(spawn_count),
