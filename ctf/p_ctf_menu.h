@@ -25,7 +25,6 @@ struct pmenu_t {
     char         text[64];
     int          align;
     SelectFunc_t SelectFunc;
-    char         text_arg1[64];
 };
 
 pmenuhnd_t *PMenu_Open(edict_t *ent, const pmenu_t *entries, int cur, int num, void *arg, UpdateFunc_t UpdateFunc);

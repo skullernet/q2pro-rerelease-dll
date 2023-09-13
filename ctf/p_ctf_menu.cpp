@@ -87,7 +87,6 @@ void PMenu_Do_Update(edict_t *ent)
 {
     int         i;
     pmenu_t *p;
-    int         x;
     pmenuhnd_t *hnd;
     const char *t;
     bool        alt = false;
@@ -119,29 +118,25 @@ void PMenu_Do_Update(edict_t *ent)
 
         sb.yv(32 + i * 8);
 
-        const char *loc_func = "loc_string";
-
         if (p->align == PMENU_ALIGN_CENTER) {
-            x = 0;
-            loc_func = "loc_cstring";
+            sb.xv(0);
+            sb.sb << "cstring";
         } else if (p->align == PMENU_ALIGN_RIGHT) {
-            x = 260;
-            loc_func = "loc_rstring";
-        } else
-            x = 64;
-
-        sb.xv(x);
-
-        sb.sb << loc_func;
+            sb.xv(260);
+            sb.sb << "rstring";
+        } else {
+            sb.xv(64);
+            sb.sb << "string";
+        }
 
         if (hnd->cur == i || alt)
             sb.sb << '2';
 
-        sb.sb << " 1 \"" << t << "\" \"" << p->text_arg1 << "\" ";
+        sb.sb << " \"" << t << "\" ";
 
         if (hnd->cur == i) {
             sb.xv(56);
-            sb.string2("\">\"");
+            sb.string2("\"\x0d\"");
         }
 
         alt = false;

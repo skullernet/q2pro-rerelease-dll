@@ -2032,9 +2032,9 @@ void SP_misc_ctf_small_banner(edict_t *ent)
 static void SetGameName(pmenu_t *p)
 {
     if (ctf->integer)
-        Q_strlcpy(p->text, "$g_pc_3wctf", sizeof(p->text));
+        Q_strlcpy(p->text, "ThreeWave Capture the Flag", sizeof(p->text));
     else
-        Q_strlcpy(p->text, "$g_pc_teamplay", sizeof(p->text));
+        Q_strlcpy(p->text, "Team Deathmatch", sizeof(p->text));
 }
 
 static void SetLevelName(pmenu_t *p)
@@ -2477,28 +2477,28 @@ static const int jmenu_chase = 10;
 static const int jmenu_reqmatch = 12;
 
 const pmenu_t joinmenu[] = {
-    { "*$g_pc_3wctf", PMENU_ALIGN_CENTER, nullptr },
+    { "*ThreeWave Capture the Flag", PMENU_ALIGN_CENTER, nullptr },
     { "", PMENU_ALIGN_CENTER, nullptr },
     { "", PMENU_ALIGN_CENTER, nullptr },
     { "", PMENU_ALIGN_CENTER, nullptr },
-    { "$g_pc_join_red_team", PMENU_ALIGN_LEFT, CTFJoinTeam1 },
+    { "Join Red Team", PMENU_ALIGN_LEFT, CTFJoinTeam1 },
     { "", PMENU_ALIGN_LEFT, nullptr },
     { "", PMENU_ALIGN_LEFT, nullptr },
-    { "$g_pc_join_blue_team", PMENU_ALIGN_LEFT, CTFJoinTeam2 },
+    { "Join Blue Team", PMENU_ALIGN_LEFT, CTFJoinTeam2 },
     { "", PMENU_ALIGN_LEFT, nullptr },
     { "", PMENU_ALIGN_LEFT, nullptr },
-    { "$g_pc_chase_camera", PMENU_ALIGN_LEFT, CTFChaseCam },
+    { "Chase Camera", PMENU_ALIGN_LEFT, CTFChaseCam },
     { "", PMENU_ALIGN_LEFT, nullptr },
     { "", PMENU_ALIGN_LEFT, nullptr },
 };
 
 const pmenu_t nochasemenu[] = {
-    { "$g_pc_3wctf", PMENU_ALIGN_CENTER, nullptr },
+    { "*ThreeWave Capture the Flag", PMENU_ALIGN_CENTER, nullptr },
     { "", PMENU_ALIGN_CENTER, nullptr },
     { "", PMENU_ALIGN_CENTER, nullptr },
-    { "$g_pc_no_chase", PMENU_ALIGN_LEFT, nullptr },
+    { "No one to chase", PMENU_ALIGN_LEFT, nullptr },
     { "", PMENU_ALIGN_CENTER, nullptr },
-    { "$g_pc_return", PMENU_ALIGN_LEFT, CTFReturnToMain }
+    { "Return to Main Menu", PMENU_ALIGN_LEFT, CTFReturnToMain }
 };
 
 void CTFJoinTeam(edict_t *ent, ctfteam_t desired_team)
@@ -2621,8 +2621,8 @@ void CTFUpdateJoinMenu(edict_t *ent)
             Q_strlcpy(entries[jmenu_red].text, "Join Red MATCH Team", sizeof(entries[jmenu_red].text));
             Q_strlcpy(entries[jmenu_blue].text, "Join Blue MATCH Team", sizeof(entries[jmenu_blue].text));
         } else {
-            Q_strlcpy(entries[jmenu_red].text, "$g_pc_join_red_team", sizeof(entries[jmenu_red].text));
-            Q_strlcpy(entries[jmenu_blue].text, "$g_pc_join_blue_team", sizeof(entries[jmenu_blue].text));
+            Q_strlcpy(entries[jmenu_red].text, "Join Red Team", sizeof(entries[jmenu_red].text));
+            Q_strlcpy(entries[jmenu_blue].text, "Join Blue Team", sizeof(entries[jmenu_blue].text));
         }
         entries[jmenu_red].SelectFunc = CTFJoinTeam1;
         entries[jmenu_blue].SelectFunc = CTFJoinTeam2;
@@ -2640,9 +2640,9 @@ void CTFUpdateJoinMenu(edict_t *ent)
     }
 
     if (ent->client->chase_target)
-        Q_strlcpy(entries[jmenu_chase].text, "$g_pc_leave_chase_camera", sizeof(entries[jmenu_chase].text));
+        Q_strlcpy(entries[jmenu_chase].text, "Leave Chase Camera", sizeof(entries[jmenu_chase].text));
     else
-        Q_strlcpy(entries[jmenu_chase].text, "$g_pc_chase_camera", sizeof(entries[jmenu_chase].text));
+        Q_strlcpy(entries[jmenu_chase].text, "Chase Camera", sizeof(entries[jmenu_chase].text));
 
     SetLevelName(entries + jmenu_level);
 
@@ -2678,18 +2678,14 @@ void CTFUpdateJoinMenu(edict_t *ent)
     }
 
     if (*entries[jmenu_red].text) {
-        Q_strlcpy(entries[jmenu_red + 1].text, "$g_pc_playercount", sizeof(entries[jmenu_red + 1].text));
-        G_FmtTo(entries[jmenu_red + 1].text_arg1, "{}", num1);
+        G_FmtTo(entries[jmenu_red + 1].text, "  ({} players)", num1);
     } else {
         entries[jmenu_red + 1].text[0] = '\0';
-        entries[jmenu_red + 1].text_arg1[0] = '\0';
     }
     if (*entries[jmenu_blue].text) {
-        Q_strlcpy(entries[jmenu_blue + 1].text, "$g_pc_playercount", sizeof(entries[jmenu_blue + 1].text));
-        G_FmtTo(entries[jmenu_blue + 1].text_arg1, "{}", num2);
+        G_FmtTo(entries[jmenu_blue + 1].text, "  ({} players)", num1);
     } else {
         entries[jmenu_blue + 1].text[0] = '\0';
-        entries[jmenu_blue + 1].text_arg1[0] = '\0';
     }
 
     entries[jmenu_reqmatch].text[0] = '\0';
