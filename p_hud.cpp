@@ -97,7 +97,7 @@ inline void G_EndOfUnitEntry(statusbar_t &sb, const int y, const level_entry_t &
     int32_t seconds = (entry.time.milliseconds() / 1000) % 60;
     int32_t tensofsec = (entry.time.milliseconds() / 100) % 10;
 
-    sb.string(G_Fmt("{:{}} {:3}/{:<3} {:3}/{:<3} {:02}:{:02}.{}",
+    sb.string(G_Fmt("{:{}} {:4}/{:<4} {:3}/{:<3} {:02}:{:02}.{}",
                     entry.pretty_name, maxlen,
                     entry.killed_monsters, entry.total_monsters,
                     entry.found_secrets, entry.total_secrets,
@@ -126,7 +126,7 @@ void G_EndOfUnitMessage()
         maxlen = std::max(maxlen, strlen(entry.pretty_name));
     }
 
-    sb.xv(-40).yv(26).string2(G_Fmt("{:{}}  Kills  Secrets  Time", "Level", maxlen).data());
+    sb.xv(60 - maxlen * 4).yv(26).string2(G_Fmt("{:{}}   Kills   Secrets  Time  ", "Level", maxlen).data());
 
     int y = 34;
     level_entry_t totals {};
