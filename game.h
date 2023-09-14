@@ -1141,7 +1141,7 @@ constexpr size_t MAX_MODELS_OLD = 256, MAX_SOUNDS_OLD = 256, MAX_IMAGES_OLD = 25
 // ertity events are for effects that take place reletive
 // to an existing entities origin.  Very network efficient.
 // All muzzle flashes really should be converted to events...
-enum entity_event_t : uint8_t {
+enum entity_event_t : uint32_t {
     EV_NONE,
     EV_ITEM_RESPAWN,
     EV_FOOTSTEP,
