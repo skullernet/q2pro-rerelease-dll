@@ -150,7 +150,7 @@ enum multicast_t {
     MULTICAST_PVS_R
 };
 
-enum qboolean : uint32_t { qfalse, qtrue };
+enum qboolean { qfalse, qtrue };
 
 enum game_features_t {
     GMF_NONE = 0,
@@ -1043,7 +1043,7 @@ enum splash_color_t : uint8_t {
 // sound channels
 // channel 0 never willingly overrides
 // other channels (1-7) always override a playing sound on that channel
-enum soundchan_t : uint8_t {
+enum soundchan_t : uint32_t {
     CHAN_AUTO = 0,
     CHAN_WEAPON = 1,
     CHAN_VOICE = 2,
@@ -1274,7 +1274,7 @@ enum svflags_t : uint32_t {
 MAKE_ENUM_BITFLAGS(svflags_t);
 
 // edict->solid values
-enum solid_t : uint8_t {
+enum solid_t {
     SOLID_NOT,     // no interaction with other objects
     SOLID_TRIGGER, // only touch when inside, after moving
     SOLID_BBOX,    // touch on edge
