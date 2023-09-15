@@ -1059,7 +1059,7 @@ static BoxEdictsResult_t trigger_coop_relay_player_filter(edict_t *ent, void *da
 }
 
 THINK(trigger_coop_relay_think)(edict_t *self) -> void {
-    std::array<edict_t *, MAX_SPLIT_PLAYERS> players;
+    std::array<edict_t *, MAX_CLIENTS> players;
     size_t num_active = 0;
 
     for (auto player : active_players())

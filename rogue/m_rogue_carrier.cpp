@@ -74,8 +74,7 @@ MONSTERINFO_SIGHT(carrier_sight)(edict_t *self, edict_t *other) -> void {
 // pick one of the group, and let it rip
 void CarrierCoopCheck(edict_t *self)
 {
-    // no more than 8 players in coop, so..
-    std::array<edict_t *, MAX_SPLIT_PLAYERS> targets;
+    std::array<edict_t *, MAX_CLIENTS> targets;
     uint32_t num_targets = 0;
     int32_t  target;
     edict_t *ent;
