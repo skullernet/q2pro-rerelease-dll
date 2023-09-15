@@ -40,6 +40,3 @@ the following remaster-specific features have been removed.
 
 * mgu6m1 requires `map_allsolid_bug 0` to be complete-able, otherwise
   `func_object` falls and blocks passage.
-
-* Berserk jump is broken. Seems to be related to 10 FPS tick rate, because the
-  same thing happens in KEX at 10 FPS.

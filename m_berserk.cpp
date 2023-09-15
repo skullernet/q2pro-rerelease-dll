@@ -297,13 +297,18 @@ void berserk_jump_takeoff(edict_t *self)
     AngleVectors(self->s.angles, forward, nullptr, nullptr);
     self->s.origin[2] += 1;
     self->velocity = forward * fwd_speed;
-    self->velocity[2] = 450;
+    self->velocity[2] = 400;
     self->groundentity = nullptr;
     self->monsterinfo.aiflags |= AI_DUCKED;
     self->monsterinfo.attack_finished = level.time + 3_sec;
     self->touch = berserk_jump_touch;
     gi.sound(self, CHAN_WEAPON, sound_jump, 1, ATTN_NORM, 0);
     berserk_high_gravity(self);
+
+    // apply 1 frames' worth of gravity to escape the floor
+    self->gravity = -self->gravity;
+    SV_AddGravity(self);
+    self->gravity = -self->gravity;
 }
 
 void berserk_check_landing(edict_t *self)
