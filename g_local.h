@@ -122,16 +122,19 @@ public:
         for (int i = 0; i < count; i++) {
             auto ent = temp[i];
             auto res = filter(ent, filter_data);
-            if (res == BoxEdictsResult_t::End)
-                break;
             if (res == BoxEdictsResult_t::Skip)
                 continue;
             if (j < maxcount)
                 list[j] = ent;
             j++;
+            if (res == BoxEdictsResult_t::End)
+                break;
         }
-        return j;
+        if (!maxcount || j < maxcount)
+            return j;
+        return maxcount;
     }
+
     size_t BoxEdicts(gvec3_cref_t mins, gvec3_cref_t maxs, edict_t **list, size_t maxcount, solidity_area_t areatype)
     {
         return game_import_t::BoxEdicts(mins, maxs, list, maxcount, areatype);
