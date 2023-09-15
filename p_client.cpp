@@ -817,8 +817,8 @@ void InitClientPersistant(edict_t *ent, gclient_t *client)
             if (level.start_items && *level.start_items)
                 Player_GiveStartItems(ent, level.start_items);
 
-            if (!deathmatch->integer)
-                client->pers.inventory[IT_ITEM_COMPASS] = 1;
+            //if (!deathmatch->integer)
+            //    client->pers.inventory[IT_ITEM_COMPASS] = 1;
 
             // ZOID
             bool give_grapple = (!strcmp(g_allow_grapple->string, "auto")) ?

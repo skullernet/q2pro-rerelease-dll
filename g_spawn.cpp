@@ -1519,7 +1519,7 @@ void SP_worldspawn(edict_t *ent)
 
     snd_fry = gi.soundindex("player/fry.wav"); // standing in lava / slime
 
-    PrecacheItem(GetItemByIndex(IT_ITEM_COMPASS));
+    //PrecacheItem(GetItemByIndex(IT_ITEM_COMPASS));
     PrecacheItem(GetItemByIndex(IT_WEAPON_BLASTER));
 
     if (g_dm_random_items->integer)
