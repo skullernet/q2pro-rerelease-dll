@@ -35,8 +35,3 @@ the following remaster-specific features have been removed.
 
 * `localization/loc_english.txt` must be manually extracted from `Q2Game.kpf`
   archive and put into `baseq2` for map messages to work.
-
-## Known bugs
-
-* mgu6m1 requires `map_allsolid_bug 0` to be complete-able, otherwise
-  `func_object` falls and blocks passage.

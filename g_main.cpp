@@ -193,6 +193,9 @@ void PreInitGame()
             gi.cvar_set("coop", "0");
     }
     // ZOID
+
+    // set this to match KEX behavior
+    gi.cvar_set("map_allsolid_bug", "0");
 }
 
 /*
