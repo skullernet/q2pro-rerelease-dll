@@ -919,8 +919,8 @@ inline bool G_AnyPlayerSpawned()
 
 void G_RunFrame()
 {
-    if (!G_AnyPlayerSpawned())
-        return;
+    //if (main_loop && !G_AnyPlayerSpawned())
+    //    return;
 
     for (int32_t i = 0; i < g_frames_per_frame->integer; i++)
         G_RunFrame_(true);
