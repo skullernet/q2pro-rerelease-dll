@@ -1890,6 +1890,7 @@ extern cvar_t *ai_damage_scale;
 extern cvar_t *ai_model_scale;
 extern cvar_t *ai_allow_dm_spawn;
 extern cvar_t *ai_movement_disabled;
+extern cvar_t *g_monster_footsteps;
 
 #define world (&g_edicts[0])
 
@@ -3113,7 +3114,7 @@ extern dm_game_rt DMGame;
 // [Paril-KEX]
 inline void monster_footstep(edict_t *self)
 {
-    if (self->groundentity)
+    if (self->groundentity && g_monster_footsteps->integer)
         self->s.event = EV_OTHER_FOOTSTEP;
 }
 
