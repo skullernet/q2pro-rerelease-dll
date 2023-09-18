@@ -94,25 +94,7 @@ public:
         game_import_t::unicast(ent, static_cast<qboolean>(reliable));
     }
 
-    void local_sound(edict_t *target, const vec3_t &origin, edict_t *ent, soundchan_t channel, int soundindex, float volume, float attenuation, float timeofs, uint32_t dupe_key = 0)
-    {
-        //game_import_t::local_sound(target, &origin, ent, channel, soundindex, volume, attenuation, timeofs, dupe_key);
-    }
-
-    void local_sound(edict_t *target, edict_t *ent, soundchan_t channel, int soundindex, float volume, float attenuation, float timeofs, uint32_t dupe_key = 0)
-    {
-        //game_import_t::local_sound(target, nullptr, ent, channel, soundindex, volume, attenuation, timeofs, dupe_key);
-    }
-
-    void local_sound(const vec3_t &origin, edict_t *ent, soundchan_t channel, int soundindex, float volume, float attenuation, float timeofs, uint32_t dupe_key = 0)
-    {
-        //game_import_t::local_sound(ent, &origin, ent, channel, soundindex, volume, attenuation, timeofs, dupe_key);
-    }
-
-    void local_sound(edict_t *ent, soundchan_t channel, int soundindex, float volume, float attenuation, float timeofs, uint32_t dupe_key = 0)
-    {
-        //game_import_t::local_sound(ent, nullptr, ent, channel, soundindex, volume, attenuation, timeofs, dupe_key);
-    }
+    void local_sound(edict_t *ent, soundchan_t channel, int soundindex, float volume, float attenuation, float timeofs);
 
     size_t BoxEdicts(gvec3_cref_t mins, gvec3_cref_t maxs, edict_t **list, size_t maxcount, solidity_area_t areatype, BoxEdictsFilter_t filter, void *filter_data)
     {
@@ -3454,6 +3436,26 @@ inline void pierce_args_t::restore()
 inline void local_game_import_t::WriteEntity(const edict_t *e)
 {
     game_import_t::WriteShort((int)(e - g_edicts));
+}
+
+inline void local_game_import_t::local_sound(edict_t *ent, soundchan_t channel, int soundindex, float volume, float attenuation, float timeofs)
+{
+    int entnum = ent - g_edicts;
+    int sendchan = (entnum << 3) | (channel & 7);
+
+    sndflags_t flags = SND_ENT;
+    if (soundindex > 255)
+        flags |= SND_INDEX16;
+
+    gi.WriteByte(svc_sound);
+    gi.WriteByte(flags);
+    if (flags & SND_INDEX16)
+        gi.WriteShort(soundindex);
+    else
+        gi.WriteByte(soundindex);
+    gi.WriteShort(sendchan);
+
+    gi.unicast(ent, channel & CHAN_RELIABLE);
 }
 
 void G_LoadL10nFile();

@@ -1223,8 +1223,6 @@ void Cmd_Wave_f(edict_t *ent)
         trace_t tr = gi.traceline(start, start + (ent->client->v_forward * 2048), ent, MASK_SHOT & ~CONTENTS_WINDOW);
         other_notify_msg = "%s pinged a location.\n";
 
-        uint32_t key = GetUnicastKey();
-
         if (tr.fraction != 1.0f) {
             // send to all teammates
             for (auto player : active_players()) {
@@ -1241,7 +1239,7 @@ void Cmd_Wave_f(edict_t *ent)
                 gi.unicast(player, false);
 #endif
 
-                gi.local_sound(player, CHAN_AUTO, gi.soundindex("misc/help_marker.wav"), 1.0f, ATTN_NONE, 0.0f, key);
+                gi.local_sound(player, CHAN_AUTO, gi.soundindex("misc/help_marker.wav"), 1.0f, ATTN_NONE, 0.0f);
                 gi.cprintf(player, PRINT_HIGH, other_notify_msg, ent->client->pers.netname);
             }
         }

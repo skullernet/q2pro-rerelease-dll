@@ -1403,7 +1403,7 @@ void Compass_Update(edict_t *ent, bool first)
 
     P_SendLevelPOI(ent);
 
-    gi.local_sound(ent, points[ent->client->help_draw_index], world, CHAN_AUTO, gi.soundindex("misc/help_marker.wav"), 1.0f, ATTN_NORM, 0.0f, GetUnicastKey());
+    //gi.local_sound(ent, points[ent->client->help_draw_index], world, CHAN_AUTO, gi.soundindex("misc/help_marker.wav"), 1.0f, ATTN_NORM, 0.0f, GetUnicastKey());
 
     // done
     if (ent->client->help_draw_index == ent->client->help_draw_count - 1) {
@@ -1429,7 +1429,7 @@ static void Use_Compass(edict_t *ent, gitem_t *inv)
     ent->client->help_poi_image = level.current_poi_image;
 
     P_SendLevelPOI(ent);
-    gi.local_sound(ent, CHAN_AUTO, gi.soundindex("misc/help_marker.wav"), 1.f, ATTN_NORM, 0, GetUnicastKey());
+    gi.local_sound(ent, CHAN_AUTO, gi.soundindex("misc/help_marker.wav"), 1.f, ATTN_NORM, 0);
 }
 
 //======================================================================

@@ -1250,6 +1250,17 @@ enum server_command_t : uint8_t {
     svc_last // only for checks
 };
 
+enum sndflags_t : uint8_t {
+    SND_NONE        = 0,
+    SND_VOLUME      = bit_v<0>,
+    SND_ATTENUATION = bit_v<1>,
+    SND_POS         = bit_v<2>,
+    SND_ENT         = bit_v<3>,
+    SND_OFFSET      = bit_v<4>,
+    SND_INDEX16     = bit_v<5>
+};
+MAKE_ENUM_BITFLAGS(sndflags_t);
+
 enum svc_poi_flags {
     POI_FLAG_NONE = 0,
     POI_FLAG_HIDE_ON_AIM = 1, // hide the POI if we get close to it with our aim
