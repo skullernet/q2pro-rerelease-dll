@@ -29,6 +29,7 @@ void G_LoadL10nFile()
         char key[MAX_QPATH];
         char val[MAX_STRING_CHARS];
         auto data = line.c_str();
+        char *p, *q;
 
         COM_Parse(&data, key, sizeof(key));
         if (strcmp(COM_Parse(&data), "="))
@@ -37,7 +38,14 @@ void G_LoadL10nFile()
         if (!data)
             continue;
 
-        messages[key] = val;
+        // remove %junk%%junk% prefixes
+        p = val;
+        while (*p == '%') {
+            if (!(q = strchr(p + 1, '%')))
+                break;
+            p = q + 1;
+        }
+        messages[key] = p;
     }
     gi.Com_PrintFmt("Loaded {} messages from " L10N_FILE "\n", messages.size());
 }

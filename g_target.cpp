@@ -247,11 +247,27 @@ void G_PlayerNotifyGoal(edict_t *player)
 
             Q_strlcpy(game.helpmessage1, current_goal, min((size_t)(goal_end - current_goal + 1), sizeof(game.helpmessage1)));
 
+            // translate it
+            if (game.helpmessage1[0] == '$') {
+                const char *s = G_GetL10nString(game.helpmessage1 + 1);
+                char *o = game.helpmessage1;
+                char *end = game.helpmessage1 + sizeof(game.helpmessage1) - 1;
+                while (*s && o < end) {
+                    if (*s == '\\' && s[1] == 'n') {
+                        *o++ = '\n';
+                        s += 2;
+                    } else {
+                        *o++ = *s++;
+                    }
+                }
+                *o = 0;
+            }
+
             game.help2changed = game.help1changed;
         }
 
         if (player->client->pers.game_help1changed != game.help1changed) {
-            gi.cprintf(player, PRINT_TYPEWRITER, "%s", game.helpmessage1);
+            gi.centerprintf(player, "%s", game.helpmessage1);
             gi.local_sound(player, player, CHAN_AUTO | CHAN_RELIABLE, gi.soundindex("misc/talk.wav"), 1.0f, ATTN_NONE, 0.0f, GetUnicastKey());
 
             player->client->pers.game_help1changed = game.help1changed;
