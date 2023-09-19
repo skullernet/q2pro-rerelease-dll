@@ -428,30 +428,22 @@ void G_RemoveAmmo(edict_t *ent)
 // [Paril-KEX] get time per animation frame
 inline gtime_t Weapon_AnimationTime(edict_t *ent)
 {
-#if 0
-    if (g_quick_weapon_switch->integer && (TICK_RATE == 20 || TICK_RATE == 40) &&
+    int gunrate;
+
+    if (g_quick_weapon_switch->integer && ent->client->ps.gunframe != 0 &&
         (ent->client->weaponstate == WEAPON_ACTIVATING || ent->client->weaponstate == WEAPON_DROPPING))
-        ent->client->ps.gunrate = 20;
+        gunrate = 20;
     else
-        ent->client->ps.gunrate = 10;
+        gunrate = 10;
 
     if (ent->client->ps.gunframe != 0 && (!(ent->client->pers.weapon->flags & IF_NO_HASTE) || ent->client->weaponstate != WEAPON_FIRING)) {
         if (is_quadfire)
-            ent->client->ps.gunrate *= 2;
+            gunrate *= 2;
         if (CTFApplyHaste(ent))
-            ent->client->ps.gunrate *= 2;
+            gunrate *= 2;
     }
 
-    // network optimization...
-    if (ent->client->ps.gunrate == 10) {
-        ent->client->ps.gunrate = 0;
-        return 100_ms;
-    }
-
-    return gtime_t::from_ms((1.f / ent->client->ps.gunrate) * 1000);
-#else
-    return 100_ms;
-#endif
+    return gtime_t::from_ms(1000 / gunrate);
 }
 
 /*
