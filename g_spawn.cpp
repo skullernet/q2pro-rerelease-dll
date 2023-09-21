@@ -711,6 +711,7 @@ static const std::initializer_list<field_t> entity_fields = {
     FIELD_AUTO(hackflags), // [Paril-KEX] n64
     FIELD_AUTO_NAMED("alpha", x.alpha), // [Paril-KEX]
     FIELD_AUTO_NAMED("scale", x.scale), // [Paril-KEX]
+    FIELD_AUTO_NAMED("morefx", x.morefx),
     { "mangle" }, // editor field
     FIELD_AUTO_NAMED("dead_frame", monsterinfo.start_frame), // [Paril-KEX]
     FIELD_AUTO_NAMED("frame", s.frame),
