@@ -2208,11 +2208,11 @@ void ClientUserinfoChanged(edict_t *ent, const char *userinfo)
         CTFAssignSkin(ent, val);
     else {
         // set dogtag
-        char dogtag[MAX_INFO_VALUE] = { 0 };
-        Info_ValueForKey(userinfo, "dogtag", dogtag, sizeof(dogtag));
+        //char dogtag[MAX_INFO_VALUE] = { 0 };
+        //Info_ValueForKey(userinfo, "dogtag", dogtag, sizeof(dogtag));
 
         // ZOID
-        gi.configstring(CS_PLAYERSKINS + playernum, G_Fmt("{}\\{}\\{}", ent->client->pers.netname, val, dogtag).data());
+        gi.configstring(CS_PLAYERSKINS + playernum, G_Fmt("{}\\{}", ent->client->pers.netname, val).data());
     }
 
     // ZOID
