@@ -356,8 +356,12 @@ void DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
         y = 0 + 32 * (i % 8);
 
         // add a dogtag
-        // [Paril-KEX] use dynamic dogtags
-        tag = nullptr;
+        if (cl_ent == ent)
+            tag = "tag1";
+        else if (cl_ent == killer)
+            tag = "tag2";
+        else
+            tag = nullptr;
 
         //===============
         // ROGUE
@@ -371,13 +375,6 @@ void DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 
         if (tag) {
             fmt::format_to(std::back_inserter(entry), FMT_STRING("xv {} yv {} picn {} "), x + 32, y, tag);
-
-            if (string.length() + entry.length() > MAX_SCOREBOARD_SIZE)
-                break;
-
-            string += entry;
-        } else {
-            fmt::format_to(std::back_inserter(entry), FMT_STRING("xv {} yv {} dogtag {} "), x + 32, y, sorted[i]);
 
             if (string.length() + entry.length() > MAX_SCOREBOARD_SIZE)
                 break;
@@ -399,6 +396,7 @@ void DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
         entry.clear();
     }
 
+#if 0
     // [Paril-KEX] time & frags
     if (fraglimit->integer) {
         fmt::format_to(std::back_inserter(string), FMT_STRING("xv -20 yv -10 string2 \"Frag Limit: {}\" "), fraglimit->integer);
@@ -409,6 +407,7 @@ void DeathmatchScoreboardMessage(edict_t *ent, edict_t *killer)
 
     if (level.intermissiontime)
         fmt::format_to(std::back_inserter(string), FMT_STRING("ifgef {} yb -48 xv 0 cstring2 \"Press any button to continue.\" endif "), (level.intermission_server_frame + (5_sec).frames()));
+#endif
 
     gi.WriteByte(svc_layout);
     gi.WriteString(string.c_str());
