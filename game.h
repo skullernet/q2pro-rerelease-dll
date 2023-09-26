@@ -118,7 +118,7 @@ constexpr size_t MAX_EDICTS = 8192; // upper limit, due to svc_sound encoding as
 constexpr size_t MAX_LIGHTSTYLES = 256;
 constexpr size_t MAX_MODELS = 8192; // these are sent over the net as shorts
 constexpr size_t MAX_SOUNDS = 2048; // so they cannot be blindly increased
-constexpr size_t MAX_IMAGES = 512;
+constexpr size_t MAX_IMAGES = 2048;
 constexpr size_t MAX_ITEMS = 256;
 constexpr size_t MAX_GENERAL = (MAX_CLIENTS * 2); // general config strings
 
