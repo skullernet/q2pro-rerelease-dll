@@ -89,7 +89,7 @@ public:
         return ex.clip(start, nullptr, nullptr, end, entity, contentmask);
     }
 
-    inline void unicast(edict_t *ent, bool reliable, uint32_t dupe_key = 0)
+    inline void unicast(edict_t *ent, bool reliable)
     {
         game_import_t::unicast(ent, static_cast<qboolean>(reliable));
     }
@@ -1888,8 +1888,6 @@ extern cvar_t *ai_movement_disabled;
 extern cvar_t *g_monster_footsteps;
 
 #define world (&g_edicts[0])
-
-uint32_t GetUnicastKey();
 
 // item spawnflags
 constexpr spawnflags_t SPAWNFLAG_ITEM_TRIGGER_SPAWN = 0x00000001_spawnflag;

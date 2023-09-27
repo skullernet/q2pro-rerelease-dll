@@ -775,17 +775,6 @@ struct fire_rail_pierce_t : pierce_args_t {
     }
 };
 
-// [Paril-KEX] get the current unique unicast key
-uint32_t GetUnicastKey()
-{
-    static uint32_t key = 1;
-
-    if (!key)
-        return key = 1;
-
-    return key++;
-}
-
 /*
 =================
 fire_rail
@@ -810,8 +799,6 @@ void fire_rail(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int dam
 
     pierce_trace(start, end, self, args, mask);
 
-    uint32_t unicast_key = GetUnicastKey();
-
     // send gun puff / flash
     // [Paril-KEX] this often makes double noise, so trying
     // a slightly different approach...
@@ -823,7 +810,7 @@ void fire_rail(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int dam
             gi.WriteByte(g_instagib->integer ? TE_RAILTRAIL2 : TE_RAILTRAIL);
             gi.WritePosition(start);
             gi.WritePosition(args.tr.endpos);
-            gi.unicast(player, false, unicast_key);
+            gi.unicast(player, false);
         }
     }
 
