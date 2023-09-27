@@ -13,7 +13,8 @@ level_locals_t level;
 
 local_game_import_t  gi;
 
-/*static*/ char local_game_import_t::print_buffer[0x10000];
+char local_game_import_t::print_buffer[0x10000];
+game_import_ex_t local_game_import_t::ex;
 
 game_export_t  globals;
 spawn_temp_t   st;
@@ -140,7 +141,7 @@ void WriteGame(const char *filename, qboolean autosave);
 void ReadGame(const char *filename);
 void WriteLevel(const char *filename);
 void ReadLevel(const char *filename);
-bool G_CanSave();
+qboolean G_CanSave();
 void ClientDisconnect(edict_t *ent);
 void ClientBegin(edict_t *ent);
 void ClientCommand(edict_t *ent);
@@ -211,8 +212,9 @@ void InitGame()
     gi.dprintf("==== InitGame ====\n");
 
     auto cv = gi.cvar("sv_features", NULL, CVAR_NOFLAGS);
-    if (!cv || !(cv->flags & CVAR_ROM) || ((int)cv->value & G_FEATURES) != G_FEATURES)
+    if (!cv || !(cv->flags & CVAR_ROM) || ((int)cv->value & G_FEATURES) != G_FEATURES || gi.ex.apiversion < GAME_API_VERSION_EX)
         gi.error("This game library requires enhanced Q2PRO server");
+
     gi.cvar_forceset("g_features", G_Fmt("{}", G_FEATURES).data());
 
     PreInitGame();
@@ -428,6 +430,20 @@ Q2GAME_API game_export_t *GetGameAPI(game_import_t *import)
     globals.edict_size = sizeof(edict_t);
 
     return &globals;
+}
+
+Q2GAME_API game_export_ex_t *GetGameAPIEx(game_import_ex_t *import)
+{
+    static game_export_ex_t gex;
+
+    memcpy(&gi.ex, import, std::min(sizeof(gi.ex), (size_t)import->structsize));
+
+    gex.apiversion = GAME_API_VERSION_EX;
+    gex.structsize = sizeof(gex);
+    gex.CanSave = G_CanSave;
+    gex.PrepFrame = G_PrepFrame;
+
+    return &gex;
 }
 
 //======================================================================

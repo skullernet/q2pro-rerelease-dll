@@ -29,6 +29,8 @@ struct local_game_import_t : game_import_t {
     {
     }
 
+    static game_import_ex_t ex;
+
 private:
     // shared buffer for wrappers below
     static char print_buffer[0x10000];
@@ -76,25 +78,26 @@ public:
         return game_import_t::trace(start, nullptr, nullptr, end, passent, contentmask);
     }
 
-#define CLIP_BIT(ent) ((edict_t *)((uintptr_t)ent | 1))
-
     // [Paril-KEX] clip the box against the specified entity
     [[nodiscard]] inline trace_t clip(edict_t *entity, const vec3_t &start, const vec3_t &mins, const vec3_t &maxs, const vec3_t &end, contents_t contentmask)
     {
-        return game_import_t::trace(start, &mins, &maxs, end, CLIP_BIT(entity), contentmask);
+        return ex.clip(start, &mins, &maxs, end, entity, contentmask);
     }
 
     [[nodiscard]] inline trace_t clip(edict_t *entity, const vec3_t &start, const vec3_t &end, contents_t contentmask)
     {
-        return game_import_t::trace(start, nullptr, nullptr, end, CLIP_BIT(entity), contentmask);
+        return ex.clip(start, nullptr, nullptr, end, entity, contentmask);
     }
 
-    void unicast(edict_t *ent, bool reliable, uint32_t dupe_key = 0)
+    inline void unicast(edict_t *ent, bool reliable, uint32_t dupe_key = 0)
     {
         game_import_t::unicast(ent, static_cast<qboolean>(reliable));
     }
 
-    void local_sound(edict_t *ent, soundchan_t channel, int soundindex, float volume, float attenuation, float timeofs);
+    inline void local_sound(edict_t *ent, soundchan_t channel, int soundindex, float volume, float attenuation, float timeofs)
+    {
+        ex.local_sound(ent, nullptr, ent, channel, soundindex, volume, attenuation, timeofs);
+    }
 
     size_t BoxEdicts(gvec3_cref_t mins, gvec3_cref_t maxs, edict_t **list, size_t maxcount, solidity_area_t areatype, BoxEdictsFilter_t filter, void *filter_data)
     {
@@ -117,7 +120,7 @@ public:
         return maxcount;
     }
 
-    size_t BoxEdicts(gvec3_cref_t mins, gvec3_cref_t maxs, edict_t **list, size_t maxcount, solidity_area_t areatype)
+    inline size_t BoxEdicts(gvec3_cref_t mins, gvec3_cref_t maxs, edict_t **list, size_t maxcount, solidity_area_t areatype)
     {
         return game_import_t::BoxEdicts(mins, maxs, list, maxcount, areatype);
     }
@@ -127,14 +130,24 @@ public:
         game_import_t::SetAreaPortalState(portalnum, static_cast<qboolean>(open));
     }
 
-    inline bool inPVS(gvec3_cref_t p1, gvec3_cref_t p2, bool portals)
+    [[nodiscard]] inline bool inPVS(gvec3_cref_t p1, gvec3_cref_t p2, bool portals)
     {
-        return game_import_t::inPVS(p1, p2);
+        vis_t vis = VIS_PVS;
+
+        if (!portals)
+            vis |= VIS_NOAREAS;
+
+        return ex.inVIS(p1, p2, vis);
     }
 
-    inline bool inPHS(gvec3_cref_t p1, gvec3_cref_t p2, bool portals)
+    [[nodiscard]] inline bool inPHS(gvec3_cref_t p1, gvec3_cref_t p2, bool portals)
     {
-        return game_import_t::inPHS(p1, p2);
+        vis_t vis = VIS_PHS;
+
+        if (!portals)
+            vis |= VIS_NOAREAS;
+
+        return ex.inVIS(p1, p2, vis);
     }
 
     inline void WriteEntity(const edict_t *e);
@@ -3436,26 +3449,6 @@ inline void pierce_args_t::restore()
 inline void local_game_import_t::WriteEntity(const edict_t *e)
 {
     game_import_t::WriteShort((int)(e - g_edicts));
-}
-
-inline void local_game_import_t::local_sound(edict_t *ent, soundchan_t channel, int soundindex, float volume, float attenuation, float timeofs)
-{
-    int entnum = ent - g_edicts;
-    int sendchan = (entnum << 3) | (channel & 7);
-
-    sndflags_t flags = SND_ENT;
-    if (soundindex > 255)
-        flags |= SND_INDEX16;
-
-    gi.WriteByte(svc_sound);
-    gi.WriteByte(flags);
-    if (flags & SND_INDEX16)
-        gi.WriteShort(soundindex);
-    else
-        gi.WriteByte(soundindex);
-    gi.WriteShort(sendchan);
-
-    gi.unicast(ent, channel & CHAN_RELIABLE);
 }
 
 void G_LoadL10nFile();

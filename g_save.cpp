@@ -2297,12 +2297,12 @@ void ReadLevel(const char *filename)
 }
 
 // [Paril-KEX]
-bool G_CanSave()
+qboolean G_CanSave()
 {
     if (game.maxclients == 1 && g_edicts[1].health <= 0) {
         gi.cprintf(&g_edicts[1], PRINT_CENTER, "\nCan't savegame while dead!\n");
-        return false;
+        return qfalse;
     }
 
-    return true;
+    return qtrue;
 }

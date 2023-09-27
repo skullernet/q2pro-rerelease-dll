@@ -98,6 +98,7 @@ constexpr bit_t<n> bit_v = 1ull << n;
 
 // game.h -- game dll information visible to server
 constexpr int32_t GAME_API_VERSION = 3;
+constexpr int32_t GAME_API_VERSION_EX = 1;
 
 // forward declarations
 struct edict_t;
@@ -1250,17 +1251,6 @@ enum server_command_t : uint8_t {
     svc_last // only for checks
 };
 
-enum sndflags_t : uint8_t {
-    SND_NONE        = 0,
-    SND_VOLUME      = bit_v<0>,
-    SND_ATTENUATION = bit_v<1>,
-    SND_POS         = bit_v<2>,
-    SND_ENT         = bit_v<3>,
-    SND_OFFSET      = bit_v<4>,
-    SND_INDEX16     = bit_v<5>
-};
-MAKE_ENUM_BITFLAGS(sndflags_t);
-
 enum svc_poi_flags {
     POI_FLAG_NONE = 0,
     POI_FLAG_HIDE_ON_AIM = 1, // hide the POI if we get close to it with our aim
@@ -1291,6 +1281,14 @@ enum solid_t {
     SOLID_BBOX,    // touch on edge
     SOLID_BSP      // bsp clip, touch on edge
 };
+
+// flags for inVIS()
+enum vis_t {
+    VIS_PVS     = 0,
+    VIS_PHS     = 1,
+    VIS_NOAREAS = 2     // can be OR'ed with one of above
+};
+MAKE_ENUM_BITFLAGS(vis_t);
 
 // bitflags for STAT_LAYOUTS
 enum layout_flags_t : int16_t {
@@ -1578,6 +1576,29 @@ struct game_export_t {
     uint32_t    edict_size;
     uint32_t    num_edicts; // current number, <= max_edicts
     uint32_t    max_edicts;
+};
+
+struct game_import_ex_t {
+    uint32_t    apiversion;
+    uint32_t    structsize;
+
+    void        (*local_sound)(edict_t *target, gvec3_cptr_t origin, edict_t *ent, soundchan_t channel, int soundindex, float volume, float attenuation, float timeofs);
+    const char  *(*get_configstring)(int index);
+    trace_t     (*clip)(gvec3_cref_t start, gvec3_cptr_t mins, gvec3_cptr_t maxs, gvec3_cref_t end, edict_t *clip, contents_t contentmask);
+    qboolean    (*inVIS)(gvec3_cref_t p1, gvec3_cref_t p2, vis_t vis);
+
+    void        *(*GetExtension)(const char *name);
+    void        *(*TagRealloc)(void *ptr, size_t size);
+};
+
+struct game_export_ex_t {
+    uint32_t    apiversion;
+    uint32_t    structsize;
+
+    void        *(*GetExtension)(const char *name);
+    qboolean    (*CanSave)();
+    void        (*PrepFrame)();
+    void        (*RestartFilesystem)(); // called when fs_restart is issued
 };
 
 // EOF
