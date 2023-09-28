@@ -1916,7 +1916,11 @@ USE(use_target_story)(edict_t *self, edict_t *other, edict_t *activator) -> void
     else
         level.story_active = false;
 
-    gi.configstring(CONFIG_STORY, self->message ? self->message : "");
+    if (level.story_active) {
+        gi.WriteByte(svc_layout);
+        gi.WriteString(G_Fmt("xv 0 yv 0 cstring \"{}\"", self->message).data());
+        gi.multicast(vec3_origin, MULTICAST_ALL_R);
+    }
 }
 
 void SP_target_story(edict_t *self)

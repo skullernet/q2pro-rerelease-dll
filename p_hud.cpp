@@ -745,9 +745,7 @@ void G_SetStats(edict_t *ent)
     }
 
     if (level.story_active)
-        ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_HIDE_CROSSHAIR;
-    else
-        ent->client->ps.stats[STAT_LAYOUTS] &= ~LAYOUTS_HIDE_CROSSHAIR;
+        ent->client->ps.stats[STAT_LAYOUTS] |= LAYOUTS_LAYOUT | LAYOUTS_HIDE_CROSSHAIR;
 
     // [Paril-KEX] key display
     if (!deathmatch->integer) {
