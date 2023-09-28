@@ -1312,6 +1312,15 @@ enum gesture_type {
     GESTURE_MAX
 };
 
+enum server_state_t {
+    SS_DEAD,
+    SS_LOADING,
+    SS_GAME,
+    SS_PIC,
+    SS_BROADCAST,
+    SS_CINEMATIC
+};
+
 //===============================================================
 
 constexpr int32_t MODELINDEX_WORLD = 1;    // special index for world

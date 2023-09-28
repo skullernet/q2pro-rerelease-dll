@@ -42,6 +42,7 @@ cvar_t      *maxspectators;
 static cvar_t *maxentities;
 cvar_t      *g_select_empty;
 cvar_t      *sv_dedicated;
+cvar_t      *sv_running;
 
 cvar_t *filterban;
 
@@ -263,6 +264,9 @@ void InitGame()
 
     // noset vars
     sv_dedicated = gi.cvar("dedicated", "0", CVAR_NOSET);
+    sv_running = gi.cvar("sv_running", nullptr, CVAR_NOFLAGS);
+    if (!sv_running)
+        gi.error("sv_running cvar doesn't exist");
 
     // latched vars
     sv_cheats = gi.cvar("cheats", "0", CVAR_SERVERINFO | CVAR_LATCH);
@@ -937,11 +941,13 @@ inline bool G_AnyPlayerSpawned()
 
 void G_RunFrame()
 {
-    //if (main_loop && !G_AnyPlayerSpawned())
-    //    return;
+    bool main_loop = sv_running->integer >= SS_GAME;
+
+    if (main_loop && !G_AnyPlayerSpawned())
+        return;
 
     for (int32_t i = 0; i < g_frames_per_frame->integer; i++)
-        G_RunFrame_(true);
+        G_RunFrame_(main_loop);
 
     // match details.. only bother if there's at least 1 player in-game
     // and not already end of game
