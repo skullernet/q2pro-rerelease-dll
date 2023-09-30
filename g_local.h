@@ -1305,7 +1305,10 @@ struct spawn_temp_t {
 
     inline bool was_key_specified(const char *key) const
     {
-        return keys_specified.find(key) != keys_specified.end();
+        for (auto s : keys_specified)
+            if (!Q_strcasecmp(s, key))
+                return true;
+        return false;
     }
 };
 
