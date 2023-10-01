@@ -8,8 +8,9 @@ Although this game library uses game API version 3, it will *not* run on
 standard Quake 2 server, modified Q2PRO server and client built from
 experimental `protocol-limits` branch is required!
 
-This is a work in progress, don't expect it to be 100% playable yet (although
-many maps already play fine).
+This is a work in progress, but it's quite playable already. It has been used
+to play through Call of the Machine episode and N64 campaign in Q2PRO without
+any major issues.
 
 ## Removed features
 
@@ -31,7 +32,18 @@ the following remaster-specific features have been removed.
 * Achievements
 * Localization
 
+## Building
+
+This project uses Meson build system. To build:
+
+    meson setup build
+    meson compile -C build
+
 ## Notes
 
 * `localization/loc_english.txt` must be manually extracted from `Q2Game.kpf`
   archive and put into `baseq2` for map messages to work.
+
+* Focus is on single player support first and coop second. Don't use this game
+  library for CTF or teamplay, that's not expected to work. Regular deathmatch
+  may work, but is untested.
