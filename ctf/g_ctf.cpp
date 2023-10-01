@@ -940,6 +940,9 @@ void SetCTFStats(edict_t *ent)
     int      p1, p2;
     edict_t *e;
 
+    if (!G_TeamplayEnabled())
+        return;
+
     if (ctfgame.match > MATCH_NONE)
         ent->client->ps.stats[STAT_CTF_MATCH] = CONFIG_CTF_MATCH;
     else
