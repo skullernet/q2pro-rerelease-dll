@@ -144,26 +144,4 @@ struct statusbar_t {
             sb << "cstring2 " << str << ' ';
         return *this;
     }
-
-    inline auto &lives_num(player_stat_t stat)
-    {
-        sb << "lives_num " << stat << ' ';
-        return *this;
-    }
-    inline auto &stat_pname(player_stat_t stat)
-    {
-        sb << "stat_pname " << stat << ' ';
-        return *this;
-    }
-
-    inline auto &health_bars()
-    {
-        sb << "health_bars ";
-        return *this;
-    }
-    inline auto &story()
-    {
-        sb << "story ";
-        return *this;
-    }
 };

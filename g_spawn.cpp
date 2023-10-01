@@ -1326,8 +1326,6 @@ static void G_InitStatusbar()
     if (deathmatch->integer) {
         // tech
         sb.ifstat(STAT_CTF_TECH).yb(-137).xr(-26).pic(STAT_CTF_TECH).endifstat();
-    } else {
-        sb.story();
     }
 
     gi.configstring(CS_STATUSBAR, sb.sb.str().c_str());
