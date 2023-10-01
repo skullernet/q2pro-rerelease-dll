@@ -1298,7 +1298,7 @@ static void G_InitStatusbar()
         }
 
         // id view state
-        sb.ifstat(STAT_CTF_ID_VIEW).xv(112).yb(-58).stat_pname(STAT_CTF_ID_VIEW).endifstat();
+        sb.ifstat(STAT_CTF_ID_VIEW).xv(112).yb(-58).stat_string(STAT_CTF_ID_VIEW).endifstat();
 
         // id view color
         sb.ifstat(STAT_CTF_ID_VIEW_COLOR).xv(96).yb(-58).pic(STAT_CTF_ID_VIEW_COLOR).endifstat();

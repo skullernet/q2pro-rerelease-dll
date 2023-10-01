@@ -898,7 +898,7 @@ static void CTFSetIDView(edict_t *ent)
     forward = ent->s.origin + forward;
     tr = gi.traceline(ent->s.origin, forward, ent, MASK_SOLID);
     if (tr.fraction < 1 && tr.ent && tr.ent->client) {
-        ent->client->ps.stats[STAT_CTF_ID_VIEW] = (tr.ent - g_edicts);
+        ent->client->ps.stats[STAT_CTF_ID_VIEW] = CONFIG_CTF_PLAYER_NAME + (tr.ent - g_edicts) - 1;
         if (tr.ent->client->resp.ctf_team == CTF_TEAM1)
             ent->client->ps.stats[STAT_CTF_ID_VIEW_COLOR] = imageindex_sbfctf1;
         else if (tr.ent->client->resp.ctf_team == CTF_TEAM2)
@@ -926,7 +926,7 @@ static void CTFSetIDView(edict_t *ent)
         }
     }
     if (bd > 0.90f) {
-        ent->client->ps.stats[STAT_CTF_ID_VIEW] = (best - g_edicts);
+        ent->client->ps.stats[STAT_CTF_ID_VIEW] = CONFIG_CTF_PLAYER_NAME + (best - g_edicts) - 1;
         if (best->client->resp.ctf_team == CTF_TEAM1)
             ent->client->ps.stats[STAT_CTF_ID_VIEW_COLOR] = imageindex_sbfctf1;
         else if (best->client->resp.ctf_team == CTF_TEAM2)
