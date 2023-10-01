@@ -1278,8 +1278,6 @@ static void G_InitStatusbar()
             // coop lives
             sb.ifstat(STAT_LIVES).xr(-16).yt(2).lives_num(STAT_LIVES).xr(0).yt(28).rstring("$g_lives").endifstat();
         }
-
-        sb.ifstat(STAT_HEALTH_BARS).yt(24).health_bars().endifstat();
     } else if (G_TeamplayEnabled()) {
         CTFPrecache();
 

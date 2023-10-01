@@ -685,7 +685,6 @@ SAVE_STRUCT_START
     FIELD_AUTO(no_grapple),
     FIELD_AUTO(gravity),
     FIELD_AUTO(hub_map),
-    FIELD_AUTO(health_bar_entities),
     FIELD_AUTO(intermission_server_frame),
     FIELD_AUTO(story_active),
     FIELD_AUTO(next_auto_save),

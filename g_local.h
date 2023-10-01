@@ -1146,8 +1146,6 @@ struct game_locals_t {
     vec3_t *lag_origins; // maxclients * max_lag_origins
 };
 
-constexpr size_t MAX_HEALTH_BARS = 2;
-
 //
 // this structure is cleared as each map is entered
 // it is read/written to the level.sav file for savegames
@@ -1240,8 +1238,6 @@ struct level_locals_t {
     float gravity;
     // level is a hub map, and shouldn't be included in EOU stuff
     bool hub_map;
-    // active health bar entities
-    std::array<edict_t *, MAX_HEALTH_BARS> health_bar_entities;
     int32_t intermission_server_frame;
     bool deadly_kill_box;
     bool story_active;

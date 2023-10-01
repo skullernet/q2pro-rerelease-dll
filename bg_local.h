@@ -54,7 +54,6 @@ enum {
 
     // [Paril-KEX] if 1, n64 player physics apply
     CONFIG_N64_PHYSICS,
-    CONFIG_HEALTH_BAR_NAME, // active health bar name
 
     CONFIG_STORY,
 
@@ -164,9 +163,6 @@ enum player_stat_t {
     STAT_HIT_MARKER = 23,
     // [Paril-KEX]
     STAT_SELECTED_ITEM_NAME = 24,
-    // [Paril-KEX]
-    STAT_HEALTH_BARS = 25, // two health bar values; 7 bits for value, 1 bit for active
-    // if active,
 
     // don't use; just for verification
     STAT_LAST
