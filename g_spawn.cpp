@@ -1490,13 +1490,6 @@ void SP_worldspawn(edict_t *ent)
 
     gi.configstring(CS_MAXCLIENTS, G_Fmt("{}", game.maxclients).data());
 
-#if 0
-    if (level.is_n64) {
-        gi.configstring(CONFIG_N64_PHYSICS, "1");
-        pm_config.n64_physics = true;
-    }
-#endif
-
     // statusbar prog
     G_InitStatusbar();
 
