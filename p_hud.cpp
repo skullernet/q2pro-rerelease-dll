@@ -549,7 +549,10 @@ void Cmd_Help_f(edict_t *ent)
 // even if we're spectating
 void G_SetCoopStats(edict_t *ent)
 {
-    if (coop->integer && g_coop_enable_lives->integer)
+    if (!coop->integer)
+        return;
+
+    if (g_coop_enable_lives->integer)
         ent->client->ps.stats[STAT_LIVES] = ent->client->pers.lives + 1;
     else
         ent->client->ps.stats[STAT_LIVES] = 0;
