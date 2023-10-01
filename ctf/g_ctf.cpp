@@ -2683,7 +2683,7 @@ void CTFUpdateJoinMenu(edict_t *ent)
         entries[jmenu_red + 1].text[0] = '\0';
     }
     if (*entries[jmenu_blue].text) {
-        G_FmtTo(entries[jmenu_blue + 1].text, "  ({} players)", num1);
+        G_FmtTo(entries[jmenu_blue + 1].text, "  ({} players)", num2);
     } else {
         entries[jmenu_blue + 1].text[0] = '\0';
     }
