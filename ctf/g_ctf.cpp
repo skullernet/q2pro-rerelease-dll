@@ -948,10 +948,12 @@ void SetCTFStats(edict_t *ent)
     else
         ent->client->ps.stats[STAT_CTF_MATCH] = 0;
 
+#if 0
     if (ctfgame.warnactive)
         ent->client->ps.stats[STAT_CTF_TEAMINFO] = CONFIG_CTF_TEAMINFO;
     else
         ent->client->ps.stats[STAT_CTF_TEAMINFO] = 0;
+#endif
 
     // ghosting
     if (ent->client->resp.ghost) {

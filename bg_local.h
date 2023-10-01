@@ -155,7 +155,7 @@ enum player_stat_t {
     // [Paril-KEX] respawns remaining
     STAT_LIVES = 22,
     // [Paril-KEX]
-    STAT_SELECTED_ITEM_NAME = 24,
+    STAT_SELECTED_ITEM_NAME = 31,
 
     // don't use; just for verification
     STAT_LAST

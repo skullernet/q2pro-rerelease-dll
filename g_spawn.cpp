@@ -1309,7 +1309,7 @@ static void G_InitStatusbar()
         }
 
         // team info
-        sb.ifstat(STAT_CTF_TEAMINFO).xl(0).yb(-88).stat_string(STAT_CTF_TEAMINFO).endifstat();
+        //sb.ifstat(STAT_CTF_TEAMINFO).xl(0).yb(-88).stat_string(STAT_CTF_TEAMINFO).endifstat();
     } else {
         // dm
         // frags
