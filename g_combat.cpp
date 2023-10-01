@@ -667,10 +667,6 @@ void T_Damage(edict_t *targ, edict_t *inflictor, edict_t *attacker, const vec3_t
     }
     // ROGUE
 
-    // [Paril-KEX] player hit markers
-    if (targ != attacker && attacker->client && targ->health > 0 && !((targ->svflags & SVF_DEADMONSTER) || (targ->flags & FL_NO_DAMAGE_EFFECTS)) && mod.id != MOD_TARGET_LASER)
-        attacker->client->ps.stats[STAT_HIT_MARKER] += take + psave + asave;
-
     // do the damage
     if (take) {
         if (!(targ->flags & FL_NO_DAMAGE_EFFECTS)) {

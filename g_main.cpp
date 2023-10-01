@@ -973,7 +973,4 @@ void G_PrepFrame()
 {
     for (uint32_t i = 0; i < globals.num_edicts; i++)
         g_edicts[i].s.event = EV_NONE;
-
-    for (auto player : active_players())
-        player->client->ps.stats[STAT_HIT_MARKER] = 0;
 }

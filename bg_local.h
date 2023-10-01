@@ -154,8 +154,6 @@ enum player_stat_t {
     STAT_COOP_RESPAWN = 21,
     // [Paril-KEX] respawns remaining
     STAT_LIVES = 22,
-    // [Paril-KEX] hit marker; # of damage we successfully landed
-    STAT_HIT_MARKER = 23,
     // [Paril-KEX]
     STAT_SELECTED_ITEM_NAME = 24,
 
