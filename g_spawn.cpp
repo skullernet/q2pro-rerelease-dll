@@ -1622,10 +1622,10 @@ void SP_worldspawn(edict_t *ent)
 
     // coop respawn strings
     if (coop->integer) {
-        gi.configstring(CONFIG_COOP_RESPAWN_STRING + 0, "$g_coop_respawn_in_combat");
-        gi.configstring(CONFIG_COOP_RESPAWN_STRING + 1, "$g_coop_respawn_bad_area");
-        gi.configstring(CONFIG_COOP_RESPAWN_STRING + 2, "$g_coop_respawn_blocked");
-        gi.configstring(CONFIG_COOP_RESPAWN_STRING + 3, "$g_coop_respawn_waiting");
-        gi.configstring(CONFIG_COOP_RESPAWN_STRING + 4, "$g_coop_respawn_no_lives");
+        gi.configstring(CONFIG_COOP_RESPAWN_STRING + 0, "Can't respawn - in combat");
+        gi.configstring(CONFIG_COOP_RESPAWN_STRING + 1, "Can't respawn - bad area");
+        gi.configstring(CONFIG_COOP_RESPAWN_STRING + 2, "Can't respawn - blocked by something");
+        gi.configstring(CONFIG_COOP_RESPAWN_STRING + 3, "Waiting to respawn...");
+        gi.configstring(CONFIG_COOP_RESPAWN_STRING + 4, "No lives left; leave the level to respawn the team");
     }
 }
