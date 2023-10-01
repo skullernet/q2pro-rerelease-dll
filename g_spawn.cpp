@@ -1606,7 +1606,7 @@ void SP_worldspawn(edict_t *ent)
     gi.modelindex("models/objects/gibs/head2/tris.md2");
     gi.modelindex("models/objects/gibs/sm_metal/tris.md2");
 
-    gi.imageindex("loc_ping");
+    //gi.imageindex("loc_ping");
 
     //
     // Setup light animation tables. 'a' is total darkness, 'z' is doublebright.
