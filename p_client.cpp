@@ -988,7 +988,8 @@ select_spawn_result_t SelectDeathmatchSpawnPoint(bool farthest, bool force_spawn
             // we only have an info_player_start then
             if (spawn_points.size() == 0) {
                 spot = G_FindByString<&edict_t::classname>(nullptr, "info_player_start");
-                spawn_points.push_back({ spot, PlayersRangeFromSpot(spot) });
+                if (spot != nullptr)
+                    spawn_points.push_back({ spot, PlayersRangeFromSpot(spot) });
 
                 // map is malformed
                 if (spawn_points.size() == 0)
