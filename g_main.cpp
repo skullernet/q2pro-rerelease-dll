@@ -746,7 +746,7 @@ void ExitLevel()
     if (strlen(level.changemap) > (6 + start_offset) &&
         !Q_strncasecmp(level.changemap + start_offset, "victor", 6) &&
         !Q_strncasecmp(level.changemap + strlen(level.changemap) - 4, ".pcx", 4))
-        gi.AddCommandString(G_Fmt("endgame \"{}\"\n", level.changemap + start_offset).data());
+        gi.AddCommandString(G_Fmt("gamemap \"!{}\"\n", level.changemap).data());
     else
         gi.AddCommandString(G_Fmt("gamemap \"{}\"\n", level.changemap).data());
 
