@@ -1649,7 +1649,7 @@ inline void PutClientOnSpawnPoint(edict_t *ent, const vec3_t &spawn_origin, cons
 
     ent->s.origin = spawn_origin;
     if (!use_squad_respawn)
-        ent->s.origin[2] += 2; // make sure off ground
+        ent->s.origin[2] += 1; // make sure off ground
     ent->s.old_origin = ent->s.origin;
 
     // set the delta angle
