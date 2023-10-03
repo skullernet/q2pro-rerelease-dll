@@ -41,9 +41,6 @@ This project uses Meson build system. To build:
 
 ## Notes
 
-* `localization/loc_english.txt` must be manually extracted from `Q2Game.kpf`
-  archive and put into `baseq2` for map messages to work.
-
 * Focus is on single player support first and coop second. Don't use this game
   library for CTF or teamplay, that's not expected to work. Regular deathmatch
   may work, but is untested.
