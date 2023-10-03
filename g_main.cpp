@@ -394,6 +394,11 @@ static void *G_GetExtension(const char *name)
     return nullptr;
 }
 
+static void G_RestartFilesystem(void)
+{
+    G_LoadL10nFile();
+}
+
 gtime_t FRAME_TIME;
 
 /*
@@ -444,8 +449,10 @@ Q2GAME_API game_export_ex_t *GetGameAPIEx(game_import_ex_t *import)
 
     gex.apiversion = GAME_API_VERSION_EX;
     gex.structsize = sizeof(gex);
+    gex.GetExtension = G_GetExtension;
     gex.CanSave = G_CanSave;
     gex.PrepFrame = G_PrepFrame;
+    gex.RestartFilesystem = G_RestartFilesystem;
 
     return &gex;
 }
