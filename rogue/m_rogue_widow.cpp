@@ -1058,13 +1058,6 @@ void WidowPowerups(edict_t *self)
 }
 
 MONSTERINFO_CHECKATTACK(Widow_CheckAttack)(edict_t *self) -> bool {
-    vec3_t  spot1, spot2;
-    vec3_t  temp;
-    float   chance;
-    trace_t tr;
-    float   enemy_yaw;
-    float   real_enemy_range;
-
     if (!self->enemy)
         return false;
 
@@ -1096,79 +1089,7 @@ MONSTERINFO_CHECKATTACK(Widow_CheckAttack)(edict_t *self) -> bool {
         return true;
     }
 
-    if (self->enemy->health > 0)
-    {
-        // see if any entities are in the way of the shot
-        spot1 = self->s.origin;
-        spot1[2] += self->viewheight;
-        spot2 = self->enemy->s.origin;
-        spot2[2] += self->enemy->viewheight;
-
-        tr = gi.traceline(spot1, spot2, self, CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_PLAYER | CONTENTS_SLIME | CONTENTS_LAVA);
-
-        // do we have a clear shot?
-        if (tr.ent != self->enemy && !(tr.ent->svflags & SVF_PLAYER)) {
-            // go ahead and spawn stuff if we're mad a a client
-            if (self->enemy->client && M_SlotsLeft(self) >= 2) {
-                self->monsterinfo.attack_state = AS_BLIND;
-                return true;
-            }
-
-            // PGM - we want them to go ahead and shoot at info_notnulls if they can.
-            if (self->enemy->solid != SOLID_NOT || tr.fraction < 1.0f) // PGM
-                return false;
-        }
-    }
-
-    float enemy_range = range_to(self, self->enemy);
-    temp = self->enemy->s.origin - self->s.origin;
-    enemy_yaw = vectoyaw(temp);
-
-    self->ideal_yaw = enemy_yaw;
-
-    real_enemy_range = realrange(self, self->enemy);
-
-    // melee attack
-    if (real_enemy_range <= (MELEE_DISTANCE + 20))
-    {
-        // don't always melee in easy mode
-        if (skill->integer == 0 && irandom(4))
-            return false;
-        if (self->monsterinfo.melee)
-            self->monsterinfo.attack_state = AS_MELEE;
-        else
-            self->monsterinfo.attack_state = AS_MISSILE;
-        return true;
-    }
-
-    if (level.time < self->monsterinfo.attack_finished)
-        return false;
-
-    if (self->monsterinfo.aiflags & AI_STAND_GROUND)
-    {
-        chance = 0.4f;
-    } else if (enemy_range <= RANGE_MELEE)
-    {
-        chance = 0.8f;
-    } else if (enemy_range <= RANGE_NEAR)
-    {
-        chance = 0.7f;
-    } else if (enemy_range <= RANGE_MID)
-    {
-        chance = 0.6f;
-    } else
-    {
-        chance = 0.5f;
-    }
-
-    // PGM - go ahead and shoot every time if it's a info_notnull
-    if ((frandom() < chance) || (self->enemy->solid == SOLID_NOT))
-    {
-        self->monsterinfo.attack_state = AS_MISSILE;
-        return true;
-    }
-
-    return false;
+    return M_CheckAttack_Base(self, 0.4f, 0.8f, 0.7f, 0.6f, 0.5f, 0.f);
 }
 
 MONSTERINFO_BLOCKED(widow_blocked)(edict_t *self, float dist) -> bool {

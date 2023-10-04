@@ -591,88 +591,9 @@ DIE(boss2_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage,
     M_SetAnimation(self, &boss2_move_death);
 }
 
+// [Paril-KEX] use generic function
 MONSTERINFO_CHECKATTACK(Boss2_CheckAttack)(edict_t *self) -> bool {
-    vec3_t  spot1, spot2;
-    vec3_t  temp;
-    float   chance;
-    trace_t tr;
-    float   enemy_yaw;
-
-    if (self->enemy->health > 0)
-    {
-        // see if any entities are in the way of the shot
-        spot1 = self->s.origin;
-        spot1[2] += self->viewheight;
-        spot2 = self->enemy->s.origin;
-        spot2[2] += self->enemy->viewheight;
-
-        tr = gi.traceline(spot1, spot2, self, CONTENTS_SOLID | CONTENTS_PLAYER | CONTENTS_MONSTER | CONTENTS_SLIME | CONTENTS_LAVA);
-
-        // do we have a clear shot?
-        if (tr.ent != self->enemy && !(tr.ent->svflags & SVF_PLAYER)) {
-            // PGM - we want them to go ahead and shoot at info_notnulls if they can.
-            if (self->enemy->solid != SOLID_NOT || tr.fraction < 1.0f) // PGM
-                return false;
-        }
-    }
-
-    float enemy_range = range_to(self, self->enemy);
-    temp = self->enemy->s.origin - self->s.origin;
-    enemy_yaw = vectoyaw(temp);
-
-    self->ideal_yaw = enemy_yaw;
-
-    // melee attack
-    if (enemy_range <= RANGE_MELEE)
-    {
-        if (self->monsterinfo.melee)
-            self->monsterinfo.attack_state = AS_MELEE;
-        else
-            self->monsterinfo.attack_state = AS_MISSILE;
-        return true;
-    }
-
-    // missile attack
-    if (!self->monsterinfo.attack)
-        return false;
-
-    if (level.time < self->monsterinfo.attack_finished)
-        return false;
-
-    if (enemy_range > RANGE_MID)
-        return false;
-
-    if (self->monsterinfo.aiflags & AI_STAND_GROUND)
-    {
-        chance = 0.4f;
-    } else if (enemy_range <= RANGE_MELEE)
-    {
-        chance = 0.8f;
-    } else if (enemy_range <= RANGE_NEAR)
-    {
-        chance = 0.8f;
-    } else
-    {
-        chance = 0.8f;
-    }
-
-    // PGM - go ahead and shoot every time if it's a info_notnull
-    if ((frandom() < chance) || (self->enemy->solid == SOLID_NOT))
-    {
-        self->monsterinfo.attack_state = AS_MISSILE;
-        self->monsterinfo.attack_finished = level.time + random_time(2_sec);
-        return true;
-    }
-
-    if (self->flags & FL_FLY)
-    {
-        if (frandom() < 0.3f)
-            self->monsterinfo.attack_state = AS_SLIDING;
-        else
-            self->monsterinfo.attack_state = AS_STRAIGHT;
-    }
-
-    return false;
+    return M_CheckAttack_Base(self, 0.4f, 0.8f, 0.8f, 0.8f, 0.f, 0.f);
 }
 
 /*QUAKED monster_boss2 (1 .5 0) (-56 -56 0) (56 56 80) Ambush Trigger_Spawn Sight Hyperblaster

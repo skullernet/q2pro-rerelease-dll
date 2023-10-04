@@ -328,11 +328,9 @@ mframe_t brain_frames_attack1[] = {
 };
 MMOVE_T(brain_move_attack1) = { FRAME_attak101, FRAME_attak118, brain_frames_attack1, brain_run };
 
-constexpr spawnflags_t SPAWNFLAG_BRAIN_TENTACLES_HIT = 65536_spawnflag;
-
 void brain_chest_open(edict_t *self)
 {
-    self->spawnflags &= ~SPAWNFLAG_BRAIN_TENTACLES_HIT;
+    self->count = 0;
     self->monsterinfo.power_armor_type = IT_NULL;
     gi.sound(self, CHAN_BODY, sound_chest_open, 1, ATTN_NORM, 0);
 }
@@ -341,7 +339,7 @@ void brain_tentacle_attack(edict_t *self)
 {
     vec3_t aim = { MELEE_DISTANCE, 0, 8 };
     if (fire_hit(self, aim, irandom(10, 15), -600))
-        self->spawnflags |= SPAWNFLAG_BRAIN_TENTACLES_HIT;
+        self->count = 1;
     else
         self->monsterinfo.melee_debounce_time = level.time + 3_sec;
     gi.sound(self, CHAN_WEAPON, sound_tentacles_retract, 1, ATTN_NORM, 0);
@@ -350,8 +348,8 @@ void brain_tentacle_attack(edict_t *self)
 void brain_chest_closed(edict_t *self)
 {
     self->monsterinfo.power_armor_type = IT_ITEM_POWER_SCREEN;
-    if (self->spawnflags.has(SPAWNFLAG_BRAIN_TENTACLES_HIT)) {
-        self->spawnflags &= ~SPAWNFLAG_BRAIN_TENTACLES_HIT;
+    if (self->count) {
+        self->count = 0;
         M_SetAnimation(self, &brain_move_attack1);
     }
 }

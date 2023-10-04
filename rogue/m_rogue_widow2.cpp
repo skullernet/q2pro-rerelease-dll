@@ -653,12 +653,17 @@ MONSTERINFO_WALK(widow2_walk)(edict_t *self) -> void {
     M_SetAnimation(self, &widow2_move_walk);
 }
 
+void widow2_attack(edict_t *self);
+
 MONSTERINFO_MELEE(widow2_melee)(edict_t *self) -> void {
-    M_SetAnimation(self, &widow2_move_tongs);
+    if (self->timestamp >= level.time)
+        widow2_attack(self);
+    else
+        M_SetAnimation(self, &widow2_move_tongs);
 }
 
 MONSTERINFO_ATTACK(widow2_attack)(edict_t *self) -> void {
-    float range, luck;
+    float luck;
     bool  blocked = false;
 
     if (self->monsterinfo.aiflags & AI_BLOCKED)
@@ -669,6 +674,28 @@ MONSTERINFO_ATTACK(widow2_attack)(edict_t *self) -> void {
 
     if (!self->enemy)
         return;
+
+    float real_enemy_range = realrange(self, self->enemy);
+
+    // melee attack
+    if (self->timestamp < level.time)
+    {
+        if (real_enemy_range < 300) {
+            vec3_t f, r, u;
+            AngleVectors(self->s.angles, f, r, u);
+            vec3_t spot1 = G_ProjectSource2(self->s.origin, offsets[0], f, r, u);
+            vec3_t spot2 = self->enemy->s.origin;
+            if (widow2_tongue_attack_ok(spot1, spot2, 256)) {
+                // melee attack ok
+
+                // be nice in easy mode
+                if (skill->integer != 0 || irandom(4)) {
+                    M_SetAnimation(self, &widow2_move_tongs);
+                    return;
+                }
+            }
+        }
+    }
 
     if (self->bad_area)
     {
@@ -696,9 +723,7 @@ MONSTERINFO_ATTACK(widow2_attack)(edict_t *self) -> void {
         return;
     }
 
-    range = realrange(self, self->enemy);
-
-    if (range < 600)
+    if (real_enemy_range < 600)
     {
         luck = frandom();
         if (M_SlotsLeft(self) >= 2) {
@@ -865,14 +890,6 @@ DIE(widow2_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage
 }
 
 MONSTERINFO_CHECKATTACK(Widow2_CheckAttack)(edict_t *self) -> bool {
-    vec3_t  spot1, spot2;
-    vec3_t  temp;
-    float   chance;
-    trace_t tr;
-    float   enemy_yaw;
-    float   real_enemy_range;
-    vec3_t  f, r, u;
-
     if (!self->enemy)
         return false;
 
@@ -885,85 +902,7 @@ MONSTERINFO_CHECKATTACK(Widow2_CheckAttack)(edict_t *self) -> bool {
         return true;
     }
 
-    if (self->enemy->health > 0)
-    {
-        // see if any entities are in the way of the shot
-        spot1 = self->s.origin;
-        spot1[2] += self->viewheight;
-        spot2 = self->enemy->s.origin;
-        spot2[2] += self->enemy->viewheight;
-
-        tr = gi.traceline(spot1, spot2, self, CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_PLAYER | CONTENTS_SLIME | CONTENTS_LAVA);
-
-        // do we have a clear shot?
-        if (tr.ent != self->enemy && !(tr.ent->svflags & SVF_PLAYER)) {
-            // go ahead and spawn stuff if we're mad a a client
-            if (self->enemy->client && M_SlotsLeft(self) >= 2) {
-                self->monsterinfo.attack_state = AS_BLIND;
-                return true;
-            }
-
-            // PGM - we want them to go ahead and shoot at info_notnulls if they can.
-            if (self->enemy->solid != SOLID_NOT || tr.fraction < 1.0f) // PGM
-                return false;
-        }
-    }
-
-    float enemy_range = range_to(self, self->enemy);
-    temp = self->enemy->s.origin - self->s.origin;
-    enemy_yaw = vectoyaw(temp);
-
-    self->ideal_yaw = enemy_yaw;
-
-    // melee attack
-    if (self->timestamp < level.time)
-    {
-        real_enemy_range = realrange(self, self->enemy);
-        if (real_enemy_range < 300) {
-            AngleVectors(self->s.angles, f, r, u);
-            spot1 = G_ProjectSource2(self->s.origin, offsets[0], f, r, u);
-            spot2 = self->enemy->s.origin;
-            if (widow2_tongue_attack_ok(spot1, spot2, 256)) {
-                // melee attack ok
-
-                // be nice in easy mode
-                if (skill->integer == 0 && irandom(4))
-                    return false;
-
-                if (self->monsterinfo.melee)
-                    self->monsterinfo.attack_state = AS_MELEE;
-                else
-                    self->monsterinfo.attack_state = AS_MISSILE;
-                return true;
-            }
-        }
-    }
-
-    if (level.time < self->monsterinfo.attack_finished)
-        return false;
-
-    if (self->monsterinfo.aiflags & AI_STAND_GROUND)
-    {
-        chance = 0.4f;
-    } else if (enemy_range <= RANGE_NEAR)
-    {
-        chance = 0.8f;
-    } else if (enemy_range <= RANGE_MID)
-    {
-        chance = 0.8f;
-    } else
-    {
-        chance = 0.5f;
-    }
-
-    // PGM - go ahead and shoot every time if it's a info_notnull
-    if ((frandom() < chance) || (self->enemy->solid == SOLID_NOT))
-    {
-        self->monsterinfo.attack_state = AS_MISSILE;
-        return true;
-    }
-
-    return false;
+    return M_CheckAttack_Base(self, 0.4f, 0.8f, 0.8f, 0.5f, 0.f, 0.f);
 }
 
 void Widow2Precache()

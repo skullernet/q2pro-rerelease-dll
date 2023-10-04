@@ -193,25 +193,28 @@ void abortHeal(edict_t *self, bool change_frame, bool gib, bool mark)
     int              hurt;
     constexpr vec3_t pain_normal = { 0, 0, 1 };
 
-    cleanupHealTarget(self->enemy);
+    if (self->enemy && self->enemy->inuse) {
+        cleanupHealTarget(self->enemy);
 
-    // gib em!
-    if ((mark) && (self->enemy) && (self->enemy->inuse)) {
-        // if the first badMedic slot is filled by a medic, skip it and use the second one
-        if ((self->enemy->monsterinfo.badMedic1) && (self->enemy->monsterinfo.badMedic1->inuse) && (!strncmp(self->enemy->monsterinfo.badMedic1->classname, "monster_medic", 13))) {
-            self->enemy->monsterinfo.badMedic2 = self;
-        } else {
-            self->enemy->monsterinfo.badMedic1 = self;
+        // gib em!
+        if (mark) {
+            // if the first badMedic slot is filled by a medic, skip it and use the second one
+            if ((self->enemy->monsterinfo.badMedic1) && (self->enemy->monsterinfo.badMedic1->inuse) && (!strncmp(self->enemy->monsterinfo.badMedic1->classname, "monster_medic", 13))) {
+                self->enemy->monsterinfo.badMedic2 = self;
+            } else {
+                self->enemy->monsterinfo.badMedic1 = self;
+            }
         }
-    }
-    if ((gib) && (self->enemy) && (self->enemy->inuse)) {
-        if (self->enemy->gib_health)
-            hurt = -self->enemy->gib_health;
-        else
-            hurt = 500;
 
-        T_Damage(self->enemy, self, self, vec3_origin, self->enemy->s.origin,
-                 pain_normal, hurt, 0, DAMAGE_NONE, MOD_UNKNOWN);
+        if (gib) {
+            if (self->enemy->gib_health)
+                hurt = -self->enemy->gib_health;
+            else
+                hurt = 500;
+
+            T_Damage(self->enemy, self, self, vec3_origin, self->enemy->s.origin,
+                     pain_normal, hurt, 0, DAMAGE_NONE, MOD_UNKNOWN);
+        }
     }
     // clean up self
 
@@ -602,21 +605,6 @@ void medic_fire_blaster(edict_t *self)
         damage = 6;
         mz = (self->mass > 400) ? MZ2_MEDIC_BLASTER_2 : MZ2_MEDIC_BLASTER_1;
     } else {
-        static constexpr vec3_t hb_offsets[] = {
-            { 33.0f, 12.5f, 15.0f },
-            { 32.4f, 11.2f, 15.0f },
-            { 35.6f, 7.4f, 15.0f },
-            { 34.0f, 4.1f, 15.0f },
-            { 36.6f, 1.0f, 15.0f },
-            { 34.7f, -1.9f, 15.0f },
-            { 36.6f, -0.5f, 15.0f },
-            { 34.2f, 2.8f, 15.0f },
-            { 36.5f, 3.8f, 15.0f },
-            { 33.5f, 6.9f, 15.0f },
-            { 32.7f, 9.9f, 15.0f },
-            { 34.5f, 11.0f, 15.0f }
-        };
-
         effect = (self->s.frame % 4) ? EF_NONE : EF_HYPERBLASTER;
         mz = static_cast<monster_muzzleflash_id_t>(((self->mass > 400) ? MZ2_MEDIC_HYPERBLASTER2_1 : MZ2_MEDIC_HYPERBLASTER1_1) + (self->s.frame - FRAME_attack19));
     }
@@ -1162,9 +1150,6 @@ void medic_spawngrows(edict_t *self)
     for (count = 0; count < num_summoned; count++) {
         offset = reinforcement_position[count];
 
-        if (self->x.scale)
-            offset *= self->x.scale;
-
         startpoint = M_ProjectFlashSource(self, offset, f, r);
         // a little off the ground
         startpoint[2] += 10 * (self->x.scale ? self->x.scale : 1.0f);
@@ -1204,11 +1189,7 @@ void medic_finish_spawn(edict_t *self)
         auto &reinforcement = self->monsterinfo.reinforcements.reinforcements[self->monsterinfo.chosen_reinforcements[count]];
         offset = reinforcement_position[count];
 
-        if (self->x.scale)
-            offset *= self->x.scale;
-
         startpoint = M_ProjectFlashSource(self, offset, f, r);
-
         // a little off the ground
         startpoint[2] += 10 * (self->x.scale ? self->x.scale : 1.0f);
 

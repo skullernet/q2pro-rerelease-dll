@@ -584,7 +584,9 @@ void tank_reattack_blaster(edict_t *self)
 void tank_poststrike(edict_t *self)
 {
     self->enemy = nullptr;
-    tank_run(self);
+    // [Paril-KEX]
+    self->monsterinfo.pausetime = HOLD_FOREVER;
+    self->monsterinfo.stand(self);
 }
 
 mframe_t tank_frames_attack_strike[] = {

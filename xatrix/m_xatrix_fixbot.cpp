@@ -1255,6 +1255,8 @@ PAIN(fixbot_pain)(edict_t *self, edict_t *other, float kick, int damage, const m
         M_SetAnimation(self, &fixbot_move_painb);
     else
         M_SetAnimation(self, &fixbot_move_paina);
+
+    abortHeal(self, false, false, false);
 }
 
 void fixbot_dead(edict_t *self)

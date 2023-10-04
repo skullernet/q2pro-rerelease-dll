@@ -582,7 +582,7 @@ bool SV_movestep(edict_t *ent, vec3_t move, bool relink)
     float stepsize;
 
     // push down from a step height above the wished position
-    if (ent->spawnflags.has(SPAWNFLAG_MONSTER_SUPER_STEP))
+    if (ent->spawnflags.has(SPAWNFLAG_MONSTER_SUPER_STEP) && ent->health > 0)
         stepsize = 64.f;
     else if (!(ent->monsterinfo.aiflags & AI_NOSTEP))
         stepsize = STEPSIZE;
@@ -660,7 +660,8 @@ bool SV_movestep(edict_t *ent, vec3_t move, bool relink)
             }
             ent->groundentity = nullptr;
             return true;
-        } else if (!ent->spawnflags.has(SPAWNFLAG_MONSTER_SUPER_STEP))
+        // [Paril-KEX] allow dead monsters to "fall" off of edges in their death animation
+        } else if (!ent->spawnflags.has(SPAWNFLAG_MONSTER_SUPER_STEP) && ent->health > 0)
             return false; // walked off an edge
     }
 
@@ -733,7 +734,7 @@ bool SV_movestep(edict_t *ent, vec3_t move, bool relink)
         return false;
     }
 
-    if (ent->spawnflags.has(SPAWNFLAG_MONSTER_SUPER_STEP)) {
+    if (ent->spawnflags.has(SPAWNFLAG_MONSTER_SUPER_STEP) && ent->health > 0) {
         if (!ent->groundentity || ent->groundentity->solid == SOLID_BSP) {
             if (!(trace.ent->solid == SOLID_BSP)) {
                 // walked off an edge
@@ -763,7 +764,11 @@ bool SV_movestep(edict_t *ent, vec3_t move, bool relink)
     // the move is ok
     if (relink) {
         gi.linkentity(ent);
-        G_TouchTriggers(ent);
+
+        // [Paril-KEX] this is something N64 does to avoid doors opening
+        // at the start of a level, which triggers some monsters to spawn.
+        if (!level.is_n64 || level.time > FRAME_TIME)
+            G_TouchTriggers(ent);
     }
 
     if (stepped)

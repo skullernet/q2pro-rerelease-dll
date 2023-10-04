@@ -630,6 +630,12 @@ void soldier_fire_xatrix(edict_t *self, int flash_number, bool angle_limited)
 
         aim = forward;
     } else {
+        // [Paril-KEX] no enemy = no fire
+        if ((!self->enemy) || (!self->enemy->inuse)) {
+            self->monsterinfo.aiflags &= ~AI_HOLD_FRAME;
+            return;
+        }
+
         // PMM
         if (self->monsterinfo.attack_state == AS_BLIND)
             end = self->monsterinfo.blind_fire_target;

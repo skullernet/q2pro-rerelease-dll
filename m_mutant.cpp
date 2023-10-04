@@ -276,7 +276,8 @@ TOUCH(mutant_jump_touch)(edict_t *self, edict_t *other, const trace_t &tr, bool 
 
     if (self->style == 1 && other->takedamage)
     {
-        if (self->velocity.length() > 400) {
+        // [Paril-KEX] only if we're actually moving fast enough to hurt
+        if (self->velocity.length() > 30) {
             vec3_t point;
             vec3_t normal;
             int    damage;
@@ -309,8 +310,8 @@ void mutant_jump_takeoff(edict_t *self)
     gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
     AngleVectors(self->s.angles, forward, nullptr, nullptr);
     self->s.origin[2] += 1;
-    self->velocity = forward * 400;
-    self->velocity[2] = 150;
+    self->velocity = forward * 425;
+    self->velocity[2] = 160;
     self->groundentity = nullptr;
     self->monsterinfo.aiflags |= AI_DUCKED;
     self->monsterinfo.attack_finished = level.time + 3_sec;
@@ -489,15 +490,6 @@ MONSTERINFO_SETSKIN(mutant_setskin)(edict_t *self) -> void {
 // DEATH
 //
 
-// FIXME: expanded dead box a bit, but rotation of dead body
-// means it'll never always fit unless you move the whole box based on angle
-void mutant_dead(edict_t *self)
-{
-    self->mins = { 0, -48, -24 };
-    self->maxs = { 64, 16, -8 };
-    monster_dead(self);
-}
-
 void mutant_shrink(edict_t *self)
 {
     self->maxs[2] = 0;
@@ -505,32 +497,43 @@ void mutant_shrink(edict_t *self)
     gi.linkentity(self);
 }
 
+// [Paril-KEX]
+static void ai_move_slide_right(edict_t *self, float dist)
+{
+    M_walkmove(self, self->s.angles[YAW] + 90, dist);
+}
+
+static void ai_move_slide_left(edict_t *self, float dist)
+{
+    M_walkmove(self, self->s.angles[YAW] - 90, dist);
+}
+
 mframe_t mutant_frames_death1[] = {
-    { ai_move },
-    { ai_move },
-    { ai_move },
-    { ai_move },
-    { ai_move },
-    { ai_move, 0, mutant_shrink },
-    { ai_move },
-    { ai_move },
-    { ai_move }
+    { ai_move_slide_right },
+    { ai_move_slide_right },
+    { ai_move_slide_right },
+    { ai_move_slide_right, 2 },
+    { ai_move_slide_right, 5 },
+    { ai_move_slide_right, 7, mutant_shrink },
+    { ai_move_slide_right, 6 },
+    { ai_move_slide_right, 2 },
+    { ai_move_slide_right }
 };
-MMOVE_T(mutant_move_death1) = { FRAME_death101, FRAME_death109, mutant_frames_death1, mutant_dead };
+MMOVE_T(mutant_move_death1) = { FRAME_death101, FRAME_death109, mutant_frames_death1, monster_dead };
 
 mframe_t mutant_frames_death2[] = {
-    { ai_move },
-    { ai_move },
-    { ai_move },
-    { ai_move },
-    { ai_move, 0, mutant_shrink },
-    { ai_move },
-    { ai_move },
-    { ai_move },
-    { ai_move },
-    { ai_move }
+    { ai_move_slide_left },
+    { ai_move_slide_left },
+    { ai_move_slide_left },
+    { ai_move_slide_left, 1 },
+    { ai_move_slide_left, 3, mutant_shrink },
+    { ai_move_slide_left, 6 },
+    { ai_move_slide_left, 8 },
+    { ai_move_slide_left, 5 },
+    { ai_move_slide_left, 2 },
+    { ai_move_slide_left }
 };
-MMOVE_T(mutant_move_death2) = { FRAME_death201, FRAME_death210, mutant_frames_death2, mutant_dead };
+MMOVE_T(mutant_move_death2) = { FRAME_death201, FRAME_death210, mutant_frames_death2, monster_dead };
 
 DIE(mutant_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t &point, const mod_t &mod) -> void {
     if (M_CheckGib(self, mod))

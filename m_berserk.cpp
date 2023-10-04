@@ -21,6 +21,7 @@ static int sound_punch;
 static int sound_sight;
 static int sound_search;
 static int sound_thud;
+static int sound_explod;
 static int sound_jump;
 
 MONSTERINFO_SIGHT(berserk_sight)(edict_t *self, edict_t *other) -> void {
@@ -210,25 +211,36 @@ void T_SlamRadiusDamage(vec3_t point, edict_t *inflictor, edict_t *attacker, flo
     vec3_t   v;
     vec3_t   dir;
 
-    while ((ent = findradius(ent, inflictor->s.origin, radius)) != nullptr) {
+    while ((ent = findradius(ent, inflictor->s.origin, radius * 2.f)) != nullptr) {
         if (ent == ignore)
             continue;
         if (!ent->takedamage)
             continue;
         if (!CanDamage(ent, inflictor))
             continue;
+        // don't hit players in mid air
+        if (ent->client && !ent->groundentity)
+            continue;
 
         v = closest_point_to_box(point, ent->s.origin + ent->mins, ent->s.origin + ent->maxs) - point;
-        points = damage - 0.5f * v.length();
-        if (ent == attacker)
-            points = points * 0.5f;
-        points = max(1.f, points);
+
+        // calculate contribution amount
+        float amount = min(1.f, 1.f - (v.length() / radius));
+
+        // too far away
+        if (amount <= 0.f)
+            continue;
+
+        amount *= amount;
+
+        // damage & kick are exponentially scaled
+        points = max(1.f, damage * amount);
 
         dir = (ent->s.origin - point).normalized();
 
         // keep the point at their feet so they always get knocked up
         point[2] = ent->absmin[2];
-        T_Damage(ent, inflictor, attacker, dir, point, dir, (int) points, (int) kick,
+        T_Damage(ent, inflictor, attacker, dir, point, dir, (int) points, (int) (kick * amount),
                  DAMAGE_RADIUS, mod);
 
         if (ent->client)
@@ -239,6 +251,7 @@ void T_SlamRadiusDamage(vec3_t point, edict_t *inflictor, edict_t *attacker, flo
 static void berserk_attack_slam(edict_t *self)
 {
     gi.sound(self, CHAN_WEAPON, sound_thud, 1, ATTN_NORM, 0);
+    gi.sound(self, CHAN_AUTO, sound_explod, 0.75f, ATTN_NORM, 0);
     gi.WriteByte(svc_temp_entity);
     gi.WriteByte(TE_BERSERK_SLAM);
     vec3_t f, r, start;
@@ -252,7 +265,7 @@ static void berserk_attack_slam(edict_t *self)
     self->velocity = {};
     self->flags |= FL_KILL_VELOCITY;
 
-    T_SlamRadiusDamage(tr.endpos, self, self, 35, 150.f, self, 275, MOD_UNKNOWN);
+    T_SlamRadiusDamage(tr.endpos, self, self, 8, 300.f, self, 165, MOD_UNKNOWN);
 }
 
 TOUCH(berserk_jump_touch)(edict_t *self, edict_t *other, const trace_t &tr, bool other_touching_self) -> void {
@@ -302,7 +315,6 @@ void berserk_jump_takeoff(edict_t *self)
     self->monsterinfo.aiflags |= AI_DUCKED;
     self->monsterinfo.attack_finished = level.time + 3_sec;
     self->touch = berserk_jump_touch;
-    gi.sound(self, CHAN_WEAPON, sound_jump, 1, ATTN_NORM, 0);
     berserk_high_gravity(self);
 
     // apply 1 frames' worth of gravity to escape the floor
@@ -328,15 +340,15 @@ void berserk_check_landing(edict_t *self)
     }
 
     if (level.time > self->monsterinfo.attack_finished)
-        self->monsterinfo.nextframe = FRAME_slam2;
+        self->monsterinfo.nextframe = FRAME_slam3;
     else
         self->monsterinfo.nextframe = FRAME_slam5;
 }
 
 mframe_t berserk_frames_attack_strike[] = {
     { ai_charge },
-    { ai_charge, 0, berserk_jump_takeoff },
-    { ai_move, 0, berserk_high_gravity },
+    { ai_charge },
+    { ai_move, 0, berserk_jump_takeoff },
     { ai_move, 0, berserk_high_gravity },
     { ai_move, 0, berserk_check_landing },
     { ai_move, 0, monster_footstep },
@@ -450,6 +462,7 @@ MONSTERINFO_ATTACK(berserk_attack)(edict_t *self) -> void {
     {
         M_SetAnimation(self, &berserk_move_attack_strike);
         // don't do this for a while, otherwise we just keep doing it
+        gi.sound(self, CHAN_WEAPON, sound_jump, 1, ATTN_NORM, 0);
         self->timestamp = level.time + 5_sec;
     } else if (self->monsterinfo.active_move == &berserk_move_run1 && (range_to(self, self->enemy) <= RANGE_NEAR))
     {
@@ -772,6 +785,7 @@ void SP_monster_berserk(edict_t *self)
     sound_search = gi.soundindex("berserk/bersrch1.wav");
     sound_sight = gi.soundindex("berserk/sight.wav");
     sound_thud = gi.soundindex("mutant/thud1.wav");
+    sound_explod = gi.soundindex("world/explod2.wav");
     sound_jump = gi.soundindex("berserk/jump.wav");
 
     self->s.modelindex = gi.modelindex("models/monsters/berserk/tris.md2");

@@ -2207,6 +2207,8 @@ bool infront(edict_t *self, edict_t *other);
 bool visible(edict_t *self, edict_t *other, bool through_glass = true);
 bool FacingIdeal(edict_t *self);
 
+// [Paril-KEX] generic function
+bool M_CheckAttack_Base(edict_t *self, float stand_ground_chance, float melee_chance, float near_chance, float mid_chance, float far_chance, float strafe_scalar);
 
 //
 // g_weapon.c
