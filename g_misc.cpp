@@ -1792,9 +1792,9 @@ TOUCH(teleporter_touch)(edict_t *self, edict_t *other, const trace_t &tr, bool o
     for (int i = 0; i < 3; i++)
         other->client->ps.pmove.delta_angles[i] = ANGLE2SHORT(dest->s.angles[i] - other->client->resp.cmd_angles[i]);
 
-    other->s.angles = {};
-    other->client->ps.viewangles = {};
-    other->client->v_angle = {};
+    other->s.angles = dest->s.angles;
+    other->client->ps.viewangles = dest->s.angles;
+    other->client->v_angle = dest->s.angles;
     AngleVectors(other->client->v_angle, other->client->v_forward, nullptr, nullptr);
 
     gi.linkentity(other);
