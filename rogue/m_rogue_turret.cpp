@@ -28,7 +28,7 @@ void turret_run(edict_t *self);
 extern const mmove_t turret_move_fire;
 extern const mmove_t turret_move_fire_blind;
 
-static int sound_moved, sound_moving;
+static cached_soundindex sound_moved, sound_moving;
 
 void TurretAim(edict_t *self)
 {
@@ -858,8 +858,8 @@ void SP_monster_turret(edict_t *self)
     }
 
     // pre-caches
-    sound_moved = gi.soundindex("turret/moved.wav");
-    sound_moving = gi.soundindex("turret/moving.wav");
+    sound_moved.assign("turret/moved.wav");
+    sound_moving.assign("turret/moving.wav");
     gi.modelindex("models/objects/debris1/tris.md2");
 
     self->s.modelindex = gi.modelindex("models/monsters/turret/tris.md2");

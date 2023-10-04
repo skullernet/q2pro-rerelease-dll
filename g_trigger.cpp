@@ -445,7 +445,7 @@ constexpr spawnflags_t SPAWNFLAG_PUSH_START_OFF = 0x08_spawnflag;
 constexpr spawnflags_t SPAWNFLAG_PUSH_CLIP = 0x10_spawnflag;
 // PGM
 
-static int windsound;
+static cached_soundindex windsound;
 
 TOUCH(trigger_push_touch)(edict_t *self, edict_t *other, const trace_t &tr, bool other_touching_self) -> void {
     if (self->spawnflags.has(SPAWNFLAG_PUSH_CLIP))
@@ -556,7 +556,7 @@ void SP_trigger_push(edict_t *self)
 {
     InitTrigger(self);
     if (!(self->spawnflags & SPAWNFLAG_PUSH_SILENT))
-        windsound = gi.soundindex("misc/windfly.wav");
+        windsound.assign("misc/windfly.wav");
     self->touch = trigger_push_touch;
 
     // RAFAEL

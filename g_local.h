@@ -1675,9 +1675,6 @@ extern level_locals_t level;
 extern game_export_t  globals;
 extern spawn_temp_t   st;
 
-extern int sm_meat_index;
-extern int snd_fry;
-
 extern edict_t *g_edicts;
 
 #include <random>
@@ -3452,3 +3449,73 @@ inline void local_game_import_t::WriteEntity(const edict_t *e)
 
 void G_LoadL10nFile();
 const char *G_GetL10nString(const char *key);
+
+// [Paril-KEX] these are to fix a legacy bug with cached indices
+// in save games. these can *only* be static/globals!
+template<auto T>
+struct cached_assetindex {
+    static cached_assetindex<T> *head;
+
+    const char              *name;
+    int32_t                 index = 0;
+    cached_assetindex       *next = nullptr;
+
+    inline cached_assetindex()
+    {
+        next = head;
+        cached_assetindex<T>::head = this;
+    }
+    constexpr operator int32_t() const
+    {
+        return index;
+    }
+
+    // assigned from spawn functions
+    inline void assign(const char *name)
+    {
+        this->name = name;
+        index = (gi.*T)(name);
+    }
+    // cleared before SpawnEntities
+    constexpr void clear()
+    {
+        index = 0;
+    }
+    // re-find the index for the given cached entry, if we were cached
+    // by the regular map load
+    inline void reset()
+    {
+        if (index) index = (gi.*T)(this->name);
+    }
+
+    static void reset_all()
+    {
+        auto asset = head;
+
+        while (asset) {
+            asset->reset();
+            asset = asset->next;
+        }
+    }
+
+    static void clear_all()
+    {
+        auto asset = head;
+
+        while (asset) {
+            asset->clear();
+            asset = asset->next;
+        }
+    }
+};
+
+using cached_soundindex = cached_assetindex<&local_game_import_t::soundindex>;
+using cached_modelindex = cached_assetindex<&local_game_import_t::modelindex>;
+using cached_imageindex = cached_assetindex<&local_game_import_t::imageindex>;
+
+template<> cached_soundindex *cached_soundindex::head;
+template<> cached_modelindex *cached_modelindex::head;
+template<> cached_imageindex *cached_imageindex::head;
+
+extern cached_modelindex sm_meat_index;
+extern cached_soundindex snd_fry;

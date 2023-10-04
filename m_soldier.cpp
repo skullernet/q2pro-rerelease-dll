@@ -12,16 +12,16 @@ SOLDIER
 #include "m_soldier.h"
 #include "m_flash.h"
 
-static int sound_idle;
-static int sound_sight1;
-static int sound_sight2;
-static int sound_pain_light;
-static int sound_pain;
-static int sound_pain_ss;
-static int sound_death_light;
-static int sound_death;
-static int sound_death_ss;
-static int sound_cock;
+static cached_soundindex sound_idle;
+static cached_soundindex sound_sight1;
+static cached_soundindex sound_sight2;
+static cached_soundindex sound_pain_light;
+static cached_soundindex sound_pain;
+static cached_soundindex sound_pain_ss;
+static cached_soundindex sound_death_light;
+static cached_soundindex sound_death;
+static cached_soundindex sound_death_ss;
+static cached_soundindex sound_cock;
 
 void soldier_start_charge(edict_t *self)
 {
@@ -1798,10 +1798,10 @@ void SP_monster_soldier_x(edict_t *self)
     self->movetype = MOVETYPE_STEP;
     self->solid = SOLID_BBOX;
 
-    sound_idle = gi.soundindex("soldier/solidle1.wav");
-    sound_sight1 = gi.soundindex("soldier/solsght1.wav");
-    sound_sight2 = gi.soundindex("soldier/solsrch1.wav");
-    sound_cock = gi.soundindex("infantry/infatck3.wav");
+    sound_idle.assign("soldier/solidle1.wav");
+    sound_sight1.assign("soldier/solsght1.wav");
+    sound_sight2.assign("soldier/solsrch1.wav");
+    sound_cock.assign("infantry/infatck3.wav");
 
     gi.modelindex("models/monsters/soldier/gibs/head.md2");
     gi.modelindex("models/monsters/soldier/gibs/gun.md2");
@@ -1857,8 +1857,8 @@ void SP_monster_soldier_light(edict_t *self)
 
     SP_monster_soldier_x(self);
 
-    sound_pain_light = gi.soundindex("soldier/solpain2.wav");
-    sound_death_light = gi.soundindex("soldier/soldeth2.wav");
+    sound_pain_light.assign("soldier/solpain2.wav");
+    sound_death_light.assign("soldier/soldeth2.wav");
     gi.modelindex("models/objects/laser/tris.md2");
     gi.soundindex("misc/lasfly.wav");
     gi.soundindex("soldier/solatck2.wav");
@@ -1883,8 +1883,8 @@ void SP_monster_soldier(edict_t *self)
 
     SP_monster_soldier_x(self);
 
-    sound_pain = gi.soundindex("soldier/solpain1.wav");
-    sound_death = gi.soundindex("soldier/soldeth1.wav");
+    sound_pain.assign("soldier/solpain1.wav");
+    sound_death.assign("soldier/soldeth1.wav");
     gi.soundindex("soldier/solatck1.wav");
 
     self->s.skinnum = 2;
@@ -1904,8 +1904,8 @@ void SP_monster_soldier_ss(edict_t *self)
 
     SP_monster_soldier_x(self);
 
-    sound_pain_ss = gi.soundindex("soldier/solpain3.wav");
-    sound_death_ss = gi.soundindex("soldier/soldeth3.wav");
+    sound_pain_ss.assign("soldier/solpain3.wav");
+    sound_death_ss.assign("soldier/soldeth3.wav");
     gi.soundindex("soldier/solatck3.wav");
 
     self->s.skinnum = 4;
@@ -1935,8 +1935,8 @@ void SP_monster_soldier_ripper(edict_t *self)
 
     SP_monster_soldier_h(self);
 
-    sound_pain_light = gi.soundindex("soldier/solpain2.wav");
-    sound_death_light = gi.soundindex("soldier/soldeth2.wav");
+    sound_pain_light.assign("soldier/solpain2.wav");
+    sound_death_light.assign("soldier/soldeth2.wav");
 
     gi.modelindex("models/objects/boomrang/tris.md2");
     gi.soundindex("misc/lasfly.wav");
@@ -1963,8 +1963,8 @@ void SP_monster_soldier_hypergun(edict_t *self)
     SP_monster_soldier_h(self);
 
     gi.modelindex("models/objects/laser/tris.md2");
-    sound_pain = gi.soundindex("soldier/solpain1.wav");
-    sound_death = gi.soundindex("soldier/soldeth1.wav");
+    sound_pain.assign("soldier/solpain1.wav");
+    sound_death.assign("soldier/soldeth1.wav");
     gi.soundindex("soldier/solatck1.wav");
     gi.soundindex("weapons/hyprbd1a.wav");
     gi.soundindex("weapons/hyprbl1a.wav");
@@ -1989,8 +1989,8 @@ void SP_monster_soldier_lasergun(edict_t *self)
 
     SP_monster_soldier_h(self);
 
-    sound_pain_ss = gi.soundindex("soldier/solpain3.wav");
-    sound_death_ss = gi.soundindex("soldier/soldeth3.wav");
+    sound_pain_ss.assign("soldier/solpain3.wav");
+    sound_death_ss.assign("soldier/soldeth3.wav");
     gi.soundindex("soldier/solatck3.wav");
 
     self->s.skinnum = 10;

@@ -29,29 +29,29 @@ bool FindTarget(edict_t *self);
 void FoundTarget(edict_t *self);
 void ED_CallSpawn(edict_t *ent);
 
-static int sound_idle1;
-static int sound_pain1;
-static int sound_pain2;
-static int sound_die;
-static int sound_sight;
-static int sound_search;
-static int sound_hook_launch;
-static int sound_hook_hit;
-static int sound_hook_heal;
-static int sound_hook_retract;
+static cached_soundindex sound_idle1;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_die;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_search;
+static cached_soundindex sound_hook_launch;
+static cached_soundindex sound_hook_hit;
+static cached_soundindex sound_hook_heal;
+static cached_soundindex sound_hook_retract;
 
 // PMM - commander sounds
-static int commander_sound_idle1;
-static int commander_sound_pain1;
-static int commander_sound_pain2;
-static int commander_sound_die;
-static int commander_sound_sight;
-static int commander_sound_search;
-static int commander_sound_hook_launch;
-static int commander_sound_hook_hit;
-static int commander_sound_hook_heal;
-static int commander_sound_hook_retract;
-static int commander_sound_spawn;
+static cached_soundindex commander_sound_idle1;
+static cached_soundindex commander_sound_pain1;
+static cached_soundindex commander_sound_pain2;
+static cached_soundindex commander_sound_die;
+static cached_soundindex commander_sound_sight;
+static cached_soundindex commander_sound_search;
+static cached_soundindex commander_sound_hook_launch;
+static cached_soundindex commander_sound_hook_hit;
+static cached_soundindex commander_sound_hook_heal;
+static cached_soundindex commander_sound_hook_retract;
+static cached_soundindex commander_sound_spawn;
 
 constexpr const char *default_reinforcements = "monster_soldier_light 1;monster_soldier 2;monster_soldier_ss 2;monster_infantry 3;monster_gunner 4;monster_medic 5;monster_gladiator 6";
 constexpr int32_t default_monster_slots_base = 3;
@@ -1478,17 +1478,17 @@ void SP_monster_medic(edict_t *self)
         self->s.skinnum = 2;
 
         // commander sounds
-        commander_sound_idle1 = gi.soundindex("medic_commander/medidle.wav");
-        commander_sound_pain1 = gi.soundindex("medic_commander/medpain1.wav");
-        commander_sound_pain2 = gi.soundindex("medic_commander/medpain2.wav");
-        commander_sound_die = gi.soundindex("medic_commander/meddeth.wav");
-        commander_sound_sight = gi.soundindex("medic_commander/medsght.wav");
-        commander_sound_search = gi.soundindex("medic_commander/medsrch.wav");
-        commander_sound_hook_launch = gi.soundindex("medic_commander/medatck2c.wav");
-        commander_sound_hook_hit = gi.soundindex("medic_commander/medatck3a.wav");
-        commander_sound_hook_heal = gi.soundindex("medic_commander/medatck4a.wav");
-        commander_sound_hook_retract = gi.soundindex("medic_commander/medatck5a.wav");
-        commander_sound_spawn = gi.soundindex("medic_commander/monsterspawn1.wav");
+        commander_sound_idle1.assign("medic_commander/medidle.wav");
+        commander_sound_pain1.assign("medic_commander/medpain1.wav");
+        commander_sound_pain2.assign("medic_commander/medpain2.wav");
+        commander_sound_die.assign("medic_commander/meddeth.wav");
+        commander_sound_sight.assign("medic_commander/medsght.wav");
+        commander_sound_search.assign("medic_commander/medsrch.wav");
+        commander_sound_hook_launch.assign("medic_commander/medatck2c.wav");
+        commander_sound_hook_hit.assign("medic_commander/medatck3a.wav");
+        commander_sound_hook_heal.assign("medic_commander/medatck4a.wav");
+        commander_sound_hook_retract.assign("medic_commander/medatck5a.wav");
+        commander_sound_spawn.assign("medic_commander/monsterspawn1.wav");
         gi.soundindex("tank/tnkatck3.wav");
 
         const char *reinforcements = default_reinforcements;
@@ -1505,16 +1505,16 @@ void SP_monster_medic(edict_t *self)
             M_SetupReinforcements(reinforcements, self->monsterinfo.reinforcements);
         }
     } else {
-        sound_idle1 = gi.soundindex("medic/idle.wav");
-        sound_pain1 = gi.soundindex("medic/medpain1.wav");
-        sound_pain2 = gi.soundindex("medic/medpain2.wav");
-        sound_die = gi.soundindex("medic/meddeth1.wav");
-        sound_sight = gi.soundindex("medic/medsght1.wav");
-        sound_search = gi.soundindex("medic/medsrch1.wav");
-        sound_hook_launch = gi.soundindex("medic/medatck2.wav");
-        sound_hook_hit = gi.soundindex("medic/medatck3.wav");
-        sound_hook_heal = gi.soundindex("medic/medatck4.wav");
-        sound_hook_retract = gi.soundindex("medic/medatck5.wav");
+        sound_idle1.assign("medic/idle.wav");
+        sound_pain1.assign("medic/medpain1.wav");
+        sound_pain2.assign("medic/medpain2.wav");
+        sound_die.assign("medic/meddeth1.wav");
+        sound_sight.assign("medic/medsght1.wav");
+        sound_search.assign("medic/medsrch1.wav");
+        sound_hook_launch.assign("medic/medatck2.wav");
+        sound_hook_hit.assign("medic/medatck3.wav");
+        sound_hook_heal.assign("medic/medatck4.wav");
+        sound_hook_retract.assign("medic/medatck5.wav");
         gi.soundindex("medic/medatck1.wav");
 
         self->s.skinnum = 0;

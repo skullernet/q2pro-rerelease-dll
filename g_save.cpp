@@ -2293,6 +2293,11 @@ void ReadLevel(const char *filename)
     gi.configstring(CS_SKYROTATE, G_Fmt("{} {}", level.skyrotate, level.skyautorotate).data());
 
     G_PrecacheInventoryItems();
+
+    // clear cached indices
+    cached_soundindex::reset_all();
+    cached_modelindex::reset_all();
+    cached_imageindex::reset_all();
 }
 
 // [Paril-KEX]
@@ -2305,3 +2310,7 @@ qboolean G_CanSave()
 
     return qtrue;
 }
+
+template<> cached_soundindex *cached_soundindex::head = nullptr;
+template<> cached_modelindex *cached_modelindex::head = nullptr;
+template<> cached_imageindex *cached_imageindex::head = nullptr;

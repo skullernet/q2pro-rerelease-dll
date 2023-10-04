@@ -31,15 +31,15 @@ void drawbbox(edict_t *self);
 
 void ED_CallSpawn(edict_t *ent);
 
-static int sound_pain1;
-static int sound_pain2;
-static int sound_pain3;
-static int sound_death;
-static int sound_sight;
-static int sound_rail;
-static int sound_spawn;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_pain3;
+static cached_soundindex sound_death;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_rail;
+static cached_soundindex sound_spawn;
 
-static int sound_cg_down, sound_cg_loop, sound_cg_up;
+static cached_soundindex sound_cg_down, sound_cg_loop, sound_cg_up;
 
 float orig_yaw_speed;
 
@@ -992,17 +992,17 @@ void SP_monster_carrier(edict_t *self)
         return;
     }
 
-    sound_pain1 = gi.soundindex("carrier/pain_md.wav");
-    sound_pain2 = gi.soundindex("carrier/pain_lg.wav");
-    sound_pain3 = gi.soundindex("carrier/pain_sm.wav");
-    sound_death = gi.soundindex("carrier/death.wav");
-    sound_rail = gi.soundindex("gladiator/railgun.wav");
-    sound_sight = gi.soundindex("carrier/sight.wav");
-    sound_spawn = gi.soundindex("medic_commander/monsterspawn1.wav");
+    sound_pain1.assign("carrier/pain_md.wav");
+    sound_pain2.assign("carrier/pain_lg.wav");
+    sound_pain3.assign("carrier/pain_sm.wav");
+    sound_death.assign("carrier/death.wav");
+    sound_rail.assign("gladiator/railgun.wav");
+    sound_sight.assign("carrier/sight.wav");
+    sound_spawn.assign("medic_commander/monsterspawn1.wav");
 
-    sound_cg_down = gi.soundindex("weapons/chngnd1a.wav");
-    sound_cg_loop = gi.soundindex("weapons/chngnl1a.wav");
-    sound_cg_up = gi.soundindex("weapons/chngnu1a.wav");
+    sound_cg_down.assign("weapons/chngnd1a.wav");
+    sound_cg_loop.assign("weapons/chngnl1a.wav");
+    sound_cg_up.assign("weapons/chngnu1a.wav");
 
     self->monsterinfo.engine_sound = gi.soundindex("bosshovr/bhvengn1.wav");
 

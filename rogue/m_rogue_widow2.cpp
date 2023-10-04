@@ -14,12 +14,12 @@ black widow, part 2
 #include "m_rogue_widow2.h"
 #include "../m_flash.h"
 
-static int sound_pain1;
-static int sound_pain2;
-static int sound_pain3;
-static int sound_death;
-static int sound_search1;
-static int sound_tentacles_retract;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_pain3;
+static cached_soundindex sound_death;
+static cached_soundindex sound_search1;
+static cached_soundindex sound_tentacles_retract;
 
 // sqrt(64*64*2) + sqrt(28*28*2) => 130.1
 constexpr vec3_t spawnpoints[] = {
@@ -945,12 +945,12 @@ void SP_monster_widow2(edict_t *self)
         return;
     }
 
-    sound_pain1 = gi.soundindex("widow/bw2pain1.wav");
-    sound_pain2 = gi.soundindex("widow/bw2pain2.wav");
-    sound_pain3 = gi.soundindex("widow/bw2pain3.wav");
-    sound_death = gi.soundindex("widow/death.wav");
-    sound_search1 = gi.soundindex("bosshovr/bhvunqv1.wav");
-    sound_tentacles_retract = gi.soundindex("brain/brnatck3.wav");
+    sound_pain1.assign("widow/bw2pain1.wav");
+    sound_pain2.assign("widow/bw2pain2.wav");
+    sound_pain3.assign("widow/bw2pain3.wav");
+    sound_death.assign("widow/death.wav");
+    sound_search1.assign("bosshovr/bhvunqv1.wav");
+    sound_tentacles_retract.assign("brain/brnatck3.wav");
 
     //  self->s.sound = gi.soundindex ("bosshovr/bhvengn1.wav");
 

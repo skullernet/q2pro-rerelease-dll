@@ -19,8 +19,8 @@ game_import_ex_t local_game_import_t::ex;
 game_export_t  globals;
 spawn_temp_t   st;
 
-int   sm_meat_index;
-int   snd_fry;
+cached_modelindex   sm_meat_index;
+cached_soundindex   snd_fry;
 
 edict_t *g_edicts;
 

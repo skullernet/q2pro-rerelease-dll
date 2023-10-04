@@ -14,20 +14,20 @@ jorg
 
 void SP_monster_makron(edict_t *self);
 
-static int sound_pain1;
-static int sound_pain2;
-static int sound_pain3;
-static int sound_idle;
-static int sound_death;
-static int sound_search1;
-static int sound_search2;
-static int sound_search3;
-static int sound_attack1, sound_attack1_loop, sound_attack1_end;
-static int sound_attack2, sound_bfg_fire;
-static int sound_firegun;
-static int sound_step_left;
-static int sound_step_right;
-static int sound_death_hit;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_pain3;
+static cached_soundindex sound_idle;
+static cached_soundindex sound_death;
+static cached_soundindex sound_search1;
+static cached_soundindex sound_search2;
+static cached_soundindex sound_search3;
+static cached_soundindex sound_attack1, sound_attack1_loop, sound_attack1_end;
+static cached_soundindex sound_attack2, sound_bfg_fire;
+static cached_soundindex sound_firegun;
+static cached_soundindex sound_step_left;
+static cached_soundindex sound_step_right;
+static cached_soundindex sound_death_hit;
 
 void MakronToss(edict_t *self);
 
@@ -557,23 +557,23 @@ void SP_monster_jorg(edict_t *self)
         return;
     }
 
-    sound_pain1 = gi.soundindex("boss3/bs3pain1.wav");
-    sound_pain2 = gi.soundindex("boss3/bs3pain2.wav");
-    sound_pain3 = gi.soundindex("boss3/bs3pain3.wav");
-    sound_death = gi.soundindex("boss3/bs3deth1.wav");
-    sound_attack1 = gi.soundindex("boss3/bs3atck1.wav");
-    sound_attack1_loop = gi.soundindex("boss3/bs3atck1_loop.wav");
-    sound_attack1_end = gi.soundindex("boss3/bs3atck1_end.wav");
-    sound_attack2 = gi.soundindex("boss3/bs3atck2.wav");
-    sound_search1 = gi.soundindex("boss3/bs3srch1.wav");
-    sound_search2 = gi.soundindex("boss3/bs3srch2.wav");
-    sound_search3 = gi.soundindex("boss3/bs3srch3.wav");
-    sound_idle = gi.soundindex("boss3/bs3idle1.wav");
-    sound_step_left = gi.soundindex("boss3/step1.wav");
-    sound_step_right = gi.soundindex("boss3/step2.wav");
-    sound_firegun = gi.soundindex("boss3/xfire.wav");
-    sound_death_hit = gi.soundindex("boss3/d_hit.wav");
-    sound_bfg_fire = gi.soundindex("makron/bfg_fire.wav");
+    sound_pain1.assign("boss3/bs3pain1.wav");
+    sound_pain2.assign("boss3/bs3pain2.wav");
+    sound_pain3.assign("boss3/bs3pain3.wav");
+    sound_death.assign("boss3/bs3deth1.wav");
+    sound_attack1.assign("boss3/bs3atck1.wav");
+    sound_attack1_loop.assign("boss3/bs3atck1_loop.wav");
+    sound_attack1_end.assign("boss3/bs3atck1_end.wav");
+    sound_attack2.assign("boss3/bs3atck2.wav");
+    sound_search1.assign("boss3/bs3srch1.wav");
+    sound_search2.assign("boss3/bs3srch2.wav");
+    sound_search3.assign("boss3/bs3srch3.wav");
+    sound_idle.assign("boss3/bs3idle1.wav");
+    sound_step_left.assign("boss3/step1.wav");
+    sound_step_right.assign("boss3/step2.wav");
+    sound_firegun.assign("boss3/xfire.wav");
+    sound_death_hit.assign("boss3/d_hit.wav");
+    sound_bfg_fire.assign("makron/bfg_fire.wav");
 
     MakronPrecache();
 

@@ -22,10 +22,10 @@ constexpr int   WIDOW_RAIL_DAMAGE = 50;
 
 bool infront(edict_t *self, edict_t *other);
 
-static int sound_pain1;
-static int sound_pain2;
-static int sound_pain3;
-static int sound_rail;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_pain3;
+static cached_soundindex sound_rail;
 
 static uint32_t shotsfired;
 
@@ -1176,10 +1176,10 @@ void SP_monster_widow(edict_t *self)
         return;
     }
 
-    sound_pain1 = gi.soundindex("widow/bw1pain1.wav");
-    sound_pain2 = gi.soundindex("widow/bw1pain2.wav");
-    sound_pain3 = gi.soundindex("widow/bw1pain3.wav");
-    sound_rail = gi.soundindex("gladiator/railgun.wav");
+    sound_pain1.assign("widow/bw1pain1.wav");
+    sound_pain2.assign("widow/bw1pain2.wav");
+    sound_pain3.assign("widow/bw1pain3.wav");
+    sound_rail.assign("gladiator/railgun.wav");
 
     self->movetype = MOVETYPE_STEP;
     self->solid = SOLID_BBOX;

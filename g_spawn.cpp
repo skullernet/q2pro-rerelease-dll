@@ -1099,6 +1099,11 @@ parsing textual entity definitions out of an ent file.
 */
 void SpawnEntities(const char *mapname, const char *entities, const char *spawnpoint)
 {
+    // clear cached indices
+    cached_soundindex::clear_all();
+    cached_modelindex::clear_all();
+    cached_imageindex::clear_all();
+
     edict_t *ent;
     int      inhibit;
     const char   *com_token;
@@ -1507,7 +1512,7 @@ void SP_worldspawn(edict_t *ent)
         gi.cvar_set("sv_gravity", st.gravity);
     }
 
-    snd_fry = gi.soundindex("player/fry.wav"); // standing in lava / slime
+    snd_fry.assign("player/fry.wav"); // standing in lava / slime
 
     //PrecacheItem(GetItemByIndex(IT_ITEM_COMPASS));
     PrecacheItem(GetItemByIndex(IT_WEAPON_BLASTER));
@@ -1602,7 +1607,7 @@ void SP_worldspawn(edict_t *ent)
 
     gi.soundindex("infantry/inflies1.wav");
 
-    sm_meat_index = gi.modelindex("models/objects/gibs/sm_meat/tris.md2");
+    sm_meat_index.assign("models/objects/gibs/sm_meat/tris.md2");
     gi.modelindex("models/objects/gibs/arm/tris.md2");
     gi.modelindex("models/objects/gibs/bone/tris.md2");
     gi.modelindex("models/objects/gibs/bone2/tris.md2");

@@ -20,20 +20,20 @@ void makron_step_right(edict_t *self);
 void makronBFG(edict_t *self);
 void makron_dead(edict_t *self);
 
-static int sound_pain4;
-static int sound_pain5;
-static int sound_pain6;
-static int sound_death;
-static int sound_step_left;
-static int sound_step_right;
-static int sound_attack_bfg;
-static int sound_brainsplorch;
-static int sound_prerailgun;
-static int sound_popup;
-static int sound_taunt1;
-static int sound_taunt2;
-static int sound_taunt3;
-static int sound_hit;
+static cached_soundindex sound_pain4;
+static cached_soundindex sound_pain5;
+static cached_soundindex sound_pain6;
+static cached_soundindex sound_death;
+static cached_soundindex sound_step_left;
+static cached_soundindex sound_step_right;
+static cached_soundindex sound_attack_bfg;
+static cached_soundindex sound_brainsplorch;
+static cached_soundindex sound_prerailgun;
+static cached_soundindex sound_popup;
+static cached_soundindex sound_taunt1;
+static cached_soundindex sound_taunt2;
+static cached_soundindex sound_taunt3;
+static cached_soundindex sound_hit;
 
 void makron_taunt(edict_t *self)
 {
@@ -686,20 +686,20 @@ MONSTERINFO_CHECKATTACK(Makron_CheckAttack)(edict_t *self) -> bool {
 
 void MakronPrecache()
 {
-    sound_pain4 = gi.soundindex("makron/pain3.wav");
-    sound_pain5 = gi.soundindex("makron/pain2.wav");
-    sound_pain6 = gi.soundindex("makron/pain1.wav");
-    sound_death = gi.soundindex("makron/death.wav");
-    sound_step_left = gi.soundindex("makron/step1.wav");
-    sound_step_right = gi.soundindex("makron/step2.wav");
-    sound_attack_bfg = gi.soundindex("makron/bfg_fire.wav");
-    sound_brainsplorch = gi.soundindex("makron/brain1.wav");
-    sound_prerailgun = gi.soundindex("makron/rail_up.wav");
-    sound_popup = gi.soundindex("makron/popup.wav");
-    sound_taunt1 = gi.soundindex("makron/voice4.wav");
-    sound_taunt2 = gi.soundindex("makron/voice3.wav");
-    sound_taunt3 = gi.soundindex("makron/voice.wav");
-    sound_hit = gi.soundindex("makron/bhit.wav");
+    sound_pain4.assign("makron/pain3.wav");
+    sound_pain5.assign("makron/pain2.wav");
+    sound_pain6.assign("makron/pain1.wav");
+    sound_death.assign("makron/death.wav");
+    sound_step_left.assign("makron/step1.wav");
+    sound_step_right.assign("makron/step2.wav");
+    sound_attack_bfg.assign("makron/bfg_fire.wav");
+    sound_brainsplorch.assign("makron/brain1.wav");
+    sound_prerailgun.assign("makron/rail_up.wav");
+    sound_popup.assign("makron/popup.wav");
+    sound_taunt1.assign("makron/voice4.wav");
+    sound_taunt2.assign("makron/voice3.wav");
+    sound_taunt3.assign("makron/voice.wav");
+    sound_hit.assign("makron/bhit.wav");
 
     gi.modelindex("models/monsters/boss3/rider/tris.md2");
 }

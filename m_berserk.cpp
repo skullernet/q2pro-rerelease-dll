@@ -13,16 +13,16 @@ BERSERK
 
 constexpr spawnflags_t SPAWNFLAG_BERSERK_NOJUMPING = 8_spawnflag;
 
-static int sound_pain;
-static int sound_die;
-static int sound_idle;
-static int sound_idle2;
-static int sound_punch;
-static int sound_sight;
-static int sound_search;
-static int sound_thud;
-static int sound_explod;
-static int sound_jump;
+static cached_soundindex sound_pain;
+static cached_soundindex sound_die;
+static cached_soundindex sound_idle;
+static cached_soundindex sound_idle2;
+static cached_soundindex sound_punch;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_search;
+static cached_soundindex sound_thud;
+static cached_soundindex sound_explod;
+static cached_soundindex sound_jump;
 
 MONSTERINFO_SIGHT(berserk_sight)(edict_t *self, edict_t *other) -> void {
     gi.sound(self, CHAN_VOICE, sound_sight, 1, ATTN_NORM, 0);
@@ -777,16 +777,16 @@ void SP_monster_berserk(edict_t *self)
     }
 
     // pre-caches
-    sound_pain = gi.soundindex("berserk/berpain2.wav");
-    sound_die = gi.soundindex("berserk/berdeth2.wav");
-    sound_idle = gi.soundindex("berserk/beridle1.wav");
-    sound_idle2 = gi.soundindex("berserk/idle.wav");
-    sound_punch = gi.soundindex("berserk/attack.wav");
-    sound_search = gi.soundindex("berserk/bersrch1.wav");
-    sound_sight = gi.soundindex("berserk/sight.wav");
-    sound_thud = gi.soundindex("mutant/thud1.wav");
-    sound_explod = gi.soundindex("world/explod2.wav");
-    sound_jump = gi.soundindex("berserk/jump.wav");
+    sound_pain.assign("berserk/berpain2.wav");
+    sound_die.assign("berserk/berdeth2.wav");
+    sound_idle.assign("berserk/beridle1.wav");
+    sound_idle2.assign("berserk/idle.wav");
+    sound_punch.assign("berserk/attack.wav");
+    sound_search.assign("berserk/bersrch1.wav");
+    sound_sight.assign("berserk/sight.wav");
+    sound_thud.assign("mutant/thud1.wav");
+    sound_explod.assign("world/explod2.wav");
+    sound_jump.assign("berserk/jump.wav");
 
     self->s.modelindex = gi.modelindex("models/monsters/berserk/tris.md2");
 

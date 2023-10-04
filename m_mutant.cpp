@@ -13,19 +13,19 @@ mutant
 
 constexpr spawnflags_t SPAWNFLAG_MUTANT_NOJUMPING = 8_spawnflag;
 
-static int sound_swing;
-static int sound_hit;
-static int sound_hit2;
-static int sound_death;
-static int sound_idle;
-static int sound_pain1;
-static int sound_pain2;
-static int sound_sight;
-static int sound_search;
-static int sound_step1;
-static int sound_step2;
-static int sound_step3;
-static int sound_thud;
+static cached_soundindex sound_swing;
+static cached_soundindex sound_hit;
+static cached_soundindex sound_hit2;
+static cached_soundindex sound_death;
+static cached_soundindex sound_idle;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_sight;
+static cached_soundindex sound_search;
+static cached_soundindex sound_step1;
+static cached_soundindex sound_step2;
+static cached_soundindex sound_step3;
+static cached_soundindex sound_thud;
 
 //
 // SOUNDS
@@ -660,19 +660,19 @@ void SP_monster_mutant(edict_t *self)
         return;
     }
 
-    sound_swing = gi.soundindex("mutant/mutatck1.wav");
-    sound_hit = gi.soundindex("mutant/mutatck2.wav");
-    sound_hit2 = gi.soundindex("mutant/mutatck3.wav");
-    sound_death = gi.soundindex("mutant/mutdeth1.wav");
-    sound_idle = gi.soundindex("mutant/mutidle1.wav");
-    sound_pain1 = gi.soundindex("mutant/mutpain1.wav");
-    sound_pain2 = gi.soundindex("mutant/mutpain2.wav");
-    sound_sight = gi.soundindex("mutant/mutsght1.wav");
-    sound_search = gi.soundindex("mutant/mutsrch1.wav");
-    sound_step1 = gi.soundindex("mutant/step1.wav");
-    sound_step2 = gi.soundindex("mutant/step2.wav");
-    sound_step3 = gi.soundindex("mutant/step3.wav");
-    sound_thud = gi.soundindex("mutant/thud1.wav");
+    sound_swing.assign("mutant/mutatck1.wav");
+    sound_hit.assign("mutant/mutatck2.wav");
+    sound_hit2.assign("mutant/mutatck3.wav");
+    sound_death.assign("mutant/mutdeth1.wav");
+    sound_idle.assign("mutant/mutidle1.wav");
+    sound_pain1.assign("mutant/mutpain1.wav");
+    sound_pain2.assign("mutant/mutpain2.wav");
+    sound_sight.assign("mutant/mutsght1.wav");
+    sound_search.assign("mutant/mutsrch1.wav");
+    sound_step1.assign("mutant/step1.wav");
+    sound_step2.assign("mutant/step2.wav");
+    sound_step3.assign("mutant/step3.wav");
+    sound_thud.assign("mutant/thud1.wav");
 
     self->monsterinfo.aiflags |= AI_STINKY;
 

@@ -17,11 +17,11 @@ constexpr spawnflags_t SPAWNFLAG_BOSS2_N64 = 8_spawnflag;
 
 bool infront(edict_t *self, edict_t *other);
 
-static int sound_pain1;
-static int sound_pain2;
-static int sound_pain3;
-static int sound_death;
-static int sound_search1;
+static cached_soundindex sound_pain1;
+static cached_soundindex sound_pain2;
+static cached_soundindex sound_pain3;
+static cached_soundindex sound_death;
+static cached_soundindex sound_search1;
 
 MONSTERINFO_SEARCH(boss2_search)(edict_t *self) -> void {
     if (frandom() < 0.5f)
@@ -605,11 +605,11 @@ void SP_monster_boss2(edict_t *self)
         return;
     }
 
-    sound_pain1 = gi.soundindex("bosshovr/bhvpain1.wav");
-    sound_pain2 = gi.soundindex("bosshovr/bhvpain2.wav");
-    sound_pain3 = gi.soundindex("bosshovr/bhvpain3.wav");
-    sound_death = gi.soundindex("bosshovr/bhvdeth1.wav");
-    sound_search1 = gi.soundindex("bosshovr/bhvunqv1.wav");
+    sound_pain1.assign("bosshovr/bhvpain1.wav");
+    sound_pain2.assign("bosshovr/bhvpain2.wav");
+    sound_pain3.assign("bosshovr/bhvpain3.wav");
+    sound_death.assign("bosshovr/bhvdeth1.wav");
+    sound_search1.assign("bosshovr/bhvunqv1.wav");
 
     gi.soundindex("tank/rocket.wav");
 
