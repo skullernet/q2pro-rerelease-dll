@@ -396,8 +396,12 @@ void G_TouchTriggers(edict_t *ent)
 // to see if we need to collide against them
 void G_TouchProjectiles(edict_t *ent, vec3_t previous_origin)
 {
+    struct skipped_projectile {
+        edict_t     *projectile;
+        int32_t     spawn_count;
+    };
     // a bit ugly, but we'll store projectiles we are ignoring here.
-    static std::vector<edict_t *> skipped;
+    static std::vector<skipped_projectile> skipped;
 
     while (true) {
         trace_t tr = gi.trace(previous_origin, ent->mins, ent->maxs, ent->s.origin, ent, ent->clipmask | CONTENTS_PROJECTILE);
@@ -410,7 +414,7 @@ void G_TouchProjectiles(edict_t *ent, vec3_t previous_origin)
         // always skip this projectile since certain conditions may cause the projectile
         // to not disappear immediately
         tr.ent->svflags &= ~SVF_PROJECTILE;
-        skipped.push_back(tr.ent);
+        skipped.push_back({ tr.ent, tr.ent->spawn_count });
 
         // if we're both players and it's coop, allow the projectile to "pass" through
         if (ent->client && tr.ent->owner && tr.ent->owner->client && !G_ShouldPlayersCollide(true))
@@ -420,7 +424,8 @@ void G_TouchProjectiles(edict_t *ent, vec3_t previous_origin)
     }
 
     for (auto &skip : skipped)
-        skip->svflags |= SVF_PROJECTILE;
+        if (skip.projectile->inuse && skip.projectile->spawn_count == skip.spawn_count)
+            skip.projectile->svflags |= SVF_PROJECTILE;
 
     skipped.clear();
 }
