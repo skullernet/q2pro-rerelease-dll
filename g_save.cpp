@@ -863,6 +863,8 @@ SAVE_STRUCT_START
     FIELD_AUTO(sound_entity_time),
     FIELD_AUTO(sound2_entity),
     FIELD_AUTO(sound2_entity_time),
+
+    FIELD_AUTO(last_firing_time),
 SAVE_STRUCT_END
 #undef DECLARE_SAVE_STRUCT
 // clang-format on

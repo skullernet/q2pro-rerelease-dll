@@ -1409,4 +1409,27 @@ void ClientEndServerFrame(edict_t *ent)
     P_AssignClientSkinnum(ent);
 
     Compass_Update(ent, false);
+
+    // [Paril-KEX] in coop, if player collision is enabled and
+    // we are currently in no-player-collision mode, check if
+    // it's safe.
+    if (coop->integer && G_ShouldPlayersCollide(false) && !(ent->clipmask & CONTENTS_PLAYER) && ent->takedamage) {
+        bool clipped_player = false;
+
+        for (auto player : active_players()) {
+            if (player == ent)
+                continue;
+
+            trace_t clip = gi.clip(player, ent->s.origin, ent->mins, ent->maxs, ent->s.origin, CONTENTS_MONSTER | CONTENTS_PLAYER);
+
+            if (clip.startsolid || clip.allsolid) {
+                clipped_player = true;
+                break;
+            }
+        }
+
+        // safe!
+        if (!clipped_player)
+            ent->clipmask |= CONTENTS_PLAYER;
+    }
 }

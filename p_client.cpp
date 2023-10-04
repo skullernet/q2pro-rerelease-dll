@@ -1150,29 +1150,44 @@ static edict_t *SelectSingleSpawnPoint(edict_t *ent)
 }
 
 // [Paril-KEX]
-static edict_t *G_UnsafeSpawnPosition(vec3_t spot)
+static edict_t *G_UnsafeSpawnPosition(vec3_t spot, bool check_players)
 {
-    trace_t tr = gi.trace(spot, PLAYER_MINS, PLAYER_MAXS, spot, nullptr, MASK_PLAYERSOLID);
+    contents_t mask = MASK_PLAYERSOLID;
+
+    if (!check_players)
+        mask &= ~CONTENTS_PLAYER;
+
+    trace_t tr = gi.trace(spot, PLAYER_MINS, PLAYER_MAXS, spot, nullptr, mask);
 
     // sometimes the spot is too close to the ground, give it a bit of slack
     if (tr.startsolid && !tr.ent->client) {
         spot[2] += 1;
-        tr = gi.trace(spot, PLAYER_MINS, PLAYER_MAXS, spot, nullptr, MASK_PLAYERSOLID);
+        tr = gi.trace(spot, PLAYER_MINS, PLAYER_MAXS, spot, nullptr, mask);
     }
 
     // no idea why this happens in some maps..
-    if (tr.startsolid && !tr.ent->client)
-        return tr.ent;
+    if (tr.startsolid && !tr.ent->client) {
+        // try a nudge
+        if (G_FixStuckObject_Generic(spot, PLAYER_MINS, PLAYER_MAXS, [mask](const vec3_t &start, const vec3_t &mins, const vec3_t &maxs, const vec3_t &end) {
+            return gi.trace(start, mins, maxs, end, nullptr, mask);
+        }) == stuck_result_t::NO_GOOD_POSITION)
+            return tr.ent; // what do we do here...?
+
+        trace_t tr = gi.trace(spot, PLAYER_MINS, PLAYER_MAXS, spot, nullptr, mask);
+
+        if (tr.startsolid && !tr.ent->client)
+            return tr.ent; // what do we do here...?
+    }
 
     if (tr.fraction == 1.f)
         return nullptr;
-    else if (tr.ent->client)
+    else if (check_players && tr.ent && tr.ent->client)
         return tr.ent;
 
     return nullptr;
 }
 
-edict_t *SelectCoopSpawnPoint(edict_t *ent, bool force_spawn)
+edict_t *SelectCoopSpawnPoint(edict_t *ent, bool force_spawn, bool check_players)
 {
     edict_t *spot = nullptr;
     const char *target;
@@ -1186,7 +1201,7 @@ edict_t *SelectCoopSpawnPoint(edict_t *ent, bool force_spawn)
     // try the main spawn point first
     spot = SelectSingleSpawnPoint(ent);
 
-    if (spot && !G_UnsafeSpawnPosition(spot->s.origin))
+    if (spot && !G_UnsafeSpawnPosition(spot->s.origin, check_players))
         return spot;
 
     spot = nullptr;
@@ -1206,7 +1221,7 @@ edict_t *SelectCoopSpawnPoint(edict_t *ent, bool force_spawn)
             // this is a coop spawn point for one of the clients here
             num_valid_spots++;
 
-            if (!G_UnsafeSpawnPosition(spot->s.origin))
+            if (!G_UnsafeSpawnPosition(spot->s.origin, check_players))
                 return spot; // this is it
         }
     }
@@ -1228,7 +1243,7 @@ edict_t *SelectCoopSpawnPoint(edict_t *ent, bool force_spawn)
                 // this is a coop spawn point for one of the clients here
                 num_valid_spots++;
 
-                if (!G_UnsafeSpawnPosition(spot->s.origin))
+                if (!G_UnsafeSpawnPosition(spot->s.origin, check_players))
                     return spot; // this is it
             }
         }
@@ -1302,7 +1317,7 @@ bool TryLandmarkSpawn(edict_t* ent, vec3_t& origin, vec3_t& angles)
     // sometimes, landmark spawns can cause slight inconsistencies in collision;
     // we'll do a bit of tracing to make sure the bbox is clear
     if (G_FixStuckObject_Generic(origin, PLAYER_MINS, PLAYER_MAXS, [ent](const vec3_t &start, const vec3_t &mins, const vec3_t &maxs, const vec3_t &end) {
-    return gi.trace(start, mins, maxs, end, ent, MASK_PLAYERSOLID);
+        return gi.trace(start, mins, maxs, end, ent, MASK_PLAYERSOLID & ~CONTENTS_PLAYER);
     }) == stuck_result_t::NO_GOOD_POSITION) {
         origin = old_origin;
         return false;
@@ -1355,11 +1370,24 @@ bool SelectSpawnPoint(edict_t *ent, vec3_t &origin, vec3_t &angles, bool force_s
     }
 
     if (coop->integer) {
-        spot = SelectCoopSpawnPoint(ent, force_spawn);
+        spot = SelectCoopSpawnPoint(ent, force_spawn, true);
+
+        if (!spot)
+            spot = SelectCoopSpawnPoint(ent, force_spawn, false);
 
         // no open spot yet
-        if (!spot)
+        if (!spot) {
+            // in worst case scenario in coop during intermission, just spawn us at intermission
+            // spot. this only happens for a single frame, and won't break
+            // anything if they come back.
+            if (level.intermissiontime) {
+                origin = level.intermission_origin;
+                angles = level.intermission_angle;
+                return true;
+            }
+
             return false;
+        }
     } else {
         spot = SelectSingleSpawnPoint(ent);
 
@@ -1904,14 +1932,18 @@ void PutClientInServer(edict_t *ent)
     // intersecting spawns, so we'll do a sanity check here...
     if (spawn_from_begin) {
         if (coop->integer) {
-            if (edict_t *collision = G_UnsafeSpawnPosition(ent->s.origin); collision && collision->client) {
-                // link us early so that the other player sees us there
+            edict_t *collision = G_UnsafeSpawnPosition(ent->s.origin, true);
+
+            if (collision) {
                 gi.linkentity(ent);
 
-                // we spawned in somebody else, so we're going to change their spawn position
-                bool lm = false;
-                SelectSpawnPoint(collision, spawn_origin, spawn_angles, true, lm);
-                PutClientOnSpawnPoint(collision, spawn_origin, spawn_angles);
+                if (collision->client) {
+                    // we spawned in somebody else, so we're going to change their spawn position
+                    bool lm = false;
+                    SelectSpawnPoint(collision, spawn_origin, spawn_angles, true, lm);
+                    PutClientOnSpawnPoint(collision, spawn_origin, spawn_angles);
+                }
+                // else, no choice but to accept where ever we spawned :(
             }
         }
 
@@ -2687,7 +2719,9 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
             client->ps.pmove.pm_type = PM_NORMAL;
 
         // [Paril-KEX]
-        if (!G_ShouldPlayersCollide(false))
+        if (!G_ShouldPlayersCollide(false) ||
+            (coop->integer && !(ent->clipmask & CONTENTS_PLAYER)) // if player collision is on and we're temporarily ghostly...
+           )
             client->ps.pmove.pm_flags |= PMF_IGNORE_PLAYER_COLLISION;
         else
             client->ps.pmove.pm_flags &= ~PMF_IGNORE_PLAYER_COLLISION;
@@ -2873,12 +2907,15 @@ inline entity_iterable_t<active_monsters_filter_t> active_monsters()
 inline bool G_MonstersSearchingFor(edict_t *player)
 {
     for (auto ent : active_monsters()) {
+        // check for *any* player target
+        if (player == nullptr && ent->enemy && !ent->enemy->client)
+            continue;
         // they're not targeting us, so who cares
-        if (ent->enemy != player)
+        else if (player != nullptr && ent->enemy != player)
             continue;
 
         // they lost sight of us
-        if (ent->monsterinfo.aiflags & AI_LOST_SIGHT && level.time > ent->monsterinfo.trail_time + 5_sec)
+        if ((ent->monsterinfo.aiflags & AI_LOST_SIGHT) && level.time > ent->monsterinfo.trail_time + 5_sec)
             continue;
 
         // no sir
@@ -2988,6 +3025,8 @@ inline bool G_FindRespawnSpot(edict_t *player, vec3_t &spot)
 // respawn target & position
 inline std::tuple<edict_t *, vec3_t> G_FindSquadRespawnTarget()
 {
+    bool monsters_searching_for_anybody = G_MonstersSearchingFor(nullptr);
+
     for (auto player : active_players()) {
         // no dead players
         if (player->deadflag)
@@ -3002,6 +3041,13 @@ inline std::tuple<edict_t *, vec3_t> G_FindSquadRespawnTarget()
         // check if any monsters are currently targeting us
         // or searching for us
         if (G_MonstersSearchingFor(player)) {
+            player->client->coop_respawn_state = COOP_RESPAWN_IN_COMBAT;
+            continue;
+        }
+
+        // check firing state; if any enemies are mad at any players,
+        // don't respawn until everybody has cooled down
+        if (monsters_searching_for_anybody && player->client->last_firing_time >= level.time) {
             player->client->coop_respawn_state = COOP_RESPAWN_IN_COMBAT;
             continue;
         }

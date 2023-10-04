@@ -476,6 +476,15 @@ bool KillBox(edict_t *ent, bool from_spawning, mod_id_t mod, bool bsp_clipping)
                 continue;
         }
 
+        // [Paril-KEX] don't allow telefragging of friends in coop.
+        // the player that is about to be telefragged will have collision
+        // disabled until another time.
+        if (ent->client && hit->client && coop->integer) {
+            hit->clipmask &= ~CONTENTS_PLAYER;
+            ent->clipmask &= ~CONTENTS_PLAYER;
+            continue;
+        }
+
         T_Damage(hit, ent, ent, vec3_origin, ent->s.origin, vec3_origin, 100000, 0, DAMAGE_NO_PROTECTION, mod);
     }
 

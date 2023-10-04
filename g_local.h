@@ -2682,6 +2682,9 @@ constexpr gtime_t LADDER_SOUND_TIME = 300_ms;
 // time after damage that we can't respawn on a player for
 constexpr gtime_t COOP_DAMAGE_RESPAWN_TIME = 2000_ms;
 
+// time after firing that we can't respawn on a player for
+constexpr gtime_t COOP_DAMAGE_FIRING_TIME = 2500_ms;
+
 // this structure is cleared on each PutClientInServer(),
 // except for 'client->pers'
 struct gclient_t {
@@ -2858,6 +2861,8 @@ struct gclient_t {
     gtime_t respawn_timeout; // after this time, force a respawn
 
     gtime_t  last_attacker_time;
+    // saved - for coop; last time we were in a firing state
+    gtime_t  last_firing_time;
 };
 
 // ==========================================
