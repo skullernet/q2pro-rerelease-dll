@@ -27,7 +27,7 @@ bool G_CheckInfiniteAmmo(gitem_t *item)
     if (item->flags & IF_NO_INFINITE_AMMO)
         return false;
 
-    return g_infinite_ammo->integer || g_instagib->integer;
+    return g_infinite_ammo->integer || (deathmatch->integer && g_instagib->integer);
 }
 
 //========

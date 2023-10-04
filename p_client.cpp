@@ -802,14 +802,14 @@ void InitClientPersistant(edict_t *ent, gclient_t *client)
             client->pers.max_ammo[AMMO_TESLA] = 5;
             // ROGUE
 
-            if (!g_instagib->integer)
+            if (!deathmatch->integer || !g_instagib->integer)
                 client->pers.inventory[IT_WEAPON_BLASTER] = 1;
 
             // [Kex]
             // start items!
             if (*g_start_items->string)
                 Player_GiveStartItems(ent, g_start_items->string);
-            else if (g_instagib->integer) {
+            else if (deathmatch->integer && g_instagib->integer) {
                 client->pers.inventory[IT_WEAPON_RAILGUN] = 1;
                 client->pers.inventory[IT_AMMO_SLUGS] = 99;
             }

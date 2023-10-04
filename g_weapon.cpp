@@ -807,7 +807,7 @@ void fire_rail(edict_t *self, const vec3_t &start, const vec3_t &aimdir, int dam
 
         if (binary_positional_search(org, start, args.tr.endpos, static_cast<game_import_t>(gi).inPHS, 3)) {
             gi.WriteByte(svc_temp_entity);
-            gi.WriteByte(g_instagib->integer ? TE_RAILTRAIL2 : TE_RAILTRAIL);
+            gi.WriteByte((deathmatch->integer && g_instagib->integer) ? TE_RAILTRAIL2 : TE_RAILTRAIL);
             gi.WritePosition(start);
             gi.WritePosition(args.tr.endpos);
             gi.unicast(player, false);
