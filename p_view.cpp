@@ -837,7 +837,7 @@ void P_WorldEffects()
 
                 // play a gurp sound instead of a normal pain sound
                 if (current_player->health <= current_player->dmg)
-                    gi.sound(current_player, CHAN_VOICE, gi.soundindex("player/drown1.wav"), 1, ATTN_NORM, 0);
+                    gi.sound(current_player, CHAN_VOICE, gi.soundindex("*drown1.wav"), 1, ATTN_NORM, 0); // [Paril-KEX]
                 else if (brandom())
                     gi.sound(current_player, CHAN_VOICE, gi.soundindex("*gurp1.wav"), 1, ATTN_NORM, 0);
                 else
@@ -849,10 +849,9 @@ void P_WorldEffects()
             }
         }
         // Paril: almost-drowning sounds
-        // FIXME use better sound + precache in worldspawn
         else if (current_player->air_finished <= level.time + 3_sec) {
             if (current_player->client->next_drown_time < level.time) {
-                gi.sound(current_player, CHAN_VOICE, gi.soundindex("player/wade1.wav"), 1, ATTN_NORM, 0);
+                gi.sound(current_player, CHAN_VOICE, gi.soundindex(G_Fmt("player/wade{}.wav", 1 + ((int32_t) level.time.seconds() % 3)).data()), 1, ATTN_NORM, 0);
                 current_player->client->next_drown_time = level.time + 1_sec;
             }
         }

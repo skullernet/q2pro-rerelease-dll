@@ -1546,6 +1546,7 @@ void SP_worldspawn(edict_t *ent)
     gi.soundindex("*pain75_2.wav");
     gi.soundindex("*pain100_1.wav");
     gi.soundindex("*pain100_2.wav");
+    gi.soundindex("*drown1.wav"); // [Paril-KEX]
 
     // sexed models
     for (auto &item : itemlist)
@@ -1583,6 +1584,10 @@ void SP_worldspawn(edict_t *ent)
 
     gi.soundindex("player/u_breath1.wav");
     gi.soundindex("player/u_breath2.wav");
+
+    gi.soundindex("player/wade1.wav");
+    gi.soundindex("player/wade2.wav");
+    gi.soundindex("player/wade3.wav");
 
     gi.soundindex("items/pkup.wav");   // bonus item pickup
     gi.soundindex("world/land.wav");   // landing thud
