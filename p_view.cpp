@@ -941,7 +941,6 @@ void G_SetClientEffects(edict_t *ent)
 
     // RAFAEL
     if (ent->client->quadfire_time > level.time) {
-        ;
         if (G_PowerUpExpiring(ent->client->quadfire_time))
             //CTFSetPowerUpEffect(ent, EF_DUALFIRE);
             ent->x.morefx |= EFX_DUALFIRE;
