@@ -626,13 +626,11 @@ void SV_CalcBlend(edict_t *ent)
         constexpr vec3_t drown_color = { 0.1f, 0.1f, 0.2f };
         constexpr float max_drown_alpha = 0.75f;
         float alpha = (ent->air_finished < level.time) ? 1 : (1.f - ((ent->air_finished - level.time).seconds() / 9.0f));
-        //G_AddBlend(drown_color[0], drown_color[1], drown_color[2], min(alpha, max_drown_alpha), ent->client->ps.damage_blend);
+        G_AddBlend(drown_color[0], drown_color[1], drown_color[2], min(alpha, max_drown_alpha), ent->client->ps.screen_blend);
     }
 
-#if 0
     if (ent->client->bonus_alpha > 0)
-        G_AddBlend(0.85f, 0.7f, 0.3f, ent->client->bonus_alpha, ent->client->ps.damage_blend);
-#endif
+        G_AddBlend(0.85f, 0.7f, 0.3f, ent->client->bonus_alpha, ent->client->ps.screen_blend);
 
     // drop the damage value
     ent->client->damage_alpha -= FRAME_TIME.seconds() * 0.6f;
