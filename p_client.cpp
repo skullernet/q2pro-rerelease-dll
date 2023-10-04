@@ -867,11 +867,6 @@ void InitClientResp(gclient_t *client)
 
     client->resp.entertime = level.time;
     client->resp.coop_respawn = client->pers;
-
-    // ZOID
-    if (G_TeamplayEnabled() && client->pers.connected && client->resp.ctf_team < CTF_TEAM1)
-        CTFAssignTeam(client);
-    // ZOID
 }
 
 /*
@@ -1965,6 +1960,11 @@ void ClientBeginDeathmatch(edict_t *ent)
 
     InitClientResp(ent->client);
 
+    // ZOID
+    if (G_TeamplayEnabled() && ent->client->resp.ctf_team < CTF_TEAM1)
+        CTFAssignTeam(ent->client);
+    // ZOID
+
     // PGM
     if (gamerules->integer && DMGame.ClientBegin) {
         DMGame.ClientBegin(ent);
@@ -2099,6 +2099,9 @@ void ClientBegin(edict_t *ent)
     ent->client = game.clients + (ent - g_edicts - 1);
     ent->client->awaiting_respawn = false;
     ent->client->respawn_timeout = 0_ms;
+
+    // [Paril-KEX] we're always connected by this point...
+    ent->client->pers.connected = true;
 
     if (deathmatch->integer) {
         ClientBeginDeathmatch(ent);
