@@ -469,7 +469,7 @@ bool KillBox(edict_t *ent, bool from_spawning, mod_id_t mod, bool bsp_clipping)
 
         if (hit == ent)
             continue;
-        else if (!hit->inuse || !hit->takedamage || !hit->solid || hit->solid == SOLID_TRIGGER)
+        else if (!hit->inuse || !hit->takedamage || !hit->solid || hit->solid == SOLID_TRIGGER || hit->solid == SOLID_BSP)
             continue;
         else if (hit->client && !(mask & CONTENTS_PLAYER))
             continue;

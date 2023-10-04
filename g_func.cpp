@@ -2098,6 +2098,8 @@ void train_resume(edict_t *self)
             dest -= vec3_t{1.f, 1.f, 1.f};
     }
 
+    self->s.sound = self->moveinfo.sound_middle;
+
     self->moveinfo.state = STATE_TOP;
     self->moveinfo.start_origin = self->s.origin;
     self->moveinfo.end_origin = dest;

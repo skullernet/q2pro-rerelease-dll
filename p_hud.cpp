@@ -198,6 +198,8 @@ void BeginIntermission(edict_t *targ)
 
     game.autosaved = false;
 
+    level.intermissiontime = level.time;
+
     // respawn any dead clients
     for (uint32_t i = 0; i < game.maxclients; i++) {
         client = g_edicts + 1 + i;
@@ -214,7 +216,6 @@ void BeginIntermission(edict_t *targ)
         }
     }
 
-    level.intermissiontime = level.time;
     //level.intermission_server_frame = gi.ServerFrame();
     level.changemap = targ->map;
     level.intermission_clear = targ->spawnflags.has(SPAWNFLAG_CHANGELEVEL_CLEAR_INVENTORY);

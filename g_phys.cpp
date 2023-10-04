@@ -430,12 +430,6 @@ retry:
 
         if (!obstacle->inuse)
             goto retry;
-
-        // the move failed, bump all nextthink times and back out moves
-        for (mv = ent; mv; mv = mv->teamchain) {
-            if (mv->nextthink > 0_ms)
-                mv->nextthink += FRAME_TIME;
-        }
     } else {
         // the move succeeded, so call all think functions
         for (part = ent; part; part = part->teamchain) {

@@ -330,7 +330,7 @@ void InitGame()
     g_friendly_fire = gi.cvar("g_friendly_fire", "0", CVAR_NOFLAGS);
     g_dm_force_respawn = gi.cvar("g_dm_force_respawn", "0", CVAR_NOFLAGS);
     g_dm_force_respawn_time = gi.cvar("g_dm_force_respawn_time", "0", CVAR_NOFLAGS);
-    g_dm_spawn_farthest = gi.cvar("g_dm_spawn_farthest", "0", CVAR_NOFLAGS);
+    g_dm_spawn_farthest = gi.cvar("g_dm_spawn_farthest", "1", CVAR_NOFLAGS);
     g_no_armor = gi.cvar("g_no_armor", "0", CVAR_NOFLAGS);
     g_dm_allow_exit = gi.cvar("g_dm_allow_exit", "0", CVAR_NOFLAGS);
     g_infinite_ammo = gi.cvar("g_infinite_ammo", "0", CVAR_LATCH);

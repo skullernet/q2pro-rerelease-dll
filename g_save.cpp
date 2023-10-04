@@ -2310,6 +2310,11 @@ qboolean G_CanSave()
         return qfalse;
     }
 
+    // don't allow saving during cameras/intermissions as this
+    // causes the game to act weird when these are loaded
+    if (level.intermissiontime)
+        return qfalse;
+
     return qtrue;
 }
 
