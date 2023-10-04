@@ -305,7 +305,7 @@ void SV_CalcViewOffset(edict_t *ent)
             ent->client->ps.viewangles[PITCH] = -15;
         }
         ent->client->ps.viewangles[YAW] = ent->client->killer_yaw;
-    } else {
+    } else if (!ent->client->pers.bob_skip && !SkipViewModifiers()) {
         // add angles based on weapon kick
         angles = P_CurrentKickAngles(ent);
 
@@ -394,24 +394,24 @@ void SV_CalcViewOffset(edict_t *ent)
 
     // add fall height
 
-    if (ent->client->fall_time > level.time) {
-        // [Paril-KEX] 100ms of slack is added to account for
-        // visual difference in higher tickrates
-        gtime_t diff = ent->client->fall_time - level.time;
-
-        // slack time remaining
-        if (DAMAGE_TIME_SLACK()) {
-            if (diff > FALL_TIME() - DAMAGE_TIME_SLACK())
-                ratio = (FALL_TIME() - diff).seconds() / DAMAGE_TIME_SLACK().seconds();
-            else
-                ratio = diff.seconds() / (FALL_TIME() - DAMAGE_TIME_SLACK()).seconds();
-        } else
-            ratio = diff.seconds() / (FALL_TIME() - DAMAGE_TIME_SLACK()).seconds();
-        v[2] -= ratio * ent->client->fall_value * 0.4f;
-    }
-
-    // add bob height
     if (!ent->client->pers.bob_skip && !SkipViewModifiers()) {
+        if (ent->client->fall_time > level.time) {
+            // [Paril-KEX] 100ms of slack is added to account for
+            // visual difference in higher tickrates
+            gtime_t diff = ent->client->fall_time - level.time;
+
+            // slack time remaining
+            if (DAMAGE_TIME_SLACK()) {
+                if (diff > FALL_TIME() - DAMAGE_TIME_SLACK())
+                    ratio = (FALL_TIME() - diff).seconds() / DAMAGE_TIME_SLACK().seconds();
+                else
+                    ratio = diff.seconds() / (FALL_TIME() - DAMAGE_TIME_SLACK()).seconds();
+            } else
+                ratio = diff.seconds() / (FALL_TIME() - DAMAGE_TIME_SLACK()).seconds();
+            v[2] -= ratio * ent->client->fall_value * 0.4f;
+        }
+
+        // add bob height
         bob = bobfracsin * xyspeed * bob_up->value;
         if (bob > 6)
             bob = 6;
@@ -421,8 +421,8 @@ void SV_CalcViewOffset(edict_t *ent)
 
     // add kick offset
 
-
-    v += P_CurrentKickOrigin(ent);
+    if (!ent->client->pers.bob_skip && !SkipViewModifiers())
+        v += P_CurrentKickOrigin(ent);
 
     // absolutely bound offsets
     // so the view can never be outside the player box
@@ -1020,7 +1020,8 @@ void G_SetClientEvent(edict_t *ent)
         return;
 
     if (ent->client->ps.pmove.pm_flags & PMF_ON_LADDER) {
-        if (current_client->last_ladder_sound < level.time &&
+        if (!deathmatch->integer &&
+            current_client->last_ladder_sound < level.time &&
             (current_client->last_ladder_pos - ent->s.origin).length() > 48.f) {
             ent->s.event = EV_LADDER_STEP;
             current_client->last_ladder_pos = ent->s.origin;
