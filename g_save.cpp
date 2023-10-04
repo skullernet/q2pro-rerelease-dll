@@ -1218,7 +1218,7 @@ SAVE_STRUCT_END
 #undef DECLARE_SAVE_STRUCT
 // clang-format on
 
-size_t get_simple_type_size(save_type_id_t id)
+size_t get_simple_type_size(save_type_id_t id, bool fatal = true)
 {
     switch (id) {
     case ST_BOOL:
@@ -1246,7 +1246,8 @@ size_t get_simple_type_size(save_type_id_t id)
     case ST_ITEM_INDEX:
         return sizeof(uint32_t);
     default:
-        gi.Com_ErrorFmt("Can't calculate static size for type ID {}", (int32_t) id);
+        if (fatal)
+            gi.Com_ErrorFmt("Can't calculate static size for type ID {}", (int32_t) id);
     }
 
     return 0;
@@ -1255,8 +1256,8 @@ size_t get_simple_type_size(save_type_id_t id)
 size_t get_complex_type_size(const save_type_t &type)
 {
     // these are simple types
-    if ((type.id >= ST_BOOL && type.id <= ST_DOUBLE) || (type.id >= ST_ENTITY && type.id <= ST_TIME))
-        return get_simple_type_size(type.id);
+    if (auto simple = get_simple_type_size(type.id, false))
+        return simple;
 
     switch (type.id) {
     case ST_STRUCT:
@@ -1360,7 +1361,7 @@ void read_save_type_json(const Json::Value &json, void *data, const save_type_t 
         else if (json.asInt() < INT8_MIN || json.asInt() > INT8_MAX)
             json_print_error(field, "int8 out of range", false);
         else
-            *((int8_t *) data) = json.isInt();
+            *((int8_t *) data) = json.asInt();
         return;
     case ST_INT16:
         if (!json.isInt())
@@ -1864,7 +1865,7 @@ bool write_save_type_json(const void *data, const save_type_t *type, bool null_f
             v.append(std::move(value));
         }
 
-        output = v;
+        output = std::move(v);
         return true;
     }
     case ST_BITSET:
@@ -1879,7 +1880,7 @@ bool write_save_type_json(const void *data, const save_type_t *type, bool null_f
         if (null_for_empty && (!valid_value || !obj.size()))
             return false;
 
-        output = obj;
+        output = std::move(obj);
         return true;
     }
     case ST_ENTITY: {
@@ -1986,7 +1987,7 @@ bool write_save_type_json(const void *data, const save_type_t *type, bool null_f
         if (null_for_empty && inventory.empty())
             return false;
 
-        output = inventory;
+        output = std::move(inventory);
         return true;
     }
     case ST_REINFORCEMENTS: {
@@ -2015,7 +2016,7 @@ bool write_save_type_json(const void *data, const save_type_t *type, bool null_f
             reinforcements[i] = obj;
         }
 
-        output = reinforcements;
+        output = std::move(reinforcements);
         return true;
     }
     default:
@@ -2043,7 +2044,7 @@ bool write_save_struct_json(const void *data, const save_struct_t *structure, bo
     if (null_for_empty && obj.empty())
         return false;
 
-    output = obj;
+    output = std::move(obj);
     return true;
 }
 
