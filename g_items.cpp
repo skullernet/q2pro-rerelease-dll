@@ -1390,8 +1390,6 @@ static void Use_Flashlight(edict_t *ent, gitem_t *inv)
     P_ToggleFlashlight(ent, !(ent->flags & FL_FLASHLIGHT));
 }
 
-constexpr size_t MAX_TEMP_POI_POINTS = 128;
-
 void Compass_Update(edict_t *ent, bool first)
 {
     vec3_t *&points = level.poi_points[ent->s.number - 1];

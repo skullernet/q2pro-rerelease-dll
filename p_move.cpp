@@ -188,7 +188,6 @@ Returns a new origin, velocity, and contact entity
 Does not modify any world state?
 ==================
 */
-constexpr float  MIN_STEP_NORMAL = 0.7f; // can't step up onto very steep slopes
 constexpr size_t MAX_CLIP_PLANES = 5;
 
 inline void PM_RecordTrace(touch_list_t &touch, trace_t &tr)

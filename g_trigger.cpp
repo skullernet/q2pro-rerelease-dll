@@ -951,11 +951,11 @@ with respect to angles.
 "heightfog_end_dist_off"; transition the end distance for the fog (units)
 */
 
-constexpr spawnflags_t SPAWNFLAG_FOG_AFFECT_FOG = 1_spawnflag;
-constexpr spawnflags_t SPAWNFLAG_FOG_AFFECT_HEIGHTFOG = 2_spawnflag;
-constexpr spawnflags_t SPAWNFLAG_FOG_INSTANTANEOUS = 4_spawnflag;
-constexpr spawnflags_t SPAWNFLAG_FOG_FORCE = 8_spawnflag;
-constexpr spawnflags_t SPAWNFLAG_FOG_BLEND = 16_spawnflag;
+[[maybe_unused]] constexpr spawnflags_t SPAWNFLAG_FOG_AFFECT_FOG = 1_spawnflag;
+[[maybe_unused]] constexpr spawnflags_t SPAWNFLAG_FOG_AFFECT_HEIGHTFOG = 2_spawnflag;
+[[maybe_unused]] constexpr spawnflags_t SPAWNFLAG_FOG_INSTANTANEOUS = 4_spawnflag;
+[[maybe_unused]] constexpr spawnflags_t SPAWNFLAG_FOG_FORCE = 8_spawnflag;
+[[maybe_unused]] constexpr spawnflags_t SPAWNFLAG_FOG_BLEND = 16_spawnflag;
 
 TOUCH(trigger_fog_touch)(edict_t *self, edict_t *other, const trace_t &tr, bool other_touching_self) -> void {
 }

@@ -397,7 +397,7 @@ push all box objects
 void SV_Physics_Pusher(edict_t *ent)
 {
     vec3_t   move, amove;
-    edict_t *part, *mv;
+    edict_t *part;
 
     // if not a team captain, so movement will be handled elsewhere
     if (ent->flags & FL_TEAMSLAVE)

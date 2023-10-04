@@ -752,52 +752,6 @@ static void M_CheckDodge(edict_t *self)
     gi.BoxEdicts(self->absmin - vec3_t{512, 512, 512}, self->absmax + vec3_t{512, 512, 512}, nullptr, 0, AREA_SOLID, M_CheckDodge_BoxEdictsFilter, self);
 }
 
-static bool CheckPathVisibility(const vec3_t &start, const vec3_t &end)
-{
-    trace_t tr = gi.traceline(start, end, nullptr, MASK_SOLID | CONTENTS_PROJECTILECLIP | CONTENTS_MONSTERCLIP | CONTENTS_PLAYERCLIP);
-
-    bool valid = tr.fraction == 1.0f;
-
-    if (!valid) {
-        // try raising some of the points
-        bool can_raise_start = false, can_raise_end = false;
-        vec3_t raised_start = start + vec3_t{0.f, 0.f, 16.f};
-        vec3_t raised_end = end + vec3_t{0.f, 0.f, 16.f};
-
-        if (gi.traceline(start, raised_start, nullptr, MASK_SOLID | CONTENTS_PROJECTILECLIP | CONTENTS_MONSTERCLIP | CONTENTS_PLAYERCLIP).fraction == 1.0f)
-            can_raise_start = true;
-
-        if (gi.traceline(end, raised_end, nullptr, MASK_SOLID | CONTENTS_PROJECTILECLIP | CONTENTS_MONSTERCLIP | CONTENTS_PLAYERCLIP).fraction == 1.0f)
-            can_raise_end = true;
-
-        // try raised start -> end
-        if (can_raise_start) {
-            tr = gi.traceline(raised_start, end, nullptr, MASK_SOLID | CONTENTS_PROJECTILECLIP | CONTENTS_MONSTERCLIP | CONTENTS_PLAYERCLIP);
-
-            if (tr.fraction == 1.0f)
-                return true;
-        }
-
-        // try start -> raised end
-        if (can_raise_end) {
-            tr = gi.traceline(start, raised_end, nullptr, MASK_SOLID | CONTENTS_PROJECTILECLIP | CONTENTS_MONSTERCLIP | CONTENTS_PLAYERCLIP);
-
-            if (tr.fraction == 1.0f)
-                return true;
-        }
-
-        // try both raised
-        if (can_raise_start && can_raise_end) {
-            tr = gi.traceline(raised_start, raised_end, nullptr, MASK_SOLID | CONTENTS_PROJECTILECLIP | CONTENTS_MONSTERCLIP | CONTENTS_PLAYERCLIP);
-
-            if (tr.fraction == 1.0f)
-                return true;
-        }
-    }
-
-    return valid;
-}
-
 THINK(monster_think)(edict_t *self) -> void {
     self->s.renderfx &= ~(RF_STAIR_STEP | RF_OLD_FRAME_LERP);
 

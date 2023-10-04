@@ -138,7 +138,6 @@ if cpp.get_argument_syntax() == 'gcc'
     '-Wno-class-memaccess',
     '-Wno-narrowing',
     '-Wno-sign-compare',
-    '-Wno-unused',
     '-Wpointer-arith',
   ]
 

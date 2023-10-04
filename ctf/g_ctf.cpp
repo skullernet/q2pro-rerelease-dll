@@ -96,39 +96,6 @@ constexpr item_id_t tech_ids[] = { IT_TECH_RESISTANCE, IT_TECH_STRENGTH, IT_TECH
 
 /*--------------------------------------------------------------------------*/
 
-#ifndef KEX_Q2_GAME
-/*
-=================
-findradius
-
-Returns entities that have origins within a spherical area
-
-findradius (origin, radius)
-=================
-*/
-static edict_t *loc_findradius(edict_t *from, const vec3_t &org, float rad)
-{
-    vec3_t eorg;
-    int    j;
-
-    if (!from)
-        from = g_edicts;
-    else
-        from++;
-    for (; from < &g_edicts[globals.num_edicts]; from++) {
-        if (!from->inuse)
-            continue;
-        for (j = 0; j < 3; j++)
-            eorg[j] = org[j] - (from->s.origin[j] + (from->mins[j] + from->maxs[j]) * 0.5f);
-        if (eorg.length() > rad)
-            continue;
-        return from;
-    }
-
-    return nullptr;
-}
-#endif
-
 static void loc_buildboxpoints(vec3_t (&p)[8], const vec3_t &org, const vec3_t &mins, const vec3_t &maxs)
 {
     p[0] = org + mins;
