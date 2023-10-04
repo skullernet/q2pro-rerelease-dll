@@ -1487,7 +1487,7 @@ void G_PostRespawn(edict_t *self)
 
     // hold in place briefly
     self->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
-    self->client->ps.pmove.pm_time = 112;
+    self->client->ps.pmove.pm_time = 112 >> 3;
 
     self->client->respawn_time = level.time;
 }
@@ -1588,7 +1588,7 @@ void spectator_respawn(edict_t *ent)
 
         // hold in place briefly
         ent->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
-        ent->client->ps.pmove.pm_time = 112;
+        ent->client->ps.pmove.pm_time = 112 >> 3;
     }
 
     ent->client->respawn_time = level.time;

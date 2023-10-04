@@ -64,7 +64,7 @@ TOUCH(trigger_teleport_touch)(edict_t *self, edict_t *other, const trace_t &tr, 
 
     if (other->client)
     {
-        other->client->ps.pmove.pm_time = 160; // hold time
+        other->client->ps.pmove.pm_time = 160 >> 3; // hold time
         other->client->ps.pmove.pm_flags |= PMF_TIME_TELEPORT;
 
         // draw the teleport splash at source and on the player
