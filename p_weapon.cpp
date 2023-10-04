@@ -1001,12 +1001,11 @@ void Throw_Generic(edict_t *ent, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST, int F
                 grenade_wait_time *= 0.5f;
 
             if (ent->client->ps.gunframe == FRAME_THROW_HOLD) {
-                if (!ent->client->grenade_time && !ent->client->grenade_finished_time) {
+                if (!ent->client->grenade_time && !ent->client->grenade_finished_time)
                     ent->client->grenade_time = level.time + GRENADE_TIMER + 200_ms;
 
-                    if (primed_sound)
-                        ent->client->weapon_sound = gi.soundindex(primed_sound);
-                }
+                if (primed_sound && !ent->client->grenade_blew_up)
+                    ent->client->weapon_sound = gi.soundindex(primed_sound);
 
                 // they waited too long, detonate it in their hand
                 if (EXPLODE && !ent->client->grenade_blew_up && level.time >= ent->client->grenade_time) {
@@ -1612,8 +1611,16 @@ RAILGUN
 
 void weapon_railgun_fire(edict_t *ent)
 {
-    int damage = 100;
-    int kick = 200;
+    int damage, kick;
+
+    // normal damage too extreme for DM
+    if (deathmatch->integer) {
+        damage = 100;
+        kick = 200;
+    } else {
+        damage = 125;
+        kick = 225;
+    }
 
     if (is_quad) {
         damage *= damage_multiplier;
