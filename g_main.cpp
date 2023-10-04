@@ -323,7 +323,7 @@ void InitGame()
     // dm "flags"
     g_no_health = gi.cvar("g_no_health", "0", CVAR_NOFLAGS);
     g_no_items = gi.cvar("g_no_items", "0", CVAR_NOFLAGS);
-    g_dm_weapons_stay = gi.cvar("g_dm_weapons_stay", "0", CVAR_NOFLAGS);
+    g_dm_weapons_stay = gi.cvar("g_dm_weapons_stay", "0", CVAR_LATCH);
     g_dm_no_fall_damage = gi.cvar("g_dm_no_fall_damage", "0", CVAR_NOFLAGS);
     g_dm_instant_items = gi.cvar("g_dm_instant_items", "1", CVAR_NOFLAGS);
     g_dm_same_level = gi.cvar("g_dm_same_level", "0", CVAR_NOFLAGS);

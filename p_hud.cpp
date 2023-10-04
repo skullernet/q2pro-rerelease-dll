@@ -203,8 +203,15 @@ void BeginIntermission(edict_t *targ)
         client = g_edicts + 1 + i;
         if (!client->inuse)
             continue;
-        if (client->health <= 0)
+        if (client->health <= 0) {
+            // give us our max health back since it will reset
+            // to pers.health; in instanced items we'd lose the items
+            // we touched so we always want to respawn with our max.
+            if (P_UseCoopInstancedItems())
+                client->client->pers.health = client->client->pers.max_health = client->max_health;
+
             respawn(client);
+        }
     }
 
     level.intermissiontime = level.time;
