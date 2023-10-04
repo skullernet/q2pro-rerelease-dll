@@ -2630,15 +2630,13 @@ bool HandleMenuMovement(edict_t *ent, usercmd_t *ucmd)
     return false;
 }
 
-edict_t *pm_passent;
+static edict_t *pm_passent;
+static contents_t pm_clipmask;
 
 // pmove doesn't need to know about passent and contentmask
-trace_t PM_trace(gvec3_cref_t start, gvec3_cref_t mins, gvec3_cref_t maxs, gvec3_cref_t end)
+static trace_t PM_trace(gvec3_cref_t start, gvec3_cref_t mins, gvec3_cref_t maxs, gvec3_cref_t end)
 {
-    if (pm_passent->health > 0)
-        return gi.trace(start, mins, maxs, end, pm_passent, MASK_PLAYERSOLID);
-    else
-        return gi.trace(start, mins, maxs, end, pm_passent, MASK_DEADSOLID);
+    return gi.trace(start, mins, maxs, end, pm_passent, pm_clipmask);
 }
 
 /*
@@ -2718,13 +2716,22 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
         else
             client->ps.pmove.pm_type = PM_NORMAL;
 
+        pm_passent = ent;
+        if (client->ps.pmove.pm_type == PM_DEAD || client->ps.pmove.pm_type == PM_GIB)
+            pm_clipmask = MASK_DEADSOLID;
+        else
+            pm_clipmask = MASK_PLAYERSOLID;
+
         // [Paril-KEX]
         if (!G_ShouldPlayersCollide(false) ||
             (coop->integer && !(ent->clipmask & CONTENTS_PLAYER)) // if player collision is on and we're temporarily ghostly...
            )
+        {
+            pm_clipmask &= ~CONTENTS_PLAYER;
             client->ps.pmove.pm_flags |= PMF_IGNORE_PLAYER_COLLISION;
-        else
+        } else {
             client->ps.pmove.pm_flags &= ~PMF_IGNORE_PLAYER_COLLISION;
+        }
 
         // PGM  trigger_gravity support
         client->ps.pmove.gravity = (short)(level.gravity * ent->gravity);
@@ -2741,8 +2748,6 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
         pm.cmd = *ucmd;
         pm.trace = PM_trace;
         pm.pointcontents = gi.pointcontents;
-
-        pm_passent = ent;
 
         // perform a pmove
         gi.Pmove(&pm);

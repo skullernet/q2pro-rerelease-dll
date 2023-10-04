@@ -358,7 +358,7 @@ enum pmflags_t : uint8_t {
     PMF_NO_POSITIONAL_PREDICTION = bit_v<6>,    // temporarily disables positional prediction (used for grappling hook)
     PMF_ON_LADDER = 0,    // signal to game that we are on a ladder
     PMF_NO_ANGULAR_PREDICTION = 0, // temporary disables angular prediction
-    PMF_IGNORE_PLAYER_COLLISION = 0, // don't collide with other players
+    PMF_IGNORE_PLAYER_COLLISION = bit_v<7>, // don't collide with other players
     PMF_TIME_TRICK = 0, // pm_time is trick jump time
 };
 
