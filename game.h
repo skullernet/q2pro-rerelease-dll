@@ -153,7 +153,7 @@ enum multicast_t {
 
 enum qboolean { qfalse, qtrue };
 
-enum game_features_t {
+enum game_features_t : uint32_t {
     GMF_NONE = 0,
 
     // R1Q2 and Q2PRO specific

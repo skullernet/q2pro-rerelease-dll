@@ -216,7 +216,7 @@ void InitGame()
     if (!cv || !(cv->flags & CVAR_ROM) || ((int)cv->value & G_FEATURES) != G_FEATURES || gi.ex.apiversion < GAME_API_VERSION_EX)
         gi.error("This game library requires enhanced Q2PRO server");
 
-    gi.cvar_forceset("g_features", G_Fmt("{}", G_FEATURES).data());
+    gi.cvar_forceset("g_features", G_Fmt("{}", (uint32_t)G_FEATURES).data());
 
     PreInitGame();
 
