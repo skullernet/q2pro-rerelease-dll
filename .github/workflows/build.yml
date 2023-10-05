@@ -1,0 +1,106 @@
+name: build
+
+on:
+  push:
+    branches: [master, ci]
+  pull_request:
+    branches: [master]
+
+env:
+  MESON_ARGS: >-
+    --auto-features=enabled
+    --fatal-meson-warnings
+
+  MESON_ARGS_WIN: >-
+    -Dwrap_mode=forcefallback
+    -Db_lto=true
+
+  MESON_ARGS_LINUX: >-
+    -Dwrap_mode=nofallback
+
+jobs:
+  mingw:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        arch: ["i686", "x86_64"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/cache@v3
+        with:
+          path: subprojects/packagecache
+          key: ${{ hashFiles('subprojects/*.wrap') }}
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y g++-mingw-w64 meson
+
+      - name: Build
+        run: |
+          meson setup --cross-file=.ci/${{ matrix.arch }}-w64-mingw32.txt \
+          ${{ env.MESON_ARGS }} ${{ env.MESON_ARGS_WIN }} builddir
+          meson compile -C builddir
+          ${{ matrix.arch }}-w64-mingw32-strip builddir/game*.dll
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.arch }}-mingw
+          path: builddir/game*.dll
+
+  msvc:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        arch: ["x86", "x64"]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/cache@v3
+        with:
+          path: subprojects/packagecache
+          key: ${{ hashFiles('subprojects/*.wrap') }}
+
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.arch }}
+
+      - name: Install dependencies
+        run: pip3 install --no-input meson ninja
+
+      - name: Build
+        run: |
+          meson setup ${{ env.MESON_ARGS }} ${{ env.MESON_ARGS_WIN }} builddir
+          meson compile -C builddir
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.arch }}-msvc
+          path: |
+            builddir/game*.dll
+            builddir/game*.pdb
+
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        cxx: [g++, clang++]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y meson libfmt-dev libjsoncpp-dev
+
+      - name: Build
+        run: |
+          meson setup ${{ env.MESON_ARGS }} ${{ env.MESON_ARGS_LINUX }} builddir
+          meson compile -C builddir
+        env:
+          CXX: ${{ matrix.cxx }}

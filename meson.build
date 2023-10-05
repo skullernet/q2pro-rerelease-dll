@@ -148,6 +148,8 @@ if cpp.get_argument_syntax() == 'gcc'
   if win32
     link_args += ['-static-libgcc', '-static-libstdc++']
   endif
+elif cpp.get_id() == 'msvc'
+  args += '/wd4244'
 endif
 
 add_project_arguments(args, language: 'cpp')
