@@ -1,5 +1,6 @@
 project('q2pro-rerelease-dll', 'cpp',
   license: 'GPL-2.0-or-later',
+  version: run_command(find_program('python3'), 'version.py', check: true).stdout().strip(),
   default_options: [
     'cpp_std=c++17',
     'buildtype=debugoptimized',
@@ -121,6 +122,7 @@ if cpu in cpuremap
 endif
 
 args = [
+  '-DHAVE_CONFIG_H',
   '-DKEX_Q2GAME_DYNAMIC',
   '-DKEX_Q2GAME_EXPORTS',
   '-DNO_FMT_SOURCE',
@@ -158,8 +160,19 @@ deps = [
   dependency('jsoncpp', default_options: fallback_opt),
 ]
 
+if win32
+  src += import('windows').compile_resources('game.rc', args: '-DHAVE_CONFIG_H', include_directories: '.')
+endif
+
 shared_library('game' + cpu, src,
   name_prefix:           '',
   gnu_symbol_visibility: 'hidden',
   dependencies:          deps,
 )
+
+config = configuration_data()
+config.set('REVISION',         meson.project_version().substring(1).split('~')[0].to_int())
+config.set_quoted('VERSION',   meson.project_version())
+config.set_quoted('CPUSTRING', cpu)
+
+configure_file(output: 'config.h', configuration: config)
