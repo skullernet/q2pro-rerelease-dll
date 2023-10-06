@@ -146,7 +146,14 @@ if cpp.get_argument_syntax() == 'gcc'
   args += cpp.get_supported_arguments(test_args)
 
   if win32
-    link_args += ['-static-libgcc', '-static-libstdc++']
+    link_args += [
+      '-Wl,--nxcompat,--dynamicbase',
+      '-static-libgcc',
+      '-static-libstdc++',
+    ]
+    if cpu == 'x86_64'
+      link_args += '-Wl,--high-entropy-va,--image-base=0x180000000'
+    endif
   endif
 elif cpp.get_id() == 'msvc'
   args += '/wd4244'
