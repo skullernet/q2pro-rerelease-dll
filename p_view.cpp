@@ -624,9 +624,9 @@ void SV_CalcBlend(edict_t *ent)
     // [Paril-KEX] drowning visual indicator
     if (ent->air_finished < level.time + 9_sec) {
         constexpr vec3_t drown_color = { 0.1f, 0.1f, 0.2f };
-        constexpr float max_drown_alpha = 0.75f;
+        constexpr float max_drown_alpha = 0.5f;
         float alpha = (ent->air_finished < level.time) ? 1 : (1.f - ((ent->air_finished - level.time).seconds() / 9.0f));
-        G_AddBlend(drown_color[0], drown_color[1], drown_color[2], min(alpha, max_drown_alpha), ent->client->ps.screen_blend);
+        G_AddBlend(drown_color[0], drown_color[1], drown_color[2], alpha * max_drown_alpha, ent->client->ps.screen_blend);
     }
 
     if (ent->client->bonus_alpha > 0)
