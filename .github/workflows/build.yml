@@ -46,9 +46,14 @@ jobs:
           meson compile -C builddir
           ${{ matrix.arch }}-w64-mingw32-strip builddir/game*.dll
 
+      - name: Set version
+        id: setver
+        run: |
+          echo "revision=r$(git rev-list --count HEAD)" >> "$GITHUB_OUTPUT"
+
       - uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.arch }}-mingw
+          name: ${{ matrix.arch }}-mingw-${{ steps.setver.outputs.revision }}
           path: builddir/game*.dll
 
   msvc:
@@ -78,9 +83,15 @@ jobs:
           meson setup ${{ env.MESON_ARGS }} ${{ env.MESON_ARGS_WIN }} builddir
           meson compile -C builddir
 
+      - name: Set version
+        shell: bash
+        id: setver
+        run: |
+          echo "revision=r$(git rev-list --count HEAD)" >> "$GITHUB_OUTPUT"
+
       - uses: actions/upload-artifact@v3
         with:
-          name: ${{ matrix.arch }}-msvc
+          name: ${{ matrix.arch }}-msvc-${{ steps.setver.outputs.revision }}
           path: |
             builddir/game*.dll
             builddir/game*.pdb
