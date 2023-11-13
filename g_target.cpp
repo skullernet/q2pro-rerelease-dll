@@ -1770,7 +1770,7 @@ USE(use_target_autosave)(edict_t *ent, edict_t *other, edict_t *activator) -> vo
 
     if (level.time - level.next_auto_save > save_time)
     {
-        gi.AddCommandString("save save1\n");
+        gi.AddCommandString("autosave\n");
         level.next_auto_save = level.time;
     }
 }
