@@ -106,6 +106,8 @@ src += [
   'ctf/p_ctf_menu.cpp',
 ]
 
+src += 'gzstream.cpp'
+
 cpp = meson.get_compiler('cpp')
 
 win32 = host_machine.system() == 'windows'
@@ -167,6 +169,7 @@ fallback_opt = ['default_library=static']
 deps = [
   dependency('fmt', default_options: fallback_opt),
   dependency('jsoncpp', default_options: fallback_opt),
+  dependency('zlib', default_options: fallback_opt),
 ]
 
 if win32

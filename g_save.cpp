@@ -1,8 +1,6 @@
 // Copyright (c) ZeniMax Media Inc.
 // Licensed under the GNU General Public License 2.0.
 
-#include <sstream>
-
 #include "g_local.h"
 #include <float.h>
 #ifdef __clang__
@@ -14,6 +12,7 @@
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
+#include "gzstream.h"
 
 // new save format;
 // - simple JSON format
@@ -2087,7 +2086,7 @@ static Json::Value parseJson(const char *filename)
     reader["allowSpecialFloats"] = true;
     Json::Value       json;
     JSONCPP_STRING    errs;
-    std::ifstream ss(filename, std::ios_base::in | std::ios_base::binary);
+    igzstream ss(filename, std::ios_base::in | std::ios_base::binary);
     if (!ss)
         gi.error("couldn't open %s", filename);
 
@@ -2106,7 +2105,7 @@ static void saveJson(const Json::Value &json, const char *filename)
     builder["indentation"] = "\t";
     builder["useSpecialFloats"] = true;
     const std::unique_ptr<Json::StreamWriter> writer(builder.newStreamWriter());
-    std::ofstream ss(filename, std::ios_base::out | std::ios_base::binary);
+    ogzstream ss(filename, std::ios_base::out | std::ios_base::binary);
     if (!ss)
         gi.error("couldn't open %s", filename);
     writer->write(json, &ss);
