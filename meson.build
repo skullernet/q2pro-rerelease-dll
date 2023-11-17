@@ -172,8 +172,15 @@ deps = [
   dependency('zlib', default_options: fallback_opt),
 ]
 
+config = configuration_data()
+config.set('REVISION',         meson.project_version().substring(1).split('~')[0].to_int())
+config.set_quoted('VERSION',   meson.project_version())
+config.set_quoted('CPUSTRING', cpu)
+
+cfg_file = configure_file(output: 'config.h', configuration: config)
+
 if win32
-  src += import('windows').compile_resources('game.rc', args: '-DHAVE_CONFIG_H', include_directories: '.')
+  src += import('windows').compile_resources('game.rc', args: '-DHAVE_CONFIG_H', include_directories: '.', depend_files: cfg_file)
 endif
 
 shared_library('game' + cpu, src,
@@ -181,10 +188,3 @@ shared_library('game' + cpu, src,
   gnu_symbol_visibility: 'hidden',
   dependencies:          deps,
 )
-
-config = configuration_data()
-config.set('REVISION',         meson.project_version().substring(1).split('~')[0].to_int())
-config.set_quoted('VERSION',   meson.project_version())
-config.set_quoted('CPUSTRING', cpu)
-
-configure_file(output: 'config.h', configuration: config)
