@@ -705,7 +705,8 @@ void ExitLevel()
         return;
     }
 
-    ClientEndServerFrames();
+    if (!level.intermission_fading)
+        ClientEndServerFrames();
 
     level.exitintermission = 0;
     level.intermissiontime = 0_ms;
@@ -799,8 +800,9 @@ inline void G_RunFrame_(bool main_loop)
             for (auto player : active_players())
                 player->client->ps.screen_blend = { 0, 0, 0, alpha };
         } else {
-            level.intermission_fade = level.intermission_fading = false;
+            level.intermission_fade = false;
             ExitLevel();
+            level.intermission_fading = false;
         }
 
         level.in_frame = false;
