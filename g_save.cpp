@@ -2164,6 +2164,12 @@ void ReadGame(const char *filename)
     read_save_struct_json(json["game"], &game, &game_locals_t_savestruct);
     json_pop_stack();
 
+    if (game.maxentities != max_entities)
+        gi.error("mismatched max_entities");
+
+    if (game.maxclients != max_clients)
+        gi.error("mismatched max_clients");
+
     // read clients
     const Json::Value &clients = json["clients"];
 
@@ -2259,6 +2265,8 @@ void ReadLevel(const char *filename)
         const Json::Value  &value = *it;//json[key];
         uint32_t           number = strtoul(id, nullptr, 10);
 
+        if (number >= globals.max_edicts)
+            gi.error("bad entity number");
         if (number >= globals.num_edicts)
             globals.num_edicts = number + 1;
 

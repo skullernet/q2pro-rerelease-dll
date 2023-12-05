@@ -355,7 +355,7 @@ void InitGame()
     game = {};
 
     // initialize all entities for this game
-    game.maxentities = maxentities->integer;
+    game.maxentities = clamp(maxentities->integer, maxclients->integer + 1, (int32_t)MAX_EDICTS);
     g_edicts = (edict_t *) gi.TagMalloc(game.maxentities * sizeof(g_edicts[0]), TAG_GAME);
     globals.edicts = g_edicts;
     globals.max_edicts = game.maxentities;
