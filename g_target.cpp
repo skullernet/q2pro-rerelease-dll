@@ -267,7 +267,7 @@ void G_PlayerNotifyGoal(edict_t *player)
         }
 
         if (player->client->pers.game_help1changed != game.help1changed) {
-            gi.centerprintf(player, "%s", game.helpmessage1);
+            gi.cprintf(player, PRINT_TYPEWRITER, "%s", game.helpmessage1);
             gi.local_sound(player, CHAN_AUTO | CHAN_RELIABLE, gi.soundindex("misc/talk.wav"), 1.0f, ATTN_NONE, 0.0f);
 
             player->client->pers.game_help1changed = game.help1changed;
@@ -282,7 +282,7 @@ void G_PlayerNotifyGoal(edict_t *player)
         player->client->pers.helpchanged = 1;
         player->client->pers.help_time = level.time + 5_sec;
 
-        if (*game.helpmessage1 && false)
+        if (*game.helpmessage1)
             // [Sam-KEX] Print objective to screen
             gi.cprintf(player, PRINT_TYPEWRITER, "Primary Objective:\n%s", game.helpmessage1);
     }
@@ -292,7 +292,7 @@ void G_PlayerNotifyGoal(edict_t *player)
         player->client->pers.helpchanged = 1;
         player->client->pers.help_time = level.time + 5_sec;
 
-        if (*game.helpmessage2 && false)
+        if (*game.helpmessage2)
             // [Sam-KEX] Print objective to screen
             gi.cprintf(player, PRINT_TYPEWRITER, "Secondary Objective:\n%s", game.helpmessage2);
     }
