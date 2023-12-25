@@ -7,21 +7,21 @@ enum {
     PMENU_ALIGN_RIGHT
 };
 
-struct pmenu_t;
+typedef struct pmenu_s pmenu_t;
 
-using UpdateFunc_t = void (*)(edict_t *ent);
+typedef void (*UpdateFunc_t)(edict_t *ent);
 
-struct pmenuhnd_t {
+typedef struct {
     pmenu_t     *entries;
     int          cur;
     int          num;
     void        *arg;
     UpdateFunc_t UpdateFunc;
-};
+} pmenuhnd_t;
 
-using SelectFunc_t = void (*)(edict_t *ent, pmenuhnd_t *hnd);
+typedef void (*SelectFunc_t)(edict_t *ent, pmenuhnd_t *hnd);
 
-struct pmenu_t {
+struct pmenu_s {
     char         text[64];
     int          align;
     SelectFunc_t SelectFunc;
