@@ -682,7 +682,7 @@ void THINK(target_laser_think)(edict_t *self)
 
     pierce_begin(&pierce);
 
-    while (1) {
+    do {
         tr = gi.trace(start, NULL, NULL, end, self, mask);
 
         // didn't hit anything, so we're done
@@ -709,13 +709,9 @@ void THINK(target_laser_think)(edict_t *self)
                 gi.WriteByte(self->s.skinnum);
                 gi.multicast(tr.endpos, MULTICAST_PVS);
             }
-
             break;
         }
-
-        if (!pierce_mark(&pierce, tr.ent))
-            break;
-    }
+    } while (pierce_mark(&pierce, tr.ent));
 
     pierce_end(&pierce);
 

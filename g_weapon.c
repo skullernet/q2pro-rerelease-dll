@@ -152,7 +152,6 @@ static trace_t fire_lead_pierce(edict_t *self, const vec3_t start, const vec3_t 
             if ((tr.ent->svflags & SVF_DEADMONSTER) || (tr.ent->health <= 0 && (tr.ent->svflags & SVF_MONSTER))) {
                 if (pierce_mark(&pierce, tr.ent))
                     continue;
-                break;
             }
         } else {
             // send gun puff / flash
@@ -939,7 +938,7 @@ void THINK(bfg_think)(edict_t *self)
         pierce_t pierce;
         pierce_begin(&pierce);
 
-        while (1) {
+        do {
             tr = gi.trace(start, NULL, NULL, end, self, CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_PLAYER | CONTENTS_DEADMONSTER);
 
             // didn't hit anything, so we're done
@@ -961,10 +960,7 @@ void THINK(bfg_think)(edict_t *self)
                 gi.multicast(tr.endpos, MULTICAST_PVS);
                 break;
             }
-
-            if (!pierce_mark(&pierce, tr.ent))
-                break;
-        }
+        } while (pierce_mark(&pierce, tr.ent));
 
         pierce_end(&pierce);
 
