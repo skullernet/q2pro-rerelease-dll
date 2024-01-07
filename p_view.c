@@ -472,7 +472,7 @@ static void SV_CalcBlend(edict_t *ent)
 {
     gtime_t remaining;
 
-    VectorClear(ent->client->ps.blend);
+    Vector4Clear(ent->client->ps.blend);
 
     // add for contents
     vec3_t vieworg;
