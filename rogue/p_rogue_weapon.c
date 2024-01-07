@@ -9,8 +9,7 @@ static void weapon_prox_fire(edict_t *ent)
     // Paril: kill sideways angle on grenades
     // limit upwards angle so you don't fire behind you
     vec3_t angles;
-    VectorCopy(ent->client->v_angle, angles);
-    angles[0] = max(angles[0], -62.5f);
+    P_GetThrowAngles(ent, angles);
 
     vec3_t start, dir;
     P_ProjectSource(ent, angles, (const vec3_t) { 8, 0, -8 }, start, dir);
@@ -44,8 +43,7 @@ static void weapon_tesla_fire(edict_t *ent, bool held)
     // Paril: kill sideways angle on grenades
     // limit upwards angle so you don't throw behind you
     vec3_t angles;
-    VectorCopy(ent->client->v_angle, angles);
-    angles[0] = max(angles[0], -62.5f);
+    P_GetThrowAngles(ent, angles);
 
     vec3_t start, dir;
     P_ProjectSource(ent, angles, (const vec3_t) { 0, 0, -22 }, start, dir);
