@@ -51,29 +51,6 @@ int P_DamageModifier(edict_t *ent)
 // ROGUE
 //========
 
-// [Paril-KEX] kicks in vanilla take place over 2 10hz server
-// frames; this is to mimic that visual behavior on any tickrate.
-static float P_CurrentKickFactor(edict_t *ent)
-{
-    if (ent->client->kick.time < level.time)
-        return 0.f;
-
-    return (float)(ent->client->kick.time - level.time) / ent->client->kick.total;
-}
-
-// [Paril-KEX]
-void P_CurrentKickAngles(edict_t *ent, vec3_t angles)
-{
-    float f = P_CurrentKickFactor(ent);
-    VectorScale(ent->client->kick.angles, f, angles);
-}
-
-void P_CurrentKickOrigin(edict_t *ent, vec3_t origin)
-{
-    float f = P_CurrentKickFactor(ent);
-    VectorScale(ent->client->kick.origin, f, origin);
-}
-
 void P_AddWeaponKick(edict_t *ent, float scale, float pitch)
 {
     VectorScale(ent->client->v_forward, scale, ent->client->kick.origin);

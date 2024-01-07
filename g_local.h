@@ -1619,8 +1619,6 @@ void fire_plasma(edict_t *self, const vec3_t start, const vec3_t dir, int damage
 void fire_trap(edict_t *self, const vec3_t start, const vec3_t aimdir, int speed);
 // RAFAEL
 void fire_disintegrator(edict_t *self, const vec3_t start, const vec3_t dir, int speed);
-void P_CurrentKickAngles(edict_t *ent, vec3_t angles);
-void P_CurrentKickOrigin(edict_t *ent, vec3_t origin);
 void P_AddWeaponKick(edict_t *ent, float scale, float pitch);
 
 //
