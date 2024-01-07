@@ -618,7 +618,7 @@ static void Cmd_Drop_f(edict_t *ent)
         gi.cprintf(ent, PRINT_HIGH, "Unknown item : %s\n", s);
         return;
     }
-    if (!it->drop) {
+    if (!G_CanDropItem(it)) {
         gi.cprintf(ent, PRINT_HIGH, "Item is not droppable.\n");
         return;
     }
@@ -857,7 +857,7 @@ static void Cmd_InvDrop_f(edict_t *ent)
     }
 
     it = &itemlist[ent->client->pers.selected_item];
-    if (!it->drop) {
+    if (!G_CanDropItem(it)) {
         gi.cprintf(ent, PRINT_HIGH, "Item is not droppable.\n");
         return;
     }

@@ -3595,6 +3595,21 @@ const gitem_t itemlist[] = {
 };
 // clang-format on
 
+// in coop or DM with Weapons' Stay, remove drop ptr
+bool G_CanDropItem(const gitem_t *item)
+{
+    if (!item->drop)
+        return false;
+
+    if (coop->integer && !P_UseCoopInstancedItems() && (item->flags & IF_STAY_COOP))
+        return false;
+
+    if (deathmatch->integer && g_dm_weapons_stay->integer && item->drop == Drop_Weapon)
+        return false;
+
+    return true;
+}
+
 void InitItems(void)
 {
     // set up ammo
@@ -3606,20 +3621,6 @@ void InitItems(void)
         else if ((item->flags & IF_POWERUP_WHEEL) && !(item->flags & IF_WEAPON) && item->tag >= POWERUP_SCREEN && item->tag < POWERUP_MAX)
             poweruplist[item->tag] = item;
     }
-
-#if 0
-    // in coop or DM with Weapons' Stay, remove drop ptr
-    for (item_id_t i = IT_NULL; i < IT_TOTAL; i++) {
-        const gitem_t *item = &itemlist[i];
-        if (coop->integer) {
-            if (!P_UseCoopInstancedItems() && (item->flags & IF_STAY_COOP))
-                item->drop = NULL;
-        } else if (deathmatch->integer) {
-            if (g_dm_weapons_stay->integer && item->drop == Drop_Weapon)
-                item->drop = NULL;
-        }
-    }
-#endif
 }
 
 /*

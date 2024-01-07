@@ -403,7 +403,7 @@ static void TossClientWeapon(edict_t *self)
         item = NULL;
     if (item && !self->client->pers.inventory[self->client->pers.weapon->ammo])
         item = NULL;
-    if (item && !item->drop)
+    if (item && !G_CanDropItem(item))
         item = NULL;
 
     if (g_dm_no_quad_drop->integer)
