@@ -302,6 +302,16 @@ void G_UseTargets(edict_t *ent, edict_t *activator)
     }
 }
 
+char *etos(edict_t *ent)
+{
+    if (ent->area.next) {
+        vec3_t mid;
+        VectorAvg(ent->absmin, ent->absmax, mid);
+        return va("%s @ %s", ent->classname, vtos(mid));
+    }
+    return va("%s @ %s", ent->classname, vtos(ent->s.origin));
+}
+
 static const vec3_t VEC_UP = { 0, -1, 0 };
 static const vec3_t MOVEDIR_UP = { 0, 0, 1 };
 static const vec3_t VEC_DOWN = { 0, -2, 0 };

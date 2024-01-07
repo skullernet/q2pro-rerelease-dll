@@ -1295,6 +1295,7 @@ void     G_PrintActivationMessage(edict_t *ent, edict_t *activator, bool coop_gl
 void     G_SetMovedir(vec3_t angles, vec3_t movedir);
 float    vectoyaw(const vec3_t vec);
 void     vectoangles(const vec3_t value1, vec3_t angles);
+char    *etos(edict_t *ent);
 
 void     G_InitEdict(edict_t *e);
 edict_t *G_Spawn(void);
@@ -2538,14 +2539,4 @@ static inline bool M_CheckGib(edict_t *self, const mod_t mod)
         return true;
 
     return self->health <= self->gib_health;
-}
-
-static inline char *etos(edict_t *ent)
-{
-    if (ent->area.next) {
-        vec3_t mid;
-        VectorAvg(ent->absmin, ent->absmax, mid);
-        return va("%s @ %s", ent->classname, vtos(mid));
-    }
-    return va("%s @ %s", ent->classname, vtos(ent->s.origin));
 }
