@@ -565,7 +565,7 @@ static void SV_CalcBlend(edict_t *ent)
     if (ent->air_finished < level.time + SEC(9)) {
         float alpha = 1.0f;
         if (ent->air_finished > level.time)
-            alpha = TO_SEC(ent->air_finished - level.time) / 9.0f;
+            alpha = 1.0f - TO_SEC(ent->air_finished - level.time) / 9.0f;
         G_AddBlend(0.1f, 0.1f, 0.2f, alpha * 0.5f, ent->client->ps.blend);
     }
 
