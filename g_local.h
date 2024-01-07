@@ -446,8 +446,6 @@ typedef struct gitem_s {
 
     int         sort_id;        // used by some items to control their sorting
     int         quantity_warn;  // when to warn on low ammo
-
-    const struct gitem_s *chain_next;
 } gitem_t;
 
 // ammo IDs

@@ -1561,7 +1561,7 @@ const gitem_t itemlist[] = {
         /* pickup_name_definite */ "the Grapple",
         /* quantity */ 0,
         /* ammo */ IT_NULL,
-        /* chain */ IT_WEAPON_BLASTER,
+        /* chain */ IT_WEAPON_CHAINFIST,
         /* flags */ IF_WEAPON | IF_NO_HASTE | IF_POWERUP_WHEEL | IF_NOT_RANDOM,
         /* vwep_model */ "#w_grapple.md2",
         /* armor_info */ NULL,
@@ -1589,7 +1589,7 @@ const gitem_t itemlist[] = {
         /* pickup_name_definite */ "the Blaster",
         /* quantity */ 0,
         /* ammo */ IT_NULL,
-        /* chain */ IT_WEAPON_BLASTER,
+        /* chain */ IT_WEAPON_GRAPPLE,
         /* flags */ IF_WEAPON | IF_STAY_COOP | IF_NOT_RANDOM,
         /* vwep_model */ "#w_blaster.md2",
         /* armor_info */ NULL,
@@ -1701,7 +1701,7 @@ const gitem_t itemlist[] = {
         /* pickup_name_definite */ "the Machinegun",
         /* quantity */ 1,
         /* ammo */ IT_AMMO_BULLETS,
-        /* chain */ IT_WEAPON_MACHINEGUN,
+        /* chain */ IT_WEAPON_ETF_RIFLE,
         /* flags */ IF_WEAPON | IF_STAY_COOP,
         /* vwep_model */ "#w_machinegun.md2",
         /* armor_info */ NULL,
@@ -1790,7 +1790,7 @@ const gitem_t itemlist[] = {
         /* pickup_name_definite */ "the Grenades",
         /* quantity */ 5,
         /* ammo */ IT_AMMO_GRENADES,
-        /* chain */ IT_AMMO_GRENADES,
+        /* chain */ IT_AMMO_TRAP,
         /* flags */ IF_AMMO | IF_WEAPON,
         /* vwep_model */ "#a_grenades.md2",
         /* armor_info */ NULL,
@@ -1820,7 +1820,7 @@ const gitem_t itemlist[] = {
         /* pickup_name_definite */ "the Trap",
         /* quantity */ 1,
         /* ammo */ IT_AMMO_TRAP,
-        /* chain */ IT_AMMO_GRENADES,
+        /* chain */ IT_AMMO_TESLA,
         /* flags */ IF_AMMO | IF_WEAPON | IF_NO_INFINITE_AMMO,
         /* vwep_model */ "#a_trap.md2",
         /* armor_info */ NULL,
@@ -1881,7 +1881,7 @@ const gitem_t itemlist[] = {
         /* pickup_name_definite */ "the Grenade Launcher",
         /* quantity */ 1,
         /* ammo */ IT_AMMO_GRENADES,
-        /* chain */ IT_WEAPON_GLAUNCHER,
+        /* chain */ IT_WEAPON_PROXLAUNCHER,
         /* flags */ IF_WEAPON | IF_STAY_COOP,
         /* vwep_model */ "#w_glauncher.md2",
         /* armor_info */ NULL,
@@ -1964,7 +1964,7 @@ const gitem_t itemlist[] = {
         /* pickup_name_definite */ "the HyperBlaster",
         /* quantity */ 1,
         /* ammo */ IT_AMMO_CELLS,
-        /* chain */ IT_WEAPON_HYPERBLASTER,
+        /* chain */ IT_WEAPON_IONRIPPER,
         /* flags */ IF_WEAPON | IF_STAY_COOP,
         /* vwep_model */ "#w_hyperblaster.md2",
         /* armor_info */ NULL,
@@ -1994,7 +1994,7 @@ const gitem_t itemlist[] = {
         /* pickup_name_definite */ "the Ionripper",
         /* quantity */ 2,
         /* ammo */ IT_AMMO_CELLS,
-        /* chain */ IT_WEAPON_HYPERBLASTER,
+        /* chain */ IT_WEAPON_PLASMABEAM,
         /* flags */ IF_WEAPON | IF_STAY_COOP,
         /* vwep_model */ "#w_ripper.md2",
         /* armor_info */ NULL,
@@ -2055,7 +2055,7 @@ const gitem_t itemlist[] = {
         /* pickup_name_definite */ "the Railgun",
         /* quantity */ 1,
         /* ammo */ IT_AMMO_SLUGS,
-        /* chain */ IT_WEAPON_RAILGUN,
+        /* chain */ IT_WEAPON_PHALANX,
         /* flags */ IF_WEAPON | IF_STAY_COOP,
         /* vwep_model */ "#w_railgun.md2",
         /* armor_info */ NULL,
@@ -2111,7 +2111,7 @@ const gitem_t itemlist[] = {
         /* pickup_name_definite */ "the BFG10K",
         /* quantity */ 50,
         /* ammo */ IT_AMMO_CELLS,
-        /* chain */ IT_WEAPON_BFG,
+        /* chain */ IT_WEAPON_DISRUPTOR,
         /* flags */ IF_WEAPON | IF_STAY_COOP,
         /* vwep_model */ "#w_bfg.md2",
         /* armor_info */ NULL,
@@ -3597,47 +3597,10 @@ const gitem_t itemlist[] = {
 
 void InitItems(void)
 {
-    // validate item integrity
-    for (item_id_t i = IT_NULL; i < IT_TOTAL; i++)
-        if (itemlist[i].id != i)
-            gi.error("Item %s has wrong enum ID %d (should be %d)", itemlist[i].pickup_name, itemlist[i].id, i);
-
-#if 0
-    // set up weapon chains
-    for (item_id_t i = IT_NULL; i < IT_TOTAL; i++) {
-        if (!itemlist[i].chain)
-            continue;
-
-        gitem_t *item = &itemlist[i];
-
-        // already initialized
-        if (item->chain_next)
-            continue;
-
-        gitem_t *chain_item = &itemlist[item->chain];
-
-        // set up initial chain
-        if (!chain_item->chain_next)
-            chain_item->chain_next = chain_item;
-
-        // if we're not the first in chain, add us now
-        if (chain_item != item) {
-            gitem_t *c;
-
-            // end of chain is one whose chain_next points to chain_item
-            for (c = chain_item; c->chain_next != chain_item; c = c->chain_next)
-                continue;
-
-            // splice us in
-            item->chain_next = chain_item;
-            c->chain_next = item;
-        }
-    }
-#endif
-
     // set up ammo
     for (item_id_t i = IT_NULL; i < IT_TOTAL; i++) {
         const gitem_t *item = &itemlist[i];
+        Q_assert(item->id == i);
         if ((item->flags & IF_AMMO) && item->tag >= AMMO_BULLETS && item->tag < AMMO_MAX)
             ammolist[item->tag] = item;
         else if ((item->flags & IF_POWERUP_WHEEL) && !(item->flags & IF_WEAPON) && item->tag >= POWERUP_SCREEN && item->tag < POWERUP_MAX)

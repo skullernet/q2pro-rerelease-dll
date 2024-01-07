@@ -491,7 +491,17 @@ static weap_switch_t Weapon_AttemptSwitch(edict_t *ent, const gitem_t *item, boo
 
 static bool Weapon_IsPartOfChain(const gitem_t *item, const gitem_t *other)
 {
-    return other && other->chain && other->chain == item->chain;
+    if (!other || !other->chain || !item->chain)
+        return false;
+
+    const gitem_t *root = other;
+    while (1) {
+        if (other == item)
+            return true;
+        other = &itemlist[other->chain];
+        if (other == root)
+            return false;
+    }
 }
 
 /*
@@ -510,12 +520,12 @@ void Use_Weapon(edict_t *ent, const gitem_t *item)
     // start from the weapon after this one in the chain
     if (!ent->client->no_weapon_chains && Weapon_IsPartOfChain(item, ent->client->newweapon)) {
         root = ent->client->newweapon;
-        wanted = root->chain_next;
+        wanted = &itemlist[root->chain];
     // if we're already holding a weapon in this chain,
     // start from the weapon after that one
     } else if (!ent->client->no_weapon_chains && Weapon_IsPartOfChain(item, ent->client->pers.weapon)) {
         root = ent->client->pers.weapon;
-        wanted = root->chain_next;
+        wanted = &itemlist[root->chain];
     // start from beginning of chain (if any)
     } else
         wanted = root = item;
@@ -526,10 +536,10 @@ void Use_Weapon(edict_t *ent, const gitem_t *item)
             break;
 
         // no chains
-        if (!wanted->chain_next || ent->client->no_weapon_chains)
+        if (!wanted->chain || ent->client->no_weapon_chains)
             break;
 
-        wanted = wanted->chain_next;
+        wanted = &itemlist[wanted->chain];
 
         // we wrapped back to the root item
         if (wanted == root)
