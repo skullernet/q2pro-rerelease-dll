@@ -255,4 +255,4 @@ enum {
     FRAME_stand252
 };
 
-constexpr float MODEL_SCALE = 1.000000f;
+#define MODEL_SCALE 1.0f

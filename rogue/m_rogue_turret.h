@@ -23,4 +23,4 @@ enum {
     FRAME_death02
 };
 
-constexpr float MODEL_SCALE = 3.500000f;
+#define MODEL_SCALE 3.5f

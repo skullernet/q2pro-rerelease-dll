@@ -582,4 +582,4 @@ enum {
     FRAME_attak508
 };
 
-constexpr float MODEL_SCALE     = 1.2f;
+#define MODEL_SCALE 1.2f

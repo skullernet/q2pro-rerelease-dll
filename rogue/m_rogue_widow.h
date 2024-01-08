@@ -176,4 +176,4 @@ enum {
     FRAME_kick08
 };
 
-constexpr float MODEL_SCALE = 2.000000f;
+#define MODEL_SCALE 2.0f

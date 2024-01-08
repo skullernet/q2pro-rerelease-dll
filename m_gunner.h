@@ -806,4 +806,4 @@ enum {
     FRAME_c_duckdeath29
 };
 
-constexpr float MODEL_SCALE     = 1.150000f;
+#define MODEL_SCALE 1.15f

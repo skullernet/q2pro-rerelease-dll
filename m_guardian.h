@@ -222,4 +222,4 @@ enum {
     FRAME_atk2_in12
 };
 
-constexpr float MODEL_SCALE = 1.000000;
+#define MODEL_SCALE 1.0f

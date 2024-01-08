@@ -133,4 +133,4 @@ enum {
     FRAME_dthsrh22
 };
 
-constexpr float MODEL_SCALE = 2.000000f;
+#define MODEL_SCALE 2.0f
