@@ -41,9 +41,9 @@ static void Use_QuadFire(edict_t *ent, const gitem_t *item);
 static gtime_t quad_fire_drop_timeout_hack;
 // RAFAEL
 
-const gitem_armor_t jacketarmor_info = { 25, 50, 0.3f, 0 };
-const gitem_armor_t combatarmor_info = { 50, 100, 0.6f, 0.3f };
-const gitem_armor_t bodyarmor_info = { 100, 200, 0.8f, 0.6f };
+static const gitem_armor_t jacketarmor_info = { 25, 50, 0.3f, 0 };
+static const gitem_armor_t combatarmor_info = { 50, 100, 0.6f, 0.3f };
+static const gitem_armor_t bodyarmor_info = { 100, 200, 0.8f, 0.6f };
 
 //======================================================================
 

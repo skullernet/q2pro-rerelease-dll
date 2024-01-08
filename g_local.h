@@ -211,10 +211,6 @@ typedef struct {
     float   energy_protection;
 } gitem_armor_t;
 
-extern const gitem_armor_t jacketarmor_info;
-extern const gitem_armor_t combatarmor_info;
-extern const gitem_armor_t bodyarmor_info;
-
 // edict->movetype values
 typedef enum {
     MOVETYPE_NONE,   // never moves
