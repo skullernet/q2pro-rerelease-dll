@@ -845,7 +845,7 @@ static void Drop_PowerArmor(edict_t *ent, const gitem_t *item)
 
 bool Entity_IsVisibleToPlayer(edict_t *ent, edict_t *player)
 {
-    return !ent->item_picked_up_by[player->s.number - 1];
+    return !Q_IsBitSet(ent->item_picked_up_by, player->s.number - 1);
 }
 
 /*
@@ -865,7 +865,7 @@ void TOUCH(Touch_Item)(edict_t *ent, edict_t *other, const trace_t *tr, bool oth
         return; // not a grabbable item?
 
     // already got this instanced item
-    if (coop->integer && P_UseCoopInstancedItems() && ent->item_picked_up_by[other->s.number - 1])
+    if (coop->integer && P_UseCoopInstancedItems() && Q_IsBitSet(ent->item_picked_up_by, other->s.number - 1))
         return;
 
     // ZOID
@@ -897,10 +897,8 @@ void TOUCH(Touch_Item)(edict_t *ent, edict_t *other, const trace_t *tr, bool oth
         else if (ent->item->pickup_sound)
             gi.sound(other, CHAN_ITEM, gi.soundindex(ent->item->pickup_sound), 1, ATTN_NORM, 0);
 
-        int player_number = other->s.number - 1;
-
-        if (coop->integer && P_UseCoopInstancedItems() && !ent->item_picked_up_by[player_number]) {
-            ent->item_picked_up_by[player_number] = true;
+        if (coop->integer && P_UseCoopInstancedItems()) {
+            Q_SetBit(ent->item_picked_up_by, other->s.number - 1);
 
             // [Paril-KEX] this is to fix a coop quirk where items
             // that send a message on pick up will only print on the
