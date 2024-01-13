@@ -331,7 +331,7 @@ static void infantry_shrink2(edict_t *self)
 }
 
 static const mframe_t infantry_frames_death1[] = {
-    { ai_move, -4, NULL, FRAME_death102 },
+    { ai_move, -4 },
     { ai_move },
     { ai_move },
     { ai_move, -1 },
@@ -356,7 +356,7 @@ const mmove_t MMOVE_T(infantry_move_death1) = { FRAME_death101, FRAME_death120, 
 
 // Off with his head
 static const mframe_t infantry_frames_death2[] = {
-    { ai_move, 0, NULL, FRAME_death202 },
+    { ai_move },
     { ai_move, 1 },
     { ai_move, 5 },
     { ai_move, -1 },

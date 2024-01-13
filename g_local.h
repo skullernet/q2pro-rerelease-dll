@@ -818,7 +818,6 @@ typedef struct {
     void (*aifunc)(edict_t *self, float dist);
     float dist;
     void (*thinkfunc)(edict_t *self);
-    //int lerp_frame = -1;
 } mframe_t;
 
 typedef struct {

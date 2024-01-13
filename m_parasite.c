@@ -795,7 +795,7 @@ static void parasite_shrink(edict_t *self)
 }
 
 static const mframe_t parasite_frames_death[] = {
-    { ai_move, 0, NULL, FRAME_stand01 },
+    { ai_move },
     { ai_move },
     { ai_move },
     { ai_move, 0, parasite_shrink },
@@ -850,7 +850,7 @@ static void parasite_skipframe(edict_t *self)
 }
 
 static const mframe_t parasite_frames_pain1[] = {
-    { ai_move, 0, NULL, FRAME_stand01 },
+    { ai_move },
     { ai_move },
     { ai_move, 0, parasite_skipframe },
     { ai_move, 0, monster_footstep },

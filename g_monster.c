@@ -518,13 +518,6 @@ static void M_MoveFrame(edict_t *self)
 
     if (run_frame && move->frame[index].thinkfunc)
         move->frame[index].thinkfunc(self);
-
-#if 0
-    if (move->frame[index].lerp_frame != -1) {
-        self->s.renderfx |= RF_OLD_FRAME_LERP;
-        self->s.old_frame = move->frame[index].lerp_frame;
-    }
-#endif
 }
 
 void G_MonsterKilled(edict_t *self)
