@@ -1188,11 +1188,7 @@ void SpawnEntities(const char *mapname, const char *entities, const char *spawnp
     //globals.server_flags &= SERVER_FLAG_LOADING;
 
     Q_strlcpy(level.mapname, mapname, sizeof(level.mapname));
-    // Paril: fixes a bug where autosaves will start you at
-    // the wrong spawnpoint if they happen to be non-empty
-    // (mine2 -> mine3)
-    if (!game.autosaved)
-        Q_strlcpy(game.spawnpoint, spawnpoint, sizeof(game.spawnpoint));
+    Q_strlcpy(game.spawnpoint, spawnpoint, sizeof(game.spawnpoint));
 
     level.is_n64 = strncmp(level.mapname, "q64/", 4) == 0;
 
