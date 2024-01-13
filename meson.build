@@ -171,7 +171,10 @@ add_project_link_arguments(link_args, language: 'c')
 
 fallback_opt = ['default_library=static']
 
-zlib = dependency('zlib', default_options: fallback_opt)
+zlib = dependency('zlib',
+  required:        get_option('zlib'),
+  default_options: fallback_opt
+)
 
 deps = [
   cc.find_library('m', required : false),
