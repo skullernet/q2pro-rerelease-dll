@@ -534,7 +534,7 @@ static const mframe_t medic_frames_pain2[] = {
 };
 const mmove_t MMOVE_T(medic_move_pain2) = { FRAME_painb2, FRAME_painb13, medic_frames_pain2, medic_run };
 
-void PAIN(medic_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(medic_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     monster_done_dodge(self);
 
@@ -694,7 +694,7 @@ static const gib_def_t medic_gibs[] = {
     { 0 }
 };
 
-void DIE(medic_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(medic_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     // if we had a pending patient, he was already freed up in Killed
 

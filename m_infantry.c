@@ -196,7 +196,7 @@ const mmove_t MMOVE_T(infantry_move_pain2) = { FRAME_pain201, FRAME_pain210, inf
 const mmove_t infantry_move_jump;
 const mmove_t infantry_move_jump2;
 
-void PAIN(infantry_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(infantry_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     int n;
 
@@ -413,7 +413,7 @@ static const gib_def_t infantry_gibs[] = {
     { 0 }
 };
 
-void DIE(infantry_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(infantry_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     int n;
 

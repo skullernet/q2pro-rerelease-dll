@@ -256,7 +256,7 @@ static const mframe_t tank_frames_pain3[] = {
 };
 const mmove_t MMOVE_T(tank_move_pain3) = { FRAME_pain301, FRAME_pain316, tank_frames_pain3, tank_run };
 
-void PAIN(tank_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(tank_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (mod.id != MOD_CHAINFIST && damage <= 10)
         return;
@@ -885,7 +885,7 @@ static const gib_def_t tank_gibs[] = {
     { 0 }
 };
 
-void DIE(tank_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(tank_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     // check for gib
     if (M_CheckGib(self, mod)) {

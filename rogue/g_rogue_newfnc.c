@@ -39,7 +39,7 @@ void USE(fd_secret_use)(edict_t *self, edict_t *other, edict_t *activator)
         Move_Calc(ent, ent->moveinfo.start_origin, fd_secret_move1);
 }
 
-void DIE(fd_secret_killed)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(fd_secret_killed)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     self->health = self->max_health;
     self->takedamage = false;

@@ -248,7 +248,7 @@ const mmove_t MMOVE_T(gunner_move_pain1) = { FRAME_pain101, FRAME_pain118, gunne
 const mmove_t gunner_move_jump;
 const mmove_t gunner_move_jump2;
 
-void PAIN(gunner_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(gunner_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     monster_done_dodge(self);
 
@@ -331,7 +331,7 @@ static const gib_def_t gunner_gibs[] = {
     { 0 }
 };
 
-void DIE(gunner_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(gunner_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     // check for gib
     if (M_CheckGib(self, mod)) {

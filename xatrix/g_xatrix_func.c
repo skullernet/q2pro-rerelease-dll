@@ -26,7 +26,7 @@ void THINK(rotating_light_alarm)(edict_t *self)
     }
 }
 
-void DIE(rotating_light_killed)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(rotating_light_killed)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     gi.WriteByte(svc_temp_entity);
     gi.WriteByte(TE_WELDING_SPARKS);

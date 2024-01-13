@@ -119,7 +119,7 @@ void THINK(Prox_Explode)(edict_t *ent)
     G_FreeEdict(ent);
 }
 
-void DIE(prox_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(prox_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     // if set off by another prox, delay a little (chained explosions)
     if (strcmp(inflictor->classname, "prox_mine")) {
@@ -568,7 +568,7 @@ static void Nuke_Explode(edict_t *ent)
     ent->last_move_time = 0;
 }
 
-void DIE(nuke_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(nuke_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     self->takedamage = false;
 
@@ -748,7 +748,7 @@ static void tesla_remove(edict_t *self)
     Grenade_Explode(self);
 }
 
-void DIE(tesla_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(tesla_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     tesla_remove(self);
 }

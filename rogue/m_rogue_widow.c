@@ -847,7 +847,7 @@ static void widow_reattack_blaster(edict_t *self)
     M_SetAnimation(self, &widow_move_attack_post_blaster);
 }
 
-void PAIN(widow_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(widow_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (level.time < self->pain_debounce_time)
         return;
@@ -901,7 +901,7 @@ static void widow_dead(edict_t *self)
 }
 #endif
 
-void DIE(widow_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(widow_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     self->deadflag = true;
     self->takedamage = false;

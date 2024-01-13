@@ -396,7 +396,7 @@ static void supertank_reattack1(edict_t *self)
         M_SetAnimation(self, &supertank_move_end_attack1);
 }
 
-void PAIN(supertank_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(supertank_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (level.time < self->pain_debounce_time)
         return;
@@ -572,7 +572,7 @@ static void supertank_dead(edict_t *self)
     supertank_gib(self);
 }
 
-void DIE(supertank_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(supertank_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     if (self->spawnflags & SPAWNFLAG_MONSTER_DEAD){
         // check for gib

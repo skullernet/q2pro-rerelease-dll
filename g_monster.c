@@ -207,7 +207,7 @@ void M_CatagorizePosition(edict_t *self, const vec3_t in_point, water_level_t *w
         *waterlevel = WATER_UNDER;
 }
 
-bool M_ShouldReactToPain(edict_t *self, const mod_t mod)
+bool M_ShouldReactToPain(edict_t *self, mod_t mod)
 {
     if (self->monsterinfo.aiflags & (AI_DUCKED | AI_COMBAT_POINT))
         return false;

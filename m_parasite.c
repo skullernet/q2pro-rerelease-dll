@@ -240,7 +240,7 @@ void THINK(proboscis_reset)(edict_t *self)
     G_FreeEdict(self);
 }
 
-void DIE(proboscis_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(proboscis_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     if (mod.id == MOD_CRUSH)
         proboscis_reset(self);
@@ -815,7 +815,7 @@ static const gib_def_t parasite_gibs[] = {
     { 0 }
 };
 
-void DIE(parasite_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(parasite_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     if (self->proboscus && self->proboscus->style != 2)
         proboscis_reset(self->proboscus);
@@ -864,7 +864,7 @@ static const mframe_t parasite_frames_pain1[] = {
 };
 const mmove_t MMOVE_T(parasite_move_pain1) = { FRAME_pain101, FRAME_pain111, parasite_frames_pain1, parasite_start_run };
 
-void PAIN(parasite_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(parasite_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (level.time < self->pain_debounce_time)
         return;

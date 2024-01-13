@@ -30,13 +30,13 @@ void THINK(sphere_think_explode)(edict_t *self)
     BecomeExplosion1(self);
 }
 
-void DIE(sphere_explode)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(sphere_explode)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     sphere_think_explode(self);
 }
 
 // if the sphere is not currently attacking, blow up.
-void DIE(sphere_if_idle_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(sphere_if_idle_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     if (!self->enemy)
         sphere_think_explode(self);
@@ -269,7 +269,7 @@ static void body_gib(edict_t *self)
     ThrowGibs(self, 50, sphere_gibs);
 }
 
-void PAIN(hunter_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(hunter_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     edict_t *owner;
     float    dist;
@@ -339,7 +339,7 @@ void PAIN(hunter_pain)(edict_t *self, edict_t *other, float kick, int damage, co
     gi.linkentity(self);
 }
 
-void PAIN(defender_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(defender_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     // PMM
     if (other == self->owner)
@@ -348,7 +348,7 @@ void PAIN(defender_pain)(edict_t *self, edict_t *other, float kick, int damage, 
     self->enemy = other;
 }
 
-void PAIN(vengeance_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(vengeance_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (self->enemy)
         return;

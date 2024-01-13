@@ -775,7 +775,7 @@ static void widow2_reattack_beam(edict_t *self)
         M_SetAnimation(self, &widow2_move_attack_post_beam);
 }
 
-void PAIN(widow2_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(widow2_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (level.time < self->pain_debounce_time)
         return;
@@ -826,7 +826,7 @@ static void KillChildren(edict_t *self)
     }
 }
 
-void DIE(widow2_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(widow2_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     int n;
     int clipped;

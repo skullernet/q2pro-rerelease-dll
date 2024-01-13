@@ -25,7 +25,7 @@ static void flyer_loop_melee(edict_t *self);
 // ROGUE - kamikaze stuff
 static void flyer_kamikaze(edict_t *self);
 static void flyer_kamikaze_check(edict_t *self);
-void flyer_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod);
+void flyer_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod);
 
 void MONSTERINFO_SIGHT(flyer_sight)(edict_t *self, edict_t *other)
 {
@@ -573,7 +573,7 @@ static void flyer_check_melee(edict_t *self)
     flyer_set_fly_parameters(self, false);
 }
 
-void PAIN(flyer_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(flyer_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     int n;
 
@@ -626,7 +626,7 @@ static const gib_def_t flyer_gibs[] = {
     { 0 }
 };
 
-void DIE(flyer_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(flyer_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     gi.sound(self, CHAN_VOICE, sound_die, 1, ATTN_NORM, 0);
 

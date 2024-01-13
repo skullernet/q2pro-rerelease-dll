@@ -228,7 +228,7 @@ static const mframe_t chick_frames_pain3[] = {
 };
 const mmove_t MMOVE_T(chick_move_pain3) = { FRAME_pain301, FRAME_pain321, chick_frames_pain3, chick_run };
 
-void PAIN(chick_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(chick_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     float r;
 
@@ -341,7 +341,7 @@ static const gib_def_t chick_gibs[] = {
     { 0 }
 };
 
-void DIE(chick_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(chick_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     // check for gib
     if (M_CheckGib(self, mod)) {

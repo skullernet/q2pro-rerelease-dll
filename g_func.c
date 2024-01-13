@@ -944,7 +944,7 @@ void TOUCH(button_touch)(edict_t *self, edict_t *other, const trace_t *tr, bool 
     button_fire(self);
 }
 
-void DIE(button_killed)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(button_killed)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     self->activator = attacker;
     self->health = self->max_health;
@@ -1424,7 +1424,7 @@ void MOVEINFO_BLOCKED(door_blocked)(edict_t *self, edict_t *other)
     }
 }
 
-void DIE(door_killed)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(door_killed)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     for (edict_t *ent = self->teammaster; ent; ent = ent->teamchain) {
         ent->health = ent->max_health;
@@ -2409,7 +2409,7 @@ void MOVEINFO_BLOCKED(door_secret_blocked)(edict_t *self, edict_t *other)
     T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, self->dmg, 1, DAMAGE_NONE, (mod_t) { MOD_CRUSH });
 }
 
-void DIE(door_secret_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(door_secret_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     self->takedamage = false;
     door_secret_use(self, attacker, attacker);

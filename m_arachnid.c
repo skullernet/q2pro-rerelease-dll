@@ -129,7 +129,7 @@ static const mframe_t arachnid_frames_pain2[] = {
 };
 const mmove_t MMOVE_T(arachnid_move_pain2) = { FRAME_pain21, FRAME_pain26, arachnid_frames_pain2, arachnid_run };
 
-void PAIN(arachnid_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(arachnid_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (level.time < self->pain_debounce_time)
         return;
@@ -309,7 +309,7 @@ static const gib_def_t arachnid_gibs[] = {
     { 0 }
 };
 
-void DIE(arachnid_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(arachnid_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     // check for gib
     if (M_CheckGib(self, mod)) {

@@ -322,7 +322,7 @@ void THINK(Trap_Gib_Think)(edict_t *ent)
     gi.linkentity(ent);
 }
 
-void DIE(trap_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(trap_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     BecomeExplosion1(self);
 }

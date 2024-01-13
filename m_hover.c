@@ -430,7 +430,7 @@ static void hover_attack(edict_t *self)
     }
 }
 
-void PAIN(hover_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(hover_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (level.time < self->pain_debounce_time)
         return;
@@ -493,7 +493,7 @@ static void hover_dead(edict_t *self)
     gi.linkentity(self);
 }
 
-void DIE(hover_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(hover_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     self->s.effects = EF_NONE;
     self->monsterinfo.power_armor_type = IT_NULL;

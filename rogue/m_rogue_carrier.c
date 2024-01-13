@@ -788,7 +788,7 @@ static void carrier_reattack_gren(edict_t *self)
         M_SetAnimation(self, &carrier_move_attack_post_gren);
 }
 
-void PAIN(carrier_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(carrier_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     bool changed = false;
 
@@ -868,7 +868,7 @@ static void carrier_dead(edict_t *self)
     ThrowGibs(self, 500, carrier_gibs);
 }
 
-void DIE(carrier_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(carrier_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NONE, 0);
     self->deadflag = true;

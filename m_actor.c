@@ -184,7 +184,7 @@ static const char *const messages[] = {
     "Check your targets"
 };
 
-void PAIN(actor_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(actor_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     int n;
 
@@ -294,7 +294,7 @@ static const gib_def_t actor_gibs[] = {
     { 0 }
 };
 
-void DIE(actor_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(actor_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     // check for gib
     if (self->health <= -80) {

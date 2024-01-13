@@ -259,7 +259,7 @@ static const mframe_t gladiator_frames_pain_air[] = {
 };
 const mmove_t MMOVE_T(gladiator_move_pain_air) = { FRAME_painup2, FRAME_painup6, gladiator_frames_pain_air, gladiator_run };
 
-void PAIN(gladiator_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(gladiator_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (level.time < self->pain_debounce_time) {
         if ((self->velocity[2] > 100) && (self->monsterinfo.active_move == &gladiator_move_pain))
@@ -341,7 +341,7 @@ static const gib_def_t gladiator_gibs[] = {
     { 0 }
 };
 
-void DIE(gladiator_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(gladiator_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     // check for gib
     if (M_CheckGib(self, mod)) {

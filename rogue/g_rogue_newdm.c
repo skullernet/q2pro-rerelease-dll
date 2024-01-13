@@ -130,7 +130,7 @@ void PrecacheForRandomRespawn(void)
 
 edict_t *Sphere_Spawn(edict_t *owner, spawnflags_t spawnflags);
 
-void DIE(doppleganger_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(doppleganger_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     edict_t *sphere;
     float    dist;
@@ -157,7 +157,7 @@ void DIE(doppleganger_die)(edict_t *self, edict_t *inflictor, edict_t *attacker,
     BecomeExplosion1(self);
 }
 
-void PAIN(doppleganger_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(doppleganger_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     self->enemy = other;
 }

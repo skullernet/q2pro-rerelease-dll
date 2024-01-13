@@ -166,7 +166,7 @@ static const mframe_t guardian_frames_pain1[] = {
 };
 const mmove_t MMOVE_T(guardian_move_pain1) = { FRAME_pain1_1, FRAME_pain1_8, guardian_frames_pain1, guardian_run };
 
-void PAIN(guardian_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(guardian_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (mod.id != MOD_CHAINFIST && damage <= 10)
         return;
@@ -455,7 +455,7 @@ static const mframe_t guardian_frames_death1[] = {
 };
 const mmove_t MMOVE_T(guardian_move_death) = { FRAME_death1, FRAME_death26, guardian_frames_death1, guardian_dead };
 
-void DIE(guardian_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(guardian_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     // regular death
     //gi.sound(self, CHAN_VOICE, sound_die, 1, ATTN_NORM, 0);

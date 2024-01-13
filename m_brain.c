@@ -617,7 +617,7 @@ void MONSTERINFO_RUN(brain_run)(edict_t *self)
         M_SetAnimation(self, &brain_move_run);
 }
 
-void PAIN(brain_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(brain_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     float r;
 
@@ -677,7 +677,7 @@ static const gib_def_t brain_gibs[] = {
     { 0 }
 };
 
-void DIE(brain_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(brain_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     self->s.effects = EF_NONE;
     self->monsterinfo.power_armor_type = IT_NULL;

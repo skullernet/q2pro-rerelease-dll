@@ -528,7 +528,7 @@ void MONSTERINFO_ATTACK(turret_attack)(edict_t *self)
 //  PAIN
 // **********************
 
-void PAIN(turret_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(turret_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
 }
 
@@ -536,7 +536,7 @@ void PAIN(turret_pain)(edict_t *self, edict_t *other, float kick, int damage, co
 //  DEATH
 // **********************
 
-void DIE(turret_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(turret_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     vec3_t   forward;
     edict_t *base;

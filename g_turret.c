@@ -265,12 +265,12 @@ Must NOT be on the team with the rest of the turret parts.
 Instead it must target the turret_breach.
 */
 
-void infantry_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod);
+void infantry_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod);
 void infantry_stand(edict_t *self);
-void infantry_pain(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod);
+void infantry_pain(edict_t *self, edict_t *other, float kick, int damage, mod_t mod);
 void infantry_setskin(edict_t *self);
 
-void DIE(turret_driver_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(turret_driver_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     if (!self->deadflag) {
         edict_t *ent;

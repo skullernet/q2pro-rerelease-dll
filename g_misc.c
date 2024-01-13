@@ -59,7 +59,7 @@ void ClipGibVelocity(edict_t *ent)
 gibs
 =================
 */
-void DIE(gib_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(gib_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     if (mod.id == MOD_CRUSH)
         G_FreeEdict(self);
@@ -720,7 +720,7 @@ one small chunk per 25 of mass (up to 16).  So 800 gives the most.
 #define SPAWNFLAGS_EXPLOSIVE_INACTIVE           8
 #define SPAWNFLAGS_EXPLOSIVE_ALWAYS_SHOOTABLE   16
 
-void DIE(func_explosive_explode)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(func_explosive_explode)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     int      count;
     int      mass;
@@ -929,7 +929,7 @@ void THINK(barrel_burn)(edict_t *self)
     self->nextthink = level.time + FRAME_TIME;
 }
 
-void DIE(barrel_delay)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(barrel_delay)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     // allow "dead" barrels waiting to explode to still receive knockback
     if (self->think == barrel_burn || self->think == barrel_explode)
@@ -1233,7 +1233,7 @@ static const gib_def_t deadsoldier_gibs[] = {
     { 0 }
 };
 
-void DIE(misc_deadsoldier_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(misc_deadsoldier_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     if (self->health > -30)
         return;

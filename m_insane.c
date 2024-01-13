@@ -478,7 +478,7 @@ void MONSTERINFO_RUN(insane_run)(edict_t *self)
     //monster_duck_up(self);
 }
 
-void PAIN(insane_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(insane_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     int l, r;
 
@@ -584,7 +584,7 @@ static const gib_def_t insane_gibs[] = {
     { 0 }
 };
 
-void DIE(insane_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(insane_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     if (M_CheckGib(self, mod)) {
         gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_IDLE, 0);

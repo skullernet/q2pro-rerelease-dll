@@ -363,7 +363,7 @@ static const mframe_t stalker_frames_pain[] = {
 };
 const mmove_t MMOVE_T(stalker_move_pain) = { FRAME_pain01, FRAME_pain04, stalker_frames_pain, stalker_run };
 
-void PAIN(stalker_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(stalker_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (self->deadflag)
         return;
@@ -868,7 +868,7 @@ static const gib_def_t stalker_gibs[] = {
     { 0 }
 };
 
-void DIE(stalker_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(stalker_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     // dude bit it, make him fall!
     self->movetype = MOVETYPE_TOSS;

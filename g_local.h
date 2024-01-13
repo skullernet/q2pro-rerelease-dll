@@ -1456,7 +1456,7 @@ bool M_CheckAttack(edict_t *self);
 void M_CheckGround(edict_t *ent, contents_t mask);
 void monster_use(edict_t *self, edict_t *other, edict_t *activator);
 void M_ProcessPain(edict_t *e);
-bool M_ShouldReactToPain(edict_t *self, const mod_t mod);
+bool M_ShouldReactToPain(edict_t *self, mod_t mod);
 void M_SetAnimation(edict_t *self, const mmove_t *move);
 void M_SetAnimationEx(edict_t *self, const mmove_t *move, bool instant);
 bool M_AllowSpawn(edict_t * self);
@@ -1533,7 +1533,7 @@ typedef struct {
 } gib_def_t;
 
 void ThrowClientHead(edict_t *self, int damage);
-void gib_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod);
+void gib_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod);
 edict_t *ThrowGib(edict_t *self, const char *gibname, int damage, gib_type_t type, float scale);
 void ThrowGibs(edict_t *self, int damage, const gib_def_t *gibs);
 void PrecacheGibs(const gib_def_t *gibs);
@@ -1655,7 +1655,7 @@ void LookAtKiller(edict_t *self, edict_t *inflictor, edict_t *attacker);
 //
 // g_player.c
 //
-void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod);
+void player_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod);
 
 //
 // g_svcmds.c
@@ -2346,8 +2346,8 @@ struct edict_s {
     void (*think)(edict_t *self);
     void (*touch)(edict_t *self, edict_t *other, const trace_t *tr, bool other_touching_self);
     void (*use)(edict_t *self, edict_t *other, edict_t *activator);
-    void (*pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod);
-    void (*die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod);
+    void (*pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod);
+    void (*die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod);
 
     gtime_t touch_debounce_time; // are all these legit?  do we need more/less of them?
     gtime_t pain_debounce_time;
@@ -2474,7 +2474,7 @@ typedef struct {
     void (*ClientBegin)(edict_t *ent);
     bool (*SelectSpawnPoint)(edict_t *ent, vec3_t origin, vec3_t angles, bool force_spawn);
     void (*PlayerDeath)(edict_t *targ, edict_t *inflictor, edict_t *attacker);
-    void (*Score)(edict_t *attacker, edict_t *victim, int scoreChange, const mod_t mod);
+    void (*Score)(edict_t *attacker, edict_t *victim, int scoreChange, mod_t mod);
     void (*PlayerEffects)(edict_t *ent);
     void (*DogTag)(edict_t *ent, edict_t *killer, const char **pic);
     void (*PlayerDisconnect)(edict_t *ent);
@@ -2529,7 +2529,7 @@ static inline void pierce_end(pierce_t *p)
     }
 }
 
-static inline bool M_CheckGib(edict_t *self, const mod_t mod)
+static inline bool M_CheckGib(edict_t *self, mod_t mod)
 {
     if (self->deadflag && mod.id == MOD_CRUSH)
         return true;

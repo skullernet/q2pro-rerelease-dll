@@ -502,7 +502,7 @@ const mmove_t MMOVE_T(berserk_move_pain2) = { FRAME_painb1, FRAME_painb20, berse
 
 const mmove_t berserk_move_jump, berserk_move_jump2;
 
-void PAIN(berserk_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(berserk_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     // if we're jumping, don't pain
     if ((self->monsterinfo.active_move == &berserk_move_jump) ||
@@ -589,7 +589,7 @@ static const gib_def_t berserk_gibs[] = {
     { 0 }
 };
 
-void DIE(berserk_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(berserk_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     if (M_CheckGib(self, mod)) {
         gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);

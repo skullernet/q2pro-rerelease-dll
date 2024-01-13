@@ -562,7 +562,7 @@ static void MakronHyperblaster(edict_t *self)
     monster_fire_blaster(self, start, forward, 15, 1000, flash_number, EF_BLASTER);
 }
 
-void PAIN(makron_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(makron_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (self->monsterinfo.active_move == &makron_move_sight)
         return;
@@ -654,7 +654,7 @@ static const gib_def_t makron_gibs[] = {
     { 0 }
 };
 
-void DIE(makron_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(makron_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     self->s.sound = 0;
 

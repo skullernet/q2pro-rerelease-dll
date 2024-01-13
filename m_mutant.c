@@ -447,7 +447,7 @@ static const mframe_t mutant_frames_pain3[] = {
 };
 const mmove_t MMOVE_T(mutant_move_pain3) = { FRAME_pain301, FRAME_pain311, mutant_frames_pain3, mutant_run };
 
-void PAIN(mutant_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(mutant_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     float r;
 
@@ -542,7 +542,7 @@ static const gib_def_t mutant_gibs[] = {
     { 0 }
 };
 
-void DIE(mutant_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(mutant_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     if (M_CheckGib(self, mod)) {
         gi.sound(self, CHAN_VOICE, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);

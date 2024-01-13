@@ -1178,7 +1178,7 @@ void MONSTERINFO_ATTACK(fixbot_attack)(edict_t *self)
     }
 }
 
-void PAIN(fixbot_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(fixbot_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (level.time < self->pain_debounce_time)
         return;
@@ -1209,7 +1209,7 @@ static void fixbot_dead(edict_t *self)
 }
 #endif
 
-void DIE(fixbot_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(fixbot_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     gi.sound(self, CHAN_VOICE, sound_die, 1, ATTN_NORM, 0);
     BecomeExplosion1(self);

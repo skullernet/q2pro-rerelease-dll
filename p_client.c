@@ -499,7 +499,7 @@ void LookAtKiller(edict_t *self, edict_t *inflictor, edict_t *attacker)
 player_die
 ==================
 */
-void DIE(player_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(player_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     PlayerTrail_Destroy(self);
 
@@ -1428,7 +1428,7 @@ void InitBodyQue(void)
     }
 }
 
-void DIE(body_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(body_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     if (self->s.modelindex == MODELINDEX_PLAYER && self->health < self->gib_health) {
         gi.sound(self, CHAN_BODY, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);

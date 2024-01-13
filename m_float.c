@@ -535,7 +535,7 @@ void MONSTERINFO_MELEE(floater_melee)(edict_t *self)
         M_SetAnimation(self, &floater_move_attack2);
 }
 
-void PAIN(floater_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(floater_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     int n;
 
@@ -594,7 +594,7 @@ static const gib_def_t floater_gibs[] = {
     { 0 }
 };
 
-void DIE(floater_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(floater_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     gi.sound(self, CHAN_VOICE, sound_death1, 1, ATTN_NORM, 0);
 

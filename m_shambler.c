@@ -188,7 +188,7 @@ static const mframe_t shambler_frames_pain[] = {
 };
 const mmove_t MMOVE_T(shambler_move_pain) = { FRAME_pain01, FRAME_pain06, shambler_frames_pain, shambler_run };
 
-void PAIN(shambler_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(shambler_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (level.time < self->timestamp)
         return;
@@ -477,7 +477,7 @@ static const gib_def_t shambler_gibs[] = {
     { 0 }
 };
 
-void DIE(shambler_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(shambler_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     if (self->beam) {
         G_FreeEdict(self->beam);

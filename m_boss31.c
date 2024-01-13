@@ -388,7 +388,7 @@ static void jorg_attack1(edict_t *self)
     M_SetAnimation(self, &jorg_move_attack1);
 }
 
-void PAIN(jorg_pain)(edict_t *self, edict_t *other, float kick, int damage, const mod_t mod)
+void PAIN(jorg_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     if (level.time < self->pain_debounce_time)
         return;
@@ -536,7 +536,7 @@ static void jorg_dead(edict_t *self)
     MakronToss(self);
 }
 
-void DIE(jorg_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, const mod_t mod)
+void DIE(jorg_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
 {
     gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
     jorg_attack1_end_sound(self);
