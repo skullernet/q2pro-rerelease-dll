@@ -2523,18 +2523,12 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
 
                 // [Paril-KEX] handle menu movement
                 HandleMenuMovement(ent, ucmd);
-            } else if (ent->client->awaiting_respawn)
-                client->ps.pmove.pm_type = PM_FREEZE;
-            else if (ent->client->resp.spectator || (G_TeamplayEnabled() && ent->client->resp.ctf_team == CTF_NOTEAM))
-                client->ps.pmove.pm_type = PM_SPECTATOR;
-            else
+            } else
                 client->ps.pmove.pm_type = PM_SPECTATOR;
         } else if (ent->s.modelindex != MODELINDEX_PLAYER)
             client->ps.pmove.pm_type = PM_GIB;
         else if (ent->deadflag)
             client->ps.pmove.pm_type = PM_DEAD;
-        //else if (ent->client->ctf_grapplestate >= CTF_GRAPPLE_STATE_PULL)
-        //  client->ps.pmove.pm_type = PM_GRAPPLE;
         else
             client->ps.pmove.pm_type = PM_NORMAL;
 
@@ -2622,6 +2616,8 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
         // ROGUE sam raimi cam support
         if (ent->flags & FL_SAM_RAIMI)
             ent->viewheight = 8;
+        else if (client->ps.pmove.pm_type == PM_FREEZE)
+            ent->viewheight = 22; // FIXME: pmenu hack
         else
             ent->viewheight = pm.viewheight;
         // ROGUE
