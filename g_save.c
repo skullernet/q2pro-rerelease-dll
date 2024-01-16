@@ -18,7 +18,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 
 #include "g_local.h"
 #include "g_ptrs.h"
-#include <assert.h>
 
 #if USE_ZLIB
 #include <zlib.h>
@@ -90,10 +89,6 @@ typedef struct {
 #define E(name) F_(F_EDICT, name)
 #define T(name) F_(F_INT64, name)
 #define P(name, type) FA_(F_POINTER, name, type)
-
-static_assert(sizeof(monster_ai_flags_t) == sizeof(int64_t), "expected int64");
-static_assert(sizeof(ent_flags_t) == sizeof(int64_t), "expected int64");
-static_assert(sizeof(movetype_t) == sizeof(int), "expected int");
 
 static const save_field_t moveinfo_fields[] = {
 #define _OFS(x) q_offsetof(moveinfo_t, x)

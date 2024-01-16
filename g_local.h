@@ -118,58 +118,57 @@ typedef enum {
 } gib_type_t;
 
 // monster ai flags
-typedef enum {
-    AI_NONE                 = 0,
-    AI_STAND_GROUND         = BIT(0),
-    AI_TEMP_STAND_GROUND    = BIT(1),
-    AI_SOUND_TARGET         = BIT(2),
-    AI_LOST_SIGHT           = BIT(3),
-    AI_PURSUIT_LAST_SEEN    = BIT(4),
-    AI_PURSUE_NEXT          = BIT(5),
-    AI_PURSUE_TEMP          = BIT(6),
-    AI_HOLD_FRAME           = BIT(7),
-    AI_GOOD_GUY             = BIT(8),
-    AI_BRUTAL               = BIT(9),
-    AI_NOSTEP               = BIT(10),
-    AI_DUCKED               = BIT(11),
-    AI_COMBAT_POINT         = BIT(12),
-    AI_MEDIC                = BIT(13),
-    AI_RESURRECTING         = BIT(14),
+#define AI_NONE                 0ULL
+#define AI_STAND_GROUND         BIT_ULL(0)
+#define AI_TEMP_STAND_GROUND    BIT_ULL(1)
+#define AI_SOUND_TARGET         BIT_ULL(2)
+#define AI_LOST_SIGHT           BIT_ULL(3)
+#define AI_PURSUIT_LAST_SEEN    BIT_ULL(4)
+#define AI_PURSUE_NEXT          BIT_ULL(5)
+#define AI_PURSUE_TEMP          BIT_ULL(6)
+#define AI_HOLD_FRAME           BIT_ULL(7)
+#define AI_GOOD_GUY             BIT_ULL(8)
+#define AI_BRUTAL               BIT_ULL(9)
+#define AI_NOSTEP               BIT_ULL(10)
+#define AI_DUCKED               BIT_ULL(11)
+#define AI_COMBAT_POINT         BIT_ULL(12)
+#define AI_MEDIC                BIT_ULL(13)
+#define AI_RESURRECTING         BIT_ULL(14)
 
-    // ROGUE
-    AI_MANUAL_STEERING      = BIT(15),
-    AI_TARGET_ANGER         = BIT(16),
-    AI_DODGING              = BIT(17),
-    AI_CHARGING             = BIT(18),
-    AI_HINT_PATH            = BIT(19),
-    AI_IGNORE_SHOTS         = BIT(20),
-    // PMM - FIXME - last second added for E3 .. there's probably a better way to do this, but
-    // this works
-    AI_DO_NOT_COUNT         = BIT(21), // set for healed monsters
-    AI_SPAWNED_CARRIER      = BIT(22), // both do_not_count and spawned are set for spawned monsters
-    AI_SPAWNED_MEDIC_C      = BIT(23), // both do_not_count and spawned are set for spawned monsters
-    AI_SPAWNED_WIDOW        = BIT(24), // both do_not_count and spawned are set for spawned monsters
-    AI_BLOCKED              = BIT(25), // used by blocked_checkattack: set to say I'm attacking while blocked
-                                       // (prevents run-attacks)
-    // ROGUE
-    AI_SPAWNED_ALIVE        = BIT(26), // [Paril-KEX] for spawning dead
-    AI_SPAWNED_DEAD         = BIT(27),
-    AI_HIGH_TICK_RATE       = BIT(28), // not limited by 10hz actions
-    AI_NO_PATH_FINDING      = BIT(29), // don't try nav nodes for path finding
-    AI_PATHING              = BIT(30), // using nav nodes currently
-    AI_STINKY               = BIT(31), // spawn flies
-    AI_STUNK                = BIT_ULL(32), // already spawned files
+// ROGUE
+#define AI_MANUAL_STEERING      BIT_ULL(15)
+#define AI_TARGET_ANGER         BIT_ULL(16)
+#define AI_DODGING              BIT_ULL(17)
+#define AI_CHARGING             BIT_ULL(18)
+#define AI_HINT_PATH            BIT_ULL(19)
+#define AI_IGNORE_SHOTS         BIT_ULL(20)
+// PMM - FIXME - last second added for E3 .. there's probably a better way to do this but
+// this works
+#define AI_DO_NOT_COUNT         BIT_ULL(21) // set for healed monsters
+#define AI_SPAWNED_CARRIER      BIT_ULL(22) // both do_not_count and spawned are set for spawned monsters
+#define AI_SPAWNED_MEDIC_C      BIT_ULL(23) // both do_not_count and spawned are set for spawned monsters
+#define AI_SPAWNED_WIDOW        BIT_ULL(24) // both do_not_count and spawned are set for spawned monsters
+#define AI_BLOCKED              BIT_ULL(25) // used by blocked_checkattack: set to say I'm attacking while blocked
+                                            // (prevents run-attacks)
+// ROGUE
 
-    AI_ALTERNATE_FLY        = BIT_ULL(33), // use alternate flying mechanics; see monsterinfo.fly_xxx
-    AI_TEMP_MELEE_COMBAT    = BIT_ULL(34), // temporarily switch to the melee combat style
-    AI_FORGET_ENEMY         = BIT_ULL(35), // forget the current enemy
-    AI_DOUBLE_TROUBLE       = BIT_ULL(36), // JORG only
-    AI_REACHED_HOLD_COMBAT  = BIT_ULL(37),
-    AI_THIRD_EYE            = BIT_ULL(38),
+#define AI_SPAWNED_ALIVE        BIT_ULL(26) // [Paril-KEX] for spawning dead
+#define AI_SPAWNED_DEAD         BIT_ULL(27)
+#define AI_HIGH_TICK_RATE       BIT_ULL(28) // not limited by 10hz actions
+#define AI_NO_PATH_FINDING      BIT_ULL(29) // don't try nav nodes for path finding
+#define AI_PATHING              BIT_ULL(30) // using nav nodes currently
+#define AI_STINKY               BIT_ULL(31) // spawn flies
+#define AI_STUNK                BIT_ULL(32) // already spawned files
 
-    // mask to catch all three flavors of spawned
-    AI_SPAWNED_MASK         = AI_SPAWNED_CARRIER | AI_SPAWNED_MEDIC_C | AI_SPAWNED_WIDOW,
-} monster_ai_flags_t;
+#define AI_ALTERNATE_FLY        BIT_ULL(33) // use alternate flying mechanics; see monsterinfo.fly_xxx
+#define AI_TEMP_MELEE_COMBAT    BIT_ULL(34) // temporarily switch to the melee combat style
+#define AI_FORGET_ENEMY         BIT_ULL(35) // forget the current enemy
+#define AI_DOUBLE_TROUBLE       BIT_ULL(36) // JORG only
+#define AI_REACHED_HOLD_COMBAT  BIT_ULL(37)
+#define AI_THIRD_EYE            BIT_ULL(38)
+
+// mask to catch all three flavors of spawned
+#define AI_SPAWNED_MASK         (AI_SPAWNED_CARRIER | AI_SPAWNED_MEDIC_C | AI_SPAWNED_WIDOW)
 
 // monster attack state
 typedef enum {
@@ -233,54 +232,52 @@ typedef enum {
 } movetype_t;
 
 // edict->flags
-typedef enum {
-    FL_NONE                 = 0, // no flags
-    FL_FLY                  = BIT(0),
-    FL_SWIM                 = BIT(1), // implied immunity to drowning
-    FL_IMMUNE_LASER         = BIT(2),
-    FL_INWATER              = BIT(3),
-    FL_GODMODE              = BIT(4),
-    FL_NOTARGET             = BIT(5),
-    FL_IMMUNE_SLIME         = BIT(6),
-    FL_IMMUNE_LAVA          = BIT(7),
-    FL_PARTIALGROUND        = BIT(8), // not all corners are valid
-    FL_WATERJUMP            = BIT(9), // player jumping out of water
-    FL_TEAMSLAVE            = BIT(10), // not the first on the team
-    FL_NO_KNOCKBACK         = BIT(11),
-    FL_POWER_ARMOR          = BIT(12), // power armor (if any) is active
+#define FL_NONE                 0ULL
+#define FL_FLY                  BIT_ULL(0)
+#define FL_SWIM                 BIT_ULL(1)  // implied immunity to drowning
+#define FL_IMMUNE_LASER         BIT_ULL(2)
+#define FL_INWATER              BIT_ULL(3)
+#define FL_GODMODE              BIT_ULL(4)
+#define FL_NOTARGET             BIT_ULL(5)
+#define FL_IMMUNE_SLIME         BIT_ULL(6)
+#define FL_IMMUNE_LAVA          BIT_ULL(7)
+#define FL_PARTIALGROUND        BIT_ULL(8)  // not all corners are valid
+#define FL_WATERJUMP            BIT_ULL(9)  // player jumping out of water
+#define FL_TEAMSLAVE            BIT_ULL(10) // not the first on the team
+#define FL_NO_KNOCKBACK         BIT_ULL(11)
+#define FL_POWER_ARMOR          BIT_ULL(12) // power armor (if any) is active
 
-    // ROGUE
-    FL_MECHANICAL           = BIT(13), // entity is mechanical, use sparks not blood
-    FL_SAM_RAIMI            = BIT(14), // entity is in sam raimi cam mode
-    FL_DISGUISED            = BIT(15), // entity is in disguise, monsters will not recognize.
-    FL_NOGIB                = BIT(16), // player has been vaporized by a nuke, drop no gibs
-    FL_DAMAGEABLE           = BIT(17),
-    FL_STATIONARY           = BIT(18),
-    // ROGUE
+// ROGUE
+#define FL_MECHANICAL           BIT_ULL(13) // entity is mechanical, use sparks not blood
+#define FL_SAM_RAIMI            BIT_ULL(14) // entity is in sam raimi cam mode
+#define FL_DISGUISED            BIT_ULL(15) // entity is in disguise, monsters will not recognize.
+#define FL_NOGIB                BIT_ULL(16) // player has been vaporized by a nuke, drop no gibs
+#define FL_DAMAGEABLE           BIT_ULL(17)
+#define FL_STATIONARY           BIT_ULL(18)
+// ROGUE
 
-    FL_ALIVE_KNOCKBACK_ONLY = BIT(19), // only apply knockback if alive or on same frame as death
-    FL_NO_DAMAGE_EFFECTS    = BIT(20),
+#define FL_ALIVE_KNOCKBACK_ONLY BIT_ULL(19) // only apply knockback if alive or on same frame as death
+#define FL_NO_DAMAGE_EFFECTS    BIT_ULL(20)
 
-    // [Paril-KEX] gets scaled by coop health scaling
-    FL_COOP_HEALTH_SCALE    = BIT(21),
-    FL_FLASHLIGHT           = BIT(22), // enable flashlight
-    FL_KILL_VELOCITY        = BIT(23), // for berserker slam
-    FL_NOVISIBLE            = BIT(24), // super invisibility
-    FL_DODGE                = BIT(25), // monster should try to dodge this
-    FL_TEAMMASTER           = BIT(26), // is a team master (only here so that entities abusing teammaster/teamchain for stuff don't break)
-    FL_LOCKED               = BIT(27), // entity is locked for the purposes of navigation
-    FL_ALWAYS_TOUCH         = BIT(28), // always touch, even if we normally wouldn't
-    FL_NO_STANDING          = BIT(29), // don't allow "standing" on non-brush entities
-    FL_WANTS_POWER_ARMOR    = BIT(30), // for players, auto-shield
+#define FL_COOP_HEALTH_SCALE    BIT_ULL(21) // [Paril-KEX] gets scaled by coop health scaling
+#define FL_FLASHLIGHT           BIT_ULL(22) // enable flashlight
+#define FL_KILL_VELOCITY        BIT_ULL(23) // for berserker slam
+#define FL_NOVISIBLE            BIT_ULL(24) // super invisibility
+#define FL_DODGE                BIT_ULL(25) // monster should try to dodge this
+#define FL_TEAMMASTER           BIT_ULL(26) // is a team master (only here so that entities abusing teammaster/teamchain for stuff don't break)
+#define FL_LOCKED               BIT_ULL(27) // entity is locked for the purposes of navigation
+#define FL_ALWAYS_TOUCH         BIT_ULL(28) // always touch, even if we normally wouldn't
+#define FL_NO_STANDING          BIT_ULL(29) // don't allow "standing" on non-brush entities
+#define FL_WANTS_POWER_ARMOR    BIT_ULL(30) // for players, auto-shield
 
-    FL_RESPAWN              = BIT(31),     // used for item respawning
-    FL_TRAP                 = BIT_ULL(32), // entity is a trap of some kind
-    FL_TRAP_LASER_FIELD     = BIT_ULL(33), // enough of a special case to get it's own flag...
-    FL_IMMORTAL             = BIT_ULL(34)  // never go below 1hp
-} ent_flags_t;
+#define FL_RESPAWN              BIT_ULL(31) // used for item respawning
+#define FL_TRAP                 BIT_ULL(32) // entity is a trap of some kind
+#define FL_TRAP_LASER_FIELD     BIT_ULL(33) // enough of a special case to get it's own flag...
+#define FL_IMMORTAL             BIT_ULL(34) // never go below 1hp
 
 // gitem_t->flags
 typedef enum {
+    IF_ANY          = -1,
     IF_NONE         = 0,
     IF_WEAPON       = BIT(0), // use makes active weapon
     IF_AMMO         = BIT(1),
@@ -301,8 +298,6 @@ typedef enum {
     IF_POWERUP_WHEEL    = BIT(11), // [Paril-KEX] item should be in powerup wheel
     IF_POWERUP_ONOFF    = BIT(12), // [Paril-KEX] for wheel; can't store more than one, show on/off state
     IF_NOT_RANDOM       = BIT(13), // [Paril-KEX] item never shows up in randomizations
-
-    IF_ANY          = 0xFFFFFFFF
 } item_flags_t;
 
 // health edict_t->style
@@ -877,7 +872,7 @@ typedef struct {
     // others can wait the full frame.
     // NB: always use `M_SetAnimation` as it handles edge cases.
     const mmove_t     *active_move, *next_move;
-    monster_ai_flags_t aiflags; // PGM - unsigned, since we're close to the max
+    uint64_t           aiflags; // PGM - unsigned, since we're close to the max
     int                nextframe; // if next_move is set, this is ignored until a frame is ran
     float              scale;
 
@@ -2024,7 +2019,7 @@ typedef struct {
     // values saved and restored from edicts when changing levels
     int         health;
     int         max_health;
-    ent_flags_t savedFlags;
+    uint64_t    savedFlags;
 
     item_id_t selected_item;
     gtime_t   selected_item_time;
@@ -2297,7 +2292,7 @@ struct edict_s {
     // private to game
     int spawn_count; // [Paril-KEX] used to differentiate different entities that may be in the same slot
     movetype_t  movetype;
-    ent_flags_t flags;
+    uint64_t    flags;
 
     const char *model;
     gtime_t     freetime; // sv.time when the object was freed
