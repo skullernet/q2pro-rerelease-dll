@@ -469,6 +469,8 @@ void TOUCH(trigger_push_touch)(edict_t *self, edict_t *other, const trace_t *tr,
         }
     }
 
+    SV_CheckVelocity(other);
+
     if (self->spawnflags & SPAWNFLAG_PUSH_ONCE)
         G_FreeEdict(self);
 }
