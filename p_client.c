@@ -736,7 +736,7 @@ static void Player_GiveStartItems(edict_t *ent, const char *ptr)
 
             token = COM_Parse(&s);
             if (*token)
-                count = atoi(token);
+                count = Q_atoi(token);
 
             if (count == 0) {
                 ent->client->pers.inventory[item->id] = 0;
@@ -1860,7 +1860,7 @@ void PutClientInServer(edict_t *ent)
     memset(&ent->client->ps, 0, sizeof(client->ps));
 
     char *val = Info_ValueForKey(ent->client->pers.userinfo, "fov");
-    ent->client->ps.fov = Q_clip(atoi(val), 1, 160);
+    ent->client->ps.fov = Q_clip(Q_atoi(val), 1, 160);
 
     if (!G_ShouldPlayersCollide(false))
         ent->clipmask &= ~CONTENTS_PLAYER;
@@ -2214,12 +2214,12 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 
     // fov
     val = Info_ValueForKey(userinfo, "fov");
-    ent->client->ps.fov = Q_clip(atoi(val), 1, 160);
+    ent->client->ps.fov = Q_clip(Q_atoi(val), 1, 160);
 
     // handedness
     val = Info_ValueForKey(userinfo, "hand");
     if (*val) {
-        ent->client->pers.hand = Q_clip(atoi(val), RIGHT_HANDED, CENTER_HANDED);
+        ent->client->pers.hand = Q_clip(Q_atoi(val), RIGHT_HANDED, CENTER_HANDED);
     } else {
         ent->client->pers.hand = RIGHT_HANDED;
     }
@@ -2227,14 +2227,14 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
     // [Paril-KEX] auto-switch
     val = Info_ValueForKey(userinfo, "autoswitch");
     if (*val) {
-        ent->client->pers.autoswitch = Q_clip(atoi(val), AUTOSW_SMART, AUTOSW_NEVER);
+        ent->client->pers.autoswitch = Q_clip(Q_atoi(val), AUTOSW_SMART, AUTOSW_NEVER);
     } else {
         ent->client->pers.autoswitch = AUTOSW_SMART;
     }
 
     val = Info_ValueForKey(userinfo, "autoshield");
     if (*val) {
-        ent->client->pers.autoshield = atoi(val);
+        ent->client->pers.autoshield = Q_atoi(val);
     } else {
         ent->client->pers.autoshield = -1;
     }
@@ -2242,7 +2242,7 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
     // [Paril-KEX] wants bob
     val = Info_ValueForKey(userinfo, "bobskip");
     if (*val) {
-        ent->client->pers.bob_skip = !!atoi(val);
+        ent->client->pers.bob_skip = !!Q_atoi(val);
     } else {
         ent->client->pers.bob_skip = false;
     }

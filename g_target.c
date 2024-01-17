@@ -1280,7 +1280,7 @@ void SP_target_soundfx(edict_t *self)
     else if (self->attenuation == -1) // use -1 so 0 defaults to 1
         self->attenuation = 0;
 
-    self->noise_index = atoi(st.noise);
+    self->noise_index = Q_atoi(st.noise);
 
     switch (self->noise_index) {
     case 1:

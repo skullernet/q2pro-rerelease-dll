@@ -142,7 +142,7 @@ void M_SetupReinforcements(const char *reinforcements, reinforcement_list_t *lis
         const char *token = COM_Parse(&s);
         if (*token) {
             r->classname = G_CopyString(token, TAG_LEVEL);
-            r->strength = atoi(COM_Parse(&s));
+            r->strength = Q_atoi(COM_Parse(&s));
 
             edict_t *newEnt = G_Spawn();
             newEnt->classname = r->classname;

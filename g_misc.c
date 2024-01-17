@@ -496,12 +496,12 @@ void SP_light(edict_t *self)
         if (!self->style_on || !*self->style_on)
             self->style_on = "m";
         else if (*self->style_on >= '0' && *self->style_on <= '9')
-            self->style_on = G_GetLightStyle(atoi(self->style_on));
+            self->style_on = G_GetLightStyle(Q_atoi(self->style_on));
 
         if (!self->style_off || !*self->style_off)
             self->style_off = "a";
         else if (*self->style_off >= '0' && *self->style_off <= '9')
-            self->style_off = G_GetLightStyle(atoi(self->style_off));
+            self->style_off = G_GetLightStyle(Q_atoi(self->style_off));
 
         if (self->spawnflags & SPAWNFLAG_LIGHT_START_OFF)
             gi.configstring(CS_LIGHTS + self->style, self->style_off);

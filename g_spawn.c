@@ -711,7 +711,7 @@ static char *ED_ParseL10nString(const char *value)
 
 static int ED_ParsePowerArmor(const char *value)
 {
-    switch (atoi(value)) {
+    switch (Q_atoi(value)) {
     case 0:
         return IT_NULL;
     case 1:
@@ -741,7 +741,7 @@ static void ED_LoadField(const spawn_field_t *f, const char *value, byte *b)
         ((float *)(b + f->ofs))[2] = vec[2];
         break;
     case F_INT:
-        *(int *)(b + f->ofs) = atoi(value);
+        *(int *)(b + f->ofs) = Q_atoi(value);
         break;
     case F_FLOAT:
         *(float *)(b + f->ofs) = atof(value);
@@ -753,7 +753,7 @@ static void ED_LoadField(const spawn_field_t *f, const char *value, byte *b)
         ((float *)(b + f->ofs))[2] = 0;
         break;
     case F_BOOL:
-        *(bool *)(b + f->ofs) = atoi(value);
+        *(bool *)(b + f->ofs) = Q_atoi(value);
         break;
     case F_IGNORE:
         break;

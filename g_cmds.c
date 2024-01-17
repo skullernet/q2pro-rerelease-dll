@@ -153,7 +153,7 @@ static void Cmd_Give_f(edict_t *ent)
 
     if (give_all || Q_strcasecmp(gi.argv(1), "health") == 0) {
         if (gi.argc() == 3)
-            ent->health = atoi(gi.argv(2));
+            ent->health = Q_atoi(gi.argv(2));
         else
             ent->health = ent->max_health;
         if (!give_all)
@@ -255,7 +255,7 @@ static void Cmd_Give_f(edict_t *ent)
 
     if (it->flags & IF_AMMO) {
         if (gi.argc() == 3)
-            ent->client->pers.inventory[index] = atoi(gi.argv(2));
+            ent->client->pers.inventory[index] = Q_atoi(gi.argv(2));
         else
             ent->client->pers.inventory[index] += it->quantity;
     } else {
@@ -548,7 +548,7 @@ static void Cmd_Use_f(edict_t *ent)
 
     const char *cmd = gi.argv(0);
     if (!Q_strcasecmp(cmd, "use_index") || !Q_strcasecmp(cmd, "use_index_only"))
-        it = GetItemByIndex(atoi(s));
+        it = GetItemByIndex(Q_atoi(s));
     else
         it = FindItem(s);
 
@@ -610,7 +610,7 @@ static void Cmd_Drop_f(edict_t *ent)
     const char *cmd = gi.argv(0);
 
     if (!Q_strcasecmp(cmd, "drop_index"))
-        it = GetItemByIndex(atoi(s));
+        it = GetItemByIndex(Q_atoi(s));
     else
         it = FindItem(s);
 
@@ -1083,7 +1083,7 @@ Cmd_Wave_f
 */
 static void Cmd_Wave_f(edict_t *ent)
 {
-    int cmd = atoi(gi.argv(1));
+    int cmd = Q_atoi(gi.argv(1));
 
     // no dead or noclip waving
     if (ent->deadflag || ent->movetype == MOVETYPE_NOCLIP)
