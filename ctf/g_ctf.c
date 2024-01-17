@@ -2670,15 +2670,15 @@ void CTFOpenJoinMenu(edict_t *ent)
             num2++;
     }
 
-    int team;
-
+    int cur;
     if (num1 > num2)
-        team = CTF_TEAM1;
+        cur = 7;
     else if (num2 > num1)
-        team = CTF_TEAM2;
-    team = brandom() ? CTF_TEAM1 : CTF_TEAM2;
+        cur = 4;
+    else
+        cur = brandom() ? 4 : 7;
 
-    PMenu_Open(ent, joinmenu, team, q_countof(joinmenu), NULL, CTFUpdateJoinMenu);
+    PMenu_Open(ent, joinmenu, cur, q_countof(joinmenu), NULL, CTFUpdateJoinMenu);
 }
 
 bool CTFStartClient(edict_t *ent)
