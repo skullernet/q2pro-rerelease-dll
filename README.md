@@ -1,15 +1,14 @@
 # Port of Quake 2 re-release game source to Q2PRO
 
-Port of Quake 2 re-release game source designed to run with modified version of
-Q2PRO, with all KEX-specific APIs removed. The goal of this project is to make
-re-release single player campaign playable in Q2PRO.
+Port of Quake 2 re-release game source designed to run with Q2PRO, with all
+KEX-specific APIs removed. The goal of this project is to make re-release
+single player campaign playable in Q2PRO.
 
 Although this game library uses game API version 3, it will *not* run on
 standard Quake 2 server, latest version of Q2PRO server and client is required!
 
-This is a work in progress, but it's quite playable already. It has been used
-to play through Call of the Machine episode and N64 campaign in Q2PRO without
-any major issues.
+All single player maps that come with Quake 2 re-release should work out of the
+box. Many community made maps should work too, but some are known to have bugs.
 
 ## Removed features
 
@@ -31,6 +30,12 @@ the following remaster-specific features have been removed.
 * Achievements
 * Localization
 
+## Other notable changes
+
+* Source code converted back to C from C++ for faster compilation.
+
+* Savegames use custom text format rather than JSON for easier parsing.
+
 ## Building
 
 This project uses Meson build system. To build:
@@ -42,9 +47,3 @@ This project uses Meson build system. To build:
 
 Precompiled binaries for Windows are available for downloading as CI artifacts.
 See Actions → Workflow Runs → Artifacts.
-
-## Notes
-
-* Focus is on single player support first and coop second. Don't use this game
-  library for CTF or teamplay, that's not expected to work. Regular deathmatch
-  may work, but is untested.
