@@ -1344,8 +1344,8 @@ void SP_trigger_health_relay(edict_t *self)
         return;
     }
 
-    if (self->speed < 0 || self->speed > 100) {
-        gi.dprintf("%s has bad \"speed\" (health percentage); must be between 0 and 100, inclusive\n", etos(self));
+    if (self->speed < 0 || self->speed > 1) {
+        gi.dprintf("%s has bad \"speed\" (health percentage); must be between 0 and 1, inclusive\n", etos(self));
         G_FreeEdict(self);
         return;
     }
