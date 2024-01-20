@@ -867,21 +867,36 @@ void USE(monster_triggered_spawn_use)(edict_t *self, edict_t *other, edict_t *ac
 
 static void monster_triggered_start(edict_t *self)
 {
+    static const int offsets[] = {
+        FOFS(target),
+        FOFS(pathtarget),
+        FOFS(deathtarget),
+        FOFS(itemtarget),
+        FOFS(healthtarget),
+        FOFS(combattarget),
+    };
+
     self->solid = SOLID_NOT;
     self->movetype = MOVETYPE_NONE;
     self->svflags |= SVF_NOCLIENT;
     self->nextthink = 0;
     self->use = monster_triggered_spawn_use;
 
-    if (!self->targetname ||
-        (G_Find(NULL, FOFS(target), self->targetname) == NULL &&
-         G_Find(NULL, FOFS(pathtarget), self->targetname) == NULL &&
-         G_Find(NULL, FOFS(deathtarget), self->targetname) == NULL &&
-         G_Find(NULL, FOFS(itemtarget), self->targetname) == NULL &&
-         G_Find(NULL, FOFS(healthtarget), self->targetname) == NULL &&
-         G_Find(NULL, FOFS(combattarget), self->targetname) == NULL)) {
-        gi.dprintf("%s: is trigger spawned, but has no targetname or no entity to spawn it\n", etos(self));
-    }
+    if (self->targetname)
+        for (int i = game.maxclients + BODY_QUEUE_SIZE + 1; i < globals.num_edicts; i++) {
+            edict_t *ent = &g_edicts[i];
+            if (!ent->inuse)
+                continue;
+            for (int j = 0; j < q_countof(offsets); j++) {
+                char *s = *(char **)((byte *)ent + offsets[j]);
+                if (!s)
+                    continue;
+                if (!Q_stricmp(s, self->targetname))
+                    return;
+            }
+        }
+
+    gi.dprintf("%s: is trigger spawned, but has no targetname or no entity to spawn it\n", etos(self));
 }
 
 /*
