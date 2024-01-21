@@ -954,7 +954,7 @@ void THINK(barrel_think)(edict_t *self)
     self->think = barrel_think;
     self->nextthink = level.time + FRAME_TIME;
 
-    M_CatagorizePosition(self, self->s.origin, &self->waterlevel, &self->watertype);
+    M_CategorizePosition(self, self->s.origin, &self->waterlevel, &self->watertype);
     self->flags |= FL_IMMUNE_SLIME;
     self->air_finished = level.time + SEC(100);
     M_WorldEffects(self);

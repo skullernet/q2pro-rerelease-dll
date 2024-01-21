@@ -1444,7 +1444,7 @@ void walkmonster_start(edict_t *self);
 void swimmonster_start(edict_t *self);
 void flymonster_start(edict_t *self);
 void monster_death_use(edict_t *self);
-void M_CatagorizePosition(edict_t *self, const vec3_t in_point, water_level_t *waterlevel, contents_t *watertype);
+void M_CategorizePosition(edict_t *self, const vec3_t in_point, water_level_t *waterlevel, contents_t *watertype);
 void M_WorldEffects(edict_t *ent);
 bool M_CheckAttack(edict_t *self);
 void M_CheckGround(edict_t *ent, contents_t mask);
@@ -2044,11 +2044,11 @@ typedef struct {
 
     gtime_t megahealth_time; // relative megahealth time value
     int lives; // player lives left (1 = no respawns remaining)
-} client_persistant_t;
+} client_persistent_t;
 
 // client data that stays across deathmatch respawns
 typedef struct {
-    client_persistant_t coop_respawn; // what to set client->pers to on a respawn
+    client_persistent_t coop_respawn; // what to set client->pers to on a respawn
     gtime_t             entertime;    // level.time the client entered the game
     int                 score;        // frags, etc
     vec3_t              cmd_angles;   // angles sent over in the last command
@@ -2092,7 +2092,7 @@ struct gclient_s {
     int            ping;
 
     // private to game
-    client_persistant_t pers;
+    client_persistent_t pers;
     client_respawn_t    resp;
     pmove_state_t       old_pmove; // for detecting out-of-pmove changes
 

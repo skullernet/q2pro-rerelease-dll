@@ -885,7 +885,7 @@ void InitClientResp(gclient_t *client)
 ==================
 SaveClientData
 
-Some information that should be persistant, like health,
+Some information that should be persistent, like health,
 is still stored in the edict structure, so it needs to
 be mirrored out to the client structure before all the
 edicts are wiped.
@@ -1680,7 +1680,7 @@ void PutClientInServer(edict_t *ent)
     int                 index;
     vec3_t              spawn_origin, spawn_angles;
     gclient_t         *client;
-    client_persistant_t saved;
+    client_persistent_t saved;
     client_respawn_t    resp;
 
     index = ent - g_edicts - 1;
@@ -1810,7 +1810,7 @@ void PutClientInServer(edict_t *ent)
             memset(&resp, 0, sizeof(resp));
     }
 
-    // clear everything but the persistant data
+    // clear everything but the persistent data
     saved = client->pers;
     memset(client, 0, sizeof(*client));
     client->pers = saved;
@@ -2132,7 +2132,7 @@ void ClientBegin(edict_t *ent)
             ent->client->ps.pmove.delta_angles[i] = ANGLE2SHORT(ent->client->ps.viewangles[i]);
     } else {
         // a spawn point will completely reinitialize the entity
-        // except for the persistant data that was initialized at
+        // except for the persistent data that was initialized at
         // ClientConnect() time
         G_InitEdict(ent);
         ent->classname = "player";

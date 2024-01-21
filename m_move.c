@@ -714,7 +714,7 @@ static bool SV_movestep(edict_t *ent, vec3_t move, bool relink)
     if (ent->waterlevel <= WATER_WAIST) {
         water_level_t end_waterlevel;
         contents_t    end_watertype;
-        M_CatagorizePosition(ent, trace.endpos, &end_waterlevel, &end_watertype);
+        M_CategorizePosition(ent, trace.endpos, &end_waterlevel, &end_watertype);
 
         // don't go into deep liquids or
         // slime/lava voluntarily

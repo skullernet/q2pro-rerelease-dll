@@ -503,7 +503,7 @@ static const save_field_t levelfields[] = {
 };
 
 static const save_field_t client_persistent_fields[] = {
-#define _OFS(x) q_offsetof(client_persistant_t, x)
+#define _OFS(x) q_offsetof(client_persistent_t, x)
     SZ(userinfo, MAX_INFO_STRING),
     SZ(netname, 16),
     I(hand),
@@ -700,7 +700,7 @@ static gzFile fp;
 //
 
 static const union {
-    client_persistant_t client_pers;
+    client_persistent_t client_pers;
     moveinfo_t moveinfo;
     monsterinfo_t monsterinfo;
     bmodel_anim_t bmodel_anim;

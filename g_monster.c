@@ -171,7 +171,7 @@ void M_CheckGround(edict_t *ent, contents_t mask)
     }
 }
 
-void M_CatagorizePosition(edict_t *self, const vec3_t in_point, water_level_t *waterlevel, contents_t *watertype)
+void M_CategorizePosition(edict_t *self, const vec3_t in_point, water_level_t *waterlevel, contents_t *watertype)
 {
     vec3_t     point;
     contents_t cont;
@@ -327,7 +327,7 @@ bool M_droptofloor(edict_t *ent)
 
     gi.linkentity(ent);
     M_CheckGround(ent, mask);
-    M_CatagorizePosition(ent, ent->s.origin, &ent->waterlevel, &ent->watertype);
+    M_CategorizePosition(ent, ent->s.origin, &ent->waterlevel, &ent->watertype);
 
     return true;
 }
@@ -769,7 +769,7 @@ void THINK(monster_think)(edict_t *self)
         self->monsterinfo.linkcount = self->linkcount;
         M_CheckGround(self, G_GetClipMask(self));
     }
-    M_CatagorizePosition(self, self->s.origin, &self->waterlevel, &self->watertype);
+    M_CategorizePosition(self, self->s.origin, &self->waterlevel, &self->watertype);
     M_WorldEffects(self);
     M_SetEffects(self);
 }

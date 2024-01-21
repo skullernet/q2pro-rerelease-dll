@@ -694,7 +694,7 @@ static void SV_Physics_Toss(edict_t *ent)
     // if onground, return without moving
     if (ent->groundentity && ent->gravity > 0.0f) { // PGM - gravity hack
         if (ent->svflags & SVF_MONSTER) {
-            M_CatagorizePosition(ent, ent->s.origin, &ent->waterlevel, &ent->watertype);
+            M_CategorizePosition(ent, ent->s.origin, &ent->waterlevel, &ent->watertype);
             M_WorldEffects(ent);
         }
         return;
@@ -803,7 +803,7 @@ static void SV_Physics_Toss(edict_t *ent)
         ent->waterlevel = WATER_NONE;
 
     if (ent->svflags & SVF_MONSTER) {
-        M_CatagorizePosition(ent, ent->s.origin, &ent->waterlevel, &ent->watertype);
+        M_CategorizePosition(ent, ent->s.origin, &ent->waterlevel, &ent->watertype);
         M_WorldEffects(ent);
     } else {
         if (!wasinwater && isinwater)
@@ -987,7 +987,7 @@ static void SV_Physics_Step(edict_t *ent)
         return;
 
     if (ent->svflags & SVF_MONSTER) {
-        M_CatagorizePosition(ent, ent->s.origin, &ent->waterlevel, &ent->watertype);
+        M_CategorizePosition(ent, ent->s.origin, &ent->waterlevel, &ent->watertype);
         M_WorldEffects(ent);
 
         // [Paril-KEX] last minute hack to fix Stalker upside down gravity

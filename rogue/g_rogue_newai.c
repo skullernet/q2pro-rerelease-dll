@@ -147,7 +147,7 @@ blocked_jump_result_t blocked_checkjump(edict_t *self, float dist)
 
                 water_level_t waterlevel;
                 contents_t watertype;
-                M_CatagorizePosition(self, deep.endpos, &waterlevel, &watertype);
+                M_CategorizePosition(self, deep.endpos, &waterlevel, &watertype);
 
                 if (waterlevel > WATER_WAIST)
                     return NO_JUMP;
