@@ -2209,7 +2209,8 @@ void ClientUserinfoChanged(edict_t *ent, char *userinfo)
 
     // ZOID
     //  set player name field (used in id_state view)
-    gi.configstring(CONFIG_CTF_PLAYER_NAME + playernum, ent->client->pers.netname);
+    if (G_TeamplayEnabled())
+        gi.configstring(CONFIG_CTF_PLAYER_NAME + playernum, ent->client->pers.netname);
     // ZOID
 
     // fov
