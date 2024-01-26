@@ -264,12 +264,10 @@ static void SV_CalcViewOffset(edict_t *ent)
         kick_factor = (float)(ent->client->kick.time - level.time) / ent->client->kick.total;
 
     // base angles
-    vec_t *angles = ent->client->ps.kick_angles;
+    vec3_t angles = { 0 };
 
     // if dead, fix the angle and don't add any kick
     if (ent->deadflag && !ent->client->resp.spectator) {
-        VectorClear(angles);
-
         if (ent->flags & FL_SAM_RAIMI) {
             ent->client->ps.viewangles[ROLL] = 0;
             ent->client->ps.viewangles[PITCH] = 0;
@@ -278,7 +276,7 @@ static void SV_CalcViewOffset(edict_t *ent)
             ent->client->ps.viewangles[PITCH] = -15;
         }
         ent->client->ps.viewangles[YAW] = ent->client->killer_yaw;
-    } else if (!ent->client->pers.bob_skip && !SkipViewModifiers()) {
+    } else if (!SkipViewModifiers()) {
         // add angles based on weapon kick
         VectorScale(ent->client->kick.angles, kick_factor, angles);
 
@@ -296,7 +294,7 @@ static void SV_CalcViewOffset(edict_t *ent)
         }
 
         // add angles based on velocity
-        if (!ent->client->pers.bob_skip && !SkipViewModifiers()) {
+        if (!ent->client->pers.bob_skip) {
             delta = DotProduct(ent->velocity, forward);
             angles[PITCH] += delta * run_pitch->value;
 
@@ -330,8 +328,9 @@ static void SV_CalcViewOffset(edict_t *ent)
     }
 
     // [Paril-KEX] clamp angles
-    for (int i = 0; i < 3; i++)
-        angles[i] = Q_clipf(angles[i], -31, 31);
+    ent->client->ps.kick_angles[0] = Q_clipf(angles[0], -31, 31);
+    ent->client->ps.kick_angles[1] = Q_clipf(angles[1], -31, 31);
+    ent->client->ps.kick_angles[2] = Q_clipf(angles[2], -31, 31);
 
     //===================================
 
@@ -343,7 +342,7 @@ static void SV_CalcViewOffset(edict_t *ent)
 
     v[2] += ent->viewheight;
 
-    if (!ent->client->pers.bob_skip && !SkipViewModifiers()) {
+    if (!SkipViewModifiers()) {
         // add fall height
         if (ent->client->fall_time > level.time) {
             ratio = (float)(ent->client->fall_time - level.time) / FALL_TIME;
@@ -351,10 +350,12 @@ static void SV_CalcViewOffset(edict_t *ent)
         }
 
         // add bob height
-        bob = bobfracsin * xyspeed * bob_up->value;
-        if (bob > 6)
-            bob = 6;
-        v[2] += bob;
+        if (!ent->client->pers.bob_skip) {
+            bob = bobfracsin * xyspeed * bob_up->value;
+            if (bob > 6)
+                bob = 6;
+            v[2] += bob;
+        }
 
         // add kick offset
         VectorMA(v, kick_factor, ent->client->kick.origin, v);

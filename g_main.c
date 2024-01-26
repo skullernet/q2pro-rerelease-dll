@@ -210,7 +210,7 @@ static void InitGame(void)
     sv_maxvelocity = gi.cvar("sv_maxvelocity", "2000", 0);
     sv_gravity = gi.cvar("sv_gravity", "800", 0);
 
-    g_skipViewModifiers = gi.cvar("g_skipViewModifiers", "0", CVAR_NOSET);
+    g_skipViewModifiers = gi.cvar("g_skipViewModifiers", "0", 0);
 
     sv_stopspeed = gi.cvar("sv_stopspeed", "100", 0); // PGM - was #define in g_phys.c
 
