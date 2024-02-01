@@ -1597,9 +1597,6 @@ void ai_run(edict_t *self, float dist)
 
     G_FreeEdict(tempgoal);
 
-    if (!self->inuse)
-        return; // PGM - g_touchtrigger free problem
-
-    if (self)
+    if (self->inuse)
         self->goalentity = save;
 }
