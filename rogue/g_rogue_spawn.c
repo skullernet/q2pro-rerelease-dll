@@ -84,10 +84,10 @@ bool FindSpawnPoint(const vec3_t startpoint, const vec3_t mins, const vec3_t max
         return false;
 
     // fixed, so drop again
-    if (drop && M_droptofloor_generic(spawnpoint, mins, maxs, false, NULL, MASK_MONSTERSOLID, false))
-        return true;
+    if (drop && !M_droptofloor_generic(spawnpoint, mins, maxs, false, NULL, MASK_MONSTERSOLID, false))
+        return false; // ???
 
-    return false; // ???
+    return true;
 }
 
 // FIXME - all of this needs to be tweaked to handle the new gravity rules
