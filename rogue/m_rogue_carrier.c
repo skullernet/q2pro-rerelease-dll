@@ -133,7 +133,7 @@ static void CarrierGrenade(edict_t *self)
     else
         direction = 1.0f;
 
-    mytime = SEC(level.time - self->timestamp) / 0.4f;
+    mytime = TO_SEC(level.time - self->timestamp) / 0.4f;
 
     if (mytime == 0) {
         spreadR = 0.15f * direction;
@@ -389,7 +389,7 @@ static void carrier_start_spawn(edict_t *self)
     if (!self->enemy)
         return;
 
-    mytime = SEC(level.time - self->timestamp) / 0.5f;
+    mytime = TO_SEC(level.time - self->timestamp) / 0.5f;
 
     VectorSubtract(self->enemy->s.origin, self->s.origin, temp);
     enemy_yaw = vectoyaw(temp);
