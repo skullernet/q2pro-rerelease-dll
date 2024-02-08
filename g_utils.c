@@ -20,9 +20,9 @@ void G_ProjectSource2(const vec3_t point, const vec3_t distance, const vec3_t fo
 
 void closest_point_to_box(const vec3_t from, const vec3_t mins, const vec3_t maxs, vec3_t point)
 {
-    point[0] = (from[0] < mins[0]) ? mins[0] : (from[0] > maxs[0]) ? maxs[0] : from[0];
-    point[1] = (from[1] < mins[1]) ? mins[1] : (from[1] > maxs[1]) ? maxs[1] : from[1];
-    point[2] = (from[2] < mins[2]) ? mins[2] : (from[2] > maxs[2]) ? maxs[2] : from[2];
+    point[0] = Q_clipf(from[0], mins[0], maxs[0]);
+    point[1] = Q_clipf(from[1], mins[1], maxs[1]);
+    point[2] = Q_clipf(from[2], mins[2], maxs[2]);
 }
 
 float distance_between_boxes(const vec3_t mins1, const vec3_t maxs1, const vec3_t mins2, const vec3_t maxs2)
