@@ -887,8 +887,8 @@ static void weapon_grenade_fire(edict_t *ent, bool held)
     gtime_t timer = ent->client->grenade_time - level.time;
 
     if (ent->health > 0) {
-        speed = GRENADE_MINSPEED + (GRENADE_TIMER_SEC - TO_SEC(timer)) * ((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER_SEC);
-        speed = min(speed, GRENADE_MAXSPEED);
+        float frac = 1.0f - TO_SEC(timer) / GRENADE_TIMER_SEC;
+        speed = lerp(GRENADE_MINSPEED, GRENADE_MAXSPEED, min(frac, 1.0f));
     } else
         speed = GRENADE_MINSPEED;
 
@@ -900,10 +900,8 @@ static void weapon_grenade_fire(edict_t *ent, bool held)
 }
 
 void Throw_Generic(edict_t *ent, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST, int FRAME_PRIME_SOUND,
-                   const char *prime_sound,
-                   int FRAME_THROW_HOLD, int FRAME_THROW_FIRE, const int *pause_frames, int EXPLODE,
-                   const char *primed_sound,
-                   void (*fire)(edict_t *ent, bool held), bool extra_idle_frame)
+                   const char *prime_sound, int FRAME_THROW_HOLD, int FRAME_THROW_FIRE, const int *pause_frames,
+                   bool explode, const char *primed_sound, void (*fire)(edict_t *ent, bool held), bool extra_idle_frame)
 {
     // when we die, just toss what we had in our hands.
     if (ent->health <= 0) {
@@ -994,7 +992,7 @@ void Throw_Generic(edict_t *ent, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST, int F
                     ent->client->weapon_sound = gi.soundindex(primed_sound);
 
                 // they waited too long, detonate it in their hand
-                if (EXPLODE && !ent->client->grenade_blew_up && level.time >= ent->client->grenade_time) {
+                if (explode && !ent->client->grenade_blew_up && level.time >= ent->client->grenade_time) {
                     Weapon_PowerupSound(ent);
                     ent->client->weapon_sound = 0;
                     fire(ent, true);
@@ -1023,7 +1021,7 @@ void Throw_Generic(edict_t *ent, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST, int F
                     ent->client->weapon_sound = 0;
                     fire(ent, false);
 
-                    if (!EXPLODE || !ent->client->grenade_blew_up)
+                    if (!explode || !ent->client->grenade_blew_up)
                         ent->client->grenade_finished_time = level.time + grenade_wait_time;
 
                     if (!ent->deadflag && ent->s.modelindex == MODELINDEX_PLAYER && ent->health > 0) { // VWep animations screw up corpses

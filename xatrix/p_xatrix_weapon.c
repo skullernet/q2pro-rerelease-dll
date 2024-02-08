@@ -139,9 +139,8 @@ static void weapon_trap_fire(edict_t *ent, bool held)
     P_ProjectSource(ent, angles, (const vec3_t) { 8, 0, -8 }, start, dir);
 
     if (ent->health > 0) {
-        float timer = TO_SEC(ent->client->grenade_time - level.time);
-        speed = TRAP_MINSPEED + (TRAP_TIMER_SEC - timer) * ((TRAP_MAXSPEED - TRAP_MINSPEED) / TRAP_TIMER_SEC);
-        speed = min(speed, TRAP_MAXSPEED);
+        float frac = 1.0f - TO_SEC(ent->client->grenade_time - level.time) / TRAP_TIMER_SEC;
+        speed = lerp(TRAP_MINSPEED, TRAP_MAXSPEED, min(frac, 1.0f));
     } else
         speed = TRAP_MINSPEED;
 

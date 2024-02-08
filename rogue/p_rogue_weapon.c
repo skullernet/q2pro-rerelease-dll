@@ -49,9 +49,8 @@ static void weapon_tesla_fire(edict_t *ent, bool held)
     P_ProjectSource(ent, angles, (const vec3_t) { 0, 0, -22 }, start, dir);
 
     if (ent->health > 0) {
-        float timer = TO_SEC(ent->client->grenade_time - level.time);
-        speed = GRENADE_MINSPEED + (GRENADE_TIMER_SEC - timer) * ((GRENADE_MAXSPEED - GRENADE_MINSPEED) / GRENADE_TIMER_SEC);
-        speed = min(speed, GRENADE_MAXSPEED);
+        float frac = 1.0f - TO_SEC(ent->client->grenade_time - level.time) / GRENADE_TIMER_SEC;
+        speed = lerp(GRENADE_MINSPEED, GRENADE_MAXSPEED, min(frac, 1.0f));
     } else
         speed = GRENADE_MINSPEED;
 

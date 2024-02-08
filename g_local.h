@@ -1689,13 +1689,12 @@ void Weapon_Repeating(edict_t *ent, int FRAME_ACTIVATE_LAST, int FRAME_FIRE_LAST
                       int FRAME_DEACTIVATE_LAST, const int *pause_frames, void (*fire)(edict_t *ent));
 void Throw_Generic(edict_t *ent, int FRAME_FIRE_LAST, int FRAME_IDLE_LAST, int FRAME_PRIME_SOUND,
                    const char *prime_sound, int FRAME_THROW_HOLD, int FRAME_THROW_FIRE, const int *pause_frames,
-                   int EXPLODE, const char *primed_sound, void (*fire)(edict_t *ent, bool held), bool extra_idle_frame);
+                   bool explode, const char *primed_sound, void (*fire)(edict_t *ent, bool held), bool extra_idle_frame);
 int P_DamageModifier(edict_t *ent);
 bool G_CheckInfiniteAmmo(const gitem_t *item);
 void Weapon_PowerupSound(edict_t *ent);
 
 #define GRENADE_TIMER_SEC   3.0f
-#define GRENADE_TIMER       SEC(GRENADE_TIMER_SEC)
 #define GRENADE_MINSPEED    400
 #define GRENADE_MAXSPEED    800
 
