@@ -13,7 +13,6 @@ env:
 
   MESON_ARGS_WIN: >-
     -Dwrap_mode=forcefallback
-    -Db_lto=true
 
   MESON_ARGS_LINUX: >-
     -Dwrap_mode=nofallback
@@ -29,7 +28,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: subprojects/packagecache
           key: ${{ hashFiles('subprojects/*.wrap') }}
@@ -37,7 +36,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++-mingw-w64 meson
+          sudo apt-get install -y gcc-mingw-w64 meson
 
       - name: Build
         run: |
@@ -51,7 +50,7 @@ jobs:
         run: |
           echo "revision=r$(git rev-list --count HEAD)" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.arch }}-mingw-${{ steps.setver.outputs.revision }}
           path: builddir/game*.dll
@@ -66,7 +65,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           path: subprojects/packagecache
           key: ${{ hashFiles('subprojects/*.wrap') }}
@@ -89,7 +88,7 @@ jobs:
         run: |
           echo "revision=r$(git rev-list --count HEAD)" >> "$GITHUB_OUTPUT"
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.arch }}-msvc-${{ steps.setver.outputs.revision }}
           path: |
@@ -100,18 +99,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        cxx: [g++, clang++]
+        cc: [gcc, clang]
     steps:
       - uses: actions/checkout@v4
 
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y meson libfmt-dev libjsoncpp-dev zlib1g-dev
+          sudo apt-get install -y meson zlib1g-dev
 
       - name: Build
         run: |
           meson setup ${{ env.MESON_ARGS }} ${{ env.MESON_ARGS_LINUX }} builddir
           meson compile -C builddir
         env:
-          CXX: ${{ matrix.cxx }}
+          CC: ${{ matrix.cc }}
