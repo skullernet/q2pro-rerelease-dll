@@ -145,7 +145,7 @@ link_args = []
 
 if cc.get_argument_syntax() == 'gcc'
   if x86
-    add_global_arguments('-msse2', '-mfpmath=sse', language: 'cpp')
+    args += ['-msse2', '-mfpmath=sse']
   endif
 
   test_args = [
