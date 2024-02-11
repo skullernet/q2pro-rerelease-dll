@@ -2,7 +2,7 @@ project('q2pro-rerelease-dll', 'c',
   license: 'GPL-2.0-or-later',
   version: run_command(find_program('python3'), 'version.py', check: true).stdout().strip(),
   default_options: [
-    meson.version().version_compare('>=1.3.0') ? 'c_std=gnu11,c11' : 'c_std=gnu11',
+    'c_std=c11',
     'buildtype=debugoptimized',
   ],
 )
@@ -135,6 +135,12 @@ args = [
   '-DUSE_PROTOCOL_EXTENSIONS=1',
 ]
 
+if win32
+  args += ['-D_USE_MATH_DEFINES']
+else
+  args += ['-D_GNU_SOURCE']
+endif
+
 link_args = []
 
 if cc.get_argument_syntax() == 'gcc'
@@ -163,7 +169,7 @@ if cc.get_argument_syntax() == 'gcc'
     endif
   endif
 elif cc.get_id() == 'msvc'
-  args += ['/D_USE_MATH_DEFINES', '/wd4244']
+  args += ['/wd4244']
 endif
 
 add_project_arguments(args, language: 'c')
