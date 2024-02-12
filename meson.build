@@ -7,105 +7,10 @@ project('q2pro-rerelease-dll', 'c',
   ],
 )
 
-src = [
-  'g_ai.c',
-  'g_chase.c',
-  'g_cmds.c',
-  'g_combat.c',
-  'g_func.c',
-  'g_items.c',
-  'g_l10n.c',
-  'g_main.c',
-  'g_misc.c',
-  'g_monster.c',
-  'g_phys.c',
-  'g_save.c',
-  'g_spawn.c',
-  'g_svcmds.c',
-  'g_target.c',
-  'g_trigger.c',
-  'g_turret.c',
-  'g_utils.c',
-  'g_weapon.c',
-  'm_actor.c',
-  'm_arachnid.c',
-  'm_berserk.c',
-  'm_boss2.c',
-  'm_boss3.c',
-  'm_boss31.c',
-  'm_boss32.c',
-  'm_brain.c',
-  'm_chick.c',
-  'm_flash.c',
-  'm_flipper.c',
-  'm_float.c',
-  'm_flyer.c',
-  'm_gladiator.c',
-  'm_guardian.c',
-  'm_guncmdr.c',
-  'm_gunner.c',
-  'm_hover.c',
-  'm_infantry.c',
-  'm_insane.c',
-  'm_medic.c',
-  'm_move.c',
-  'm_mutant.c',
-  'm_parasite.c',
-  'm_shambler.c',
-  'm_soldier.c',
-  'm_supertank.c',
-  'm_tank.c',
-  'p_client.c',
-  'p_hud.c',
-  'p_move.c',
-  'p_trail.c',
-  'p_view.c',
-  'p_weapon.c',
-  'q_shared.c',
-]
-
-src += [
-  'rogue/g_rogue_combat.c',
-  'rogue/g_rogue_func.c',
-  'rogue/g_rogue_items.c',
-  'rogue/g_rogue_misc.c',
-  'rogue/g_rogue_monster.c',
-  'rogue/g_rogue_newai.c',
-  'rogue/g_rogue_newdm.c',
-  'rogue/g_rogue_newfnc.c',
-  'rogue/g_rogue_newtarg.c',
-  'rogue/g_rogue_newtrig.c',
-  'rogue/g_rogue_newweap.c',
-  'rogue/g_rogue_phys.c',
-  'rogue/g_rogue_spawn.c',
-  'rogue/g_rogue_sphere.c',
-  'rogue/g_rogue_utils.c',
-  'rogue/m_rogue_carrier.c',
-  'rogue/m_rogue_stalker.c',
-  'rogue/m_rogue_turret.c',
-  'rogue/m_rogue_widow2.c',
-  'rogue/m_rogue_widow.c',
-  'rogue/p_rogue_weapon.c',
-  'rogue/rogue_dm_ball.c',
-  'rogue/rogue_dm_tag.c',
-]
-
-src += [
-  'xatrix/g_xatrix_func.c',
-  'xatrix/g_xatrix_items.c',
-  'xatrix/g_xatrix_misc.c',
-  'xatrix/g_xatrix_monster.c',
-  'xatrix/g_xatrix_target.c',
-  'xatrix/g_xatrix_weapon.c',
-  'xatrix/m_xatrix_fixbot.c',
-  'xatrix/m_xatrix_gekk.c',
-  'xatrix/p_xatrix_weapon.c',
-]
-
-src += [
-  'ctf/g_ctf.c',
-  'ctf/p_ctf_menu.c',
-]
+subdir('src')
+subdir('src/rogue')
+subdir('src/xatrix')
+subdir('src/ctf')
 
 python = find_program('python3')
 
@@ -197,11 +102,12 @@ config.set10('USE_ZLIB', zlib.found())
 cfg_file = configure_file(output: 'config.h', configuration: config)
 
 if win32
-  src += import('windows').compile_resources('game.rc', args: '-DHAVE_CONFIG_H', include_directories: '.', depend_files: cfg_file)
+  src += import('windows').compile_resources('src/game.rc', args: '-DHAVE_CONFIG_H', include_directories: '.', depend_files: cfg_file)
 endif
 
 shared_library('game' + cpu, src,
   name_prefix:           '',
   gnu_symbol_visibility: 'hidden',
   dependencies:          deps,
+  include_directories:   'src',
 )
