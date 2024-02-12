@@ -8,7 +8,7 @@ TURRET
 ==============================================================================
 */
 
-#include "../g_local.h"
+#include "g_local.h"
 #include "m_rogue_turret.h"
 
 #define SPAWNFLAG_TURRET_BLASTER        0x0008

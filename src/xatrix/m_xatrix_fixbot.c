@@ -4,7 +4,7 @@
     fixbot.c
 */
 
-#include "../g_local.h"
+#include "g_local.h"
 #include "m_xatrix_fixbot.h"
 
 static int sound_pain1;

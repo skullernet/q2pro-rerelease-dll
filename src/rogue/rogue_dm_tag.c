@@ -4,7 +4,7 @@
 // pmack
 // june 1998
 
-#include "../g_local.h"
+#include "g_local.h"
 
 void SP_dm_tag_token(edict_t *self);
 

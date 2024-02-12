@@ -4,7 +4,7 @@
 // pmack
 // june 98
 
-#include "../g_local.h"
+#include "g_local.h"
 
 // defines
 

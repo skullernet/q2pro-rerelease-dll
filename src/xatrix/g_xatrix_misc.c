@@ -1,7 +1,7 @@
 // Copyright (c) ZeniMax Media Inc.
 // Licensed under the GNU General Public License 2.0.
 
-#include "../g_local.h"
+#include "g_local.h"
 
 /*QUAKED misc_crashviper (1 .5 0) (-176 -120 -24) (176 120 72)
 This is a large viper about to crash

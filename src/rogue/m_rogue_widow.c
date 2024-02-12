@@ -11,7 +11,7 @@ black widow
 // self->timestamp used to prevent rapid fire of railgun
 // self->plat2flags used for fire count (flashes)
 
-#include "../g_local.h"
+#include "g_local.h"
 #include "m_rogue_widow.h"
 
 #define RAIL_TIME           SEC(3)

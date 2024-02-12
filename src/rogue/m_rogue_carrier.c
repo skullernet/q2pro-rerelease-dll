@@ -12,7 +12,7 @@ carrier
 // self->timestamp used for frame calculations in grenade & spawn code
 // self->monsterinfo.fire_wait used to prevent rapid refire of rocket launcher
 
-#include "../g_local.h"
+#include "g_local.h"
 #include "m_rogue_carrier.h"
 
 // nb: specifying flyer multiple times so it has a higher chance

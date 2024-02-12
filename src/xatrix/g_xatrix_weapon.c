@@ -1,7 +1,7 @@
 // Copyright (c) ZeniMax Media Inc.
 // Licensed under the GNU General Public License 2.0.
 
-#include "../g_local.h"
+#include "g_local.h"
 
 void fire_blueblaster(edict_t *self, const vec3_t start, const vec3_t dir, int damage, int speed, effects_t effect)
 {

@@ -8,7 +8,7 @@ stalker
 ==============================================================================
 */
 
-#include "../g_local.h"
+#include "g_local.h"
 #include "m_rogue_stalker.h"
 #include <float.h>
 

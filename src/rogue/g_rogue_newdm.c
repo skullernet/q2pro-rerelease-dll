@@ -4,8 +4,8 @@
 // pmack
 // june 1998
 
-#include "../g_local.h"
-#include "../m_player.h"
+#include "g_local.h"
+#include "m_player.h"
 
 dm_game_rt DMGame;
 

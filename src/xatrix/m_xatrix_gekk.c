@@ -5,7 +5,7 @@
     gekk.c
 */
 
-#include "../g_local.h"
+#include "g_local.h"
 #include "m_xatrix_gekk.h"
 
 #define SPAWNFLAG_GEKK_CHANT        8

@@ -4,7 +4,7 @@
 // pmack
 // october 1997
 
-#include "../g_local.h"
+#include "g_local.h"
 
 /*QUAKED info_teleport_destination (.5 .5 .5) (-16 -16 -24) (16 16 32)
 Destination marker for a teleporter.
