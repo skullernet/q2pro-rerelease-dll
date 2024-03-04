@@ -358,6 +358,10 @@ void THINK(turret_driver_link)(edict_t *self)
     self->nextthink = level.time + FRAME_TIME;
 
     self->target_ent = G_PickTarget(self->target);
+    if (!self->target_ent) {
+        G_FreeEdict(self);
+        return;
+    }
     self->target_ent->owner = self;
     self->target_ent->teammaster->owner = self;
     VectorCopy(self->target_ent->s.angles, self->s.angles);
@@ -510,6 +514,10 @@ void THINK(turret_brain_link)(edict_t *self)
     self->nextthink = level.time + FRAME_TIME;
 
     self->target_ent = G_PickTarget(self->target);
+    if (!self->target_ent) {
+        G_FreeEdict(self);
+        return;
+    }
     self->target_ent->owner = self;
     self->target_ent->teammaster->owner = self;
     VectorCopy(self->target_ent->s.angles, self->s.angles);
