@@ -436,7 +436,7 @@ void MOVEINFO_BLOCKED(plat_blocked)(edict_t *self, edict_t *other)
         // give it a chance to go away on it's own terms (like gibs)
         T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, 100000, 1, DAMAGE_NONE, (mod_t) { MOD_CRUSH });
         // if it's still there, nuke it
-        if (other && other->inuse && other->solid) // PGM
+        if (other->inuse && other->solid) // PGM
             BecomeExplosion1(other);
         return;
     }
@@ -1397,7 +1397,7 @@ void MOVEINFO_BLOCKED(door_blocked)(edict_t *self, edict_t *other)
         // give it a chance to go away on it's own terms (like gibs)
         T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, 100000, 1, DAMAGE_NONE, (mod_t) { MOD_CRUSH });
         // if it's still there, nuke it
-        if (other && other->inuse)
+        if (other->inuse)
             BecomeExplosion1(other);
         return;
     }
@@ -1743,7 +1743,7 @@ void MOVEINFO_BLOCKED(smart_water_blocked)(edict_t *self, edict_t *other)
         // give it a chance to go away on it's own terms (like gibs)
         T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, 100000, 1, DAMAGE_NONE, (mod_t) { MOD_LAVA });
         // if it's still there, nuke it
-        if (other && other->inuse && other->solid) // PGM
+        if (other->inuse && other->solid) // PGM
             BecomeExplosion1(other);
         return;
     }
@@ -1864,7 +1864,7 @@ void MOVEINFO_BLOCKED(train_blocked)(edict_t *self, edict_t *other)
         // give it a chance to go away on it's own terms (like gibs)
         T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, 100000, 1, DAMAGE_NONE, (mod_t) { MOD_CRUSH });
         // if it's still there, nuke it
-        if (other && other->inuse && other->solid)
+        if (other->inuse && other->solid)
             BecomeExplosion1(other);
         return;
     }
@@ -2397,7 +2397,7 @@ void MOVEINFO_BLOCKED(door_secret_blocked)(edict_t *self, edict_t *other)
         // give it a chance to go away on it's own terms (like gibs)
         T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, 100000, 1, DAMAGE_NONE, (mod_t) { MOD_CRUSH });
         // if it's still there, nuke it
-        if (other && other->inuse && other->solid)
+        if (other->inuse && other->solid)
             BecomeExplosion1(other);
         return;
     }
