@@ -7,8 +7,11 @@ single player campaign playable in Q2PRO.
 Although this game library uses game API version 3, it will *not* run on
 standard Quake 2 server, latest version of Q2PRO server and client is required!
 
-All single player maps that come with Quake 2 re-release should work out of the
-box. Many community made maps should work too, but some are known to have bugs.
+## Compatibility
+
+All single- and multiplayer maps that come with Quake 2 re-release should
+work without issues. Community made maps should work too, unless they have
+bugs, or are incompatible with classic Quake 2 player movement code.
 
 ## Removed features
 
