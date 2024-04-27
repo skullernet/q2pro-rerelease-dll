@@ -434,9 +434,9 @@ bool OnSameTeam(edict_t *ent1, edict_t *ent2)
 
     // [Paril-KEX] coop 'team' support
     if (coop->integer)
-        return ent1->client && ent2->client;
+        return true;
     // ZOID
-    if (G_TeamplayEnabled() && ent1->client && ent2->client && ent1->client->resp.ctf_team == ent2->client->resp.ctf_team)
+    if (G_TeamplayEnabled() && ent1->client->resp.ctf_team == ent2->client->resp.ctf_team)
         return true;
     // ZOID
 
