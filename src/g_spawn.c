@@ -1717,7 +1717,7 @@ void SP_worldspawn(edict_t *ent)
 
     gi.soundindex("infantry/inflies1.wav");
 
-    gi.soundindex("models/objects/gibs/sm_meat/tris.md2");
+    gi.modelindex("models/objects/gibs/sm_meat/tris.md2");
     gi.modelindex("models/objects/gibs/arm/tris.md2");
     gi.modelindex("models/objects/gibs/bone/tris.md2");
     gi.modelindex("models/objects/gibs/bone2/tris.md2");
