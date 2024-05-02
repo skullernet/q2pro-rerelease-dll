@@ -584,11 +584,13 @@ static bool G_MonsterSourceVisible(edict_t *self, edict_t *client)
     // Paril: revised so that monsters can be woken up
     // by players 'seen' and attacked at by other monsters
     // if they are close enough. they don't have to be visible.
-    bool is_visible =
-        ((r <= RANGE_NEAR && client->show_hostile >= level.time && !(self->spawnflags & SPAWNFLAG_MONSTER_AMBUSH)) ||
-         (visible(self, client) && (r <= RANGE_MELEE || (self->monsterinfo.aiflags & AI_THIRD_EYE) || infront(self, client))));
+    if (r <= RANGE_NEAR && client->show_hostile >= level.time && !(self->spawnflags & SPAWNFLAG_MONSTER_AMBUSH))
+        return true;
 
-    return is_visible;
+    if (visible(self, client) && (r <= RANGE_MELEE || (self->monsterinfo.aiflags & AI_THIRD_EYE) || infront(self, client)))
+        return true;
+
+    return false;
 }
 
 static bool M_ClientInvisible(edict_t *ent)
