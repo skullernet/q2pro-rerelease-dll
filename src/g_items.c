@@ -843,9 +843,15 @@ static void Drop_PowerArmor(edict_t *ent, const gitem_t *item)
 
 //======================================================================
 
-bool Entity_IsVisibleToPlayer(edict_t *ent, edict_t *player)
+customize_entity_result_t G_CustomizeEntity(edict_t *client, edict_t *ent, customize_entity_t *temp)
 {
-    return !Q_IsBitSet(ent->item_picked_up_by, player->s.number - 1);
+    if (!ent->item)
+        return CE_PASS;
+
+    if (Q_IsBitSet(ent->item_picked_up_by, client->s.number - 1))
+        return CE_SKIP;
+
+    return CE_PASS;
 }
 
 /*

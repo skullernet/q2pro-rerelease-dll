@@ -190,7 +190,7 @@ static void InitGame(void)
     gi.dprintf("==== InitGame ====\n");
 
     cvar_t *cv = gi.cvar("sv_features", NULL, 0);
-    if (!cv || !(cv->flags & BIT(7)) || ((int)cv->value & G_FEATURES) != G_FEATURES || gix.apiversion < GAME_API_VERSION_EX)
+    if (!cv || !(cv->flags & BIT(7)) || ((int)cv->value & G_FEATURES) != G_FEATURES || gix.apiversion < GAME_API_VERSION_EX_MINIMUM)
         gi.error("This game library requires enhanced Q2PRO server");
 
     gi.cvar_forceset("g_features", va("%d", G_FEATURES));
@@ -421,6 +421,7 @@ q_exported const game_export_ex_t *GetGameAPIEx(const game_import_ex_t *import)
         .CanSave = G_CanSave,
         .PrepFrame = G_PrepFrame,
         .RestartFilesystem = G_RestartFilesystem,
+        .CustomizeEntity = G_CustomizeEntity,
     };
 
     return &gex;

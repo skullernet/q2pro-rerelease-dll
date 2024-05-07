@@ -1267,7 +1267,7 @@ bool      G_CanDropItem(const gitem_t *item);
 void      Touch_Item(edict_t *ent, edict_t *other, const trace_t *tr, bool other_touching_self);
 void      droptofloor(edict_t *ent);
 void      P_ToggleFlashlight(edict_t *ent, bool state);
-bool      Entity_IsVisibleToPlayer(edict_t *ent, edict_t *player);
+customize_entity_result_t G_CustomizeEntity(edict_t *client, edict_t *ent, customize_entity_t *temp);
 
 //
 // g_utils.c

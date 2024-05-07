@@ -88,6 +88,9 @@ void SP_info_player_intermission(edict_t *ent)
 // [Paril-KEX] whether instanced items should be used or not
 bool P_UseCoopInstancedItems(void)
 {
+    // instanced items require CustomizeEntity support
+    if (gix.apiversion < GAME_API_VERSION_EX_CUSTOMIZE_ENTITY)
+        return false;
     // squad respawn forces instanced items on, since we don't
     // want players to need to backtrack just to get their stuff.
     return g_coop_instanced_items->integer || g_coop_squad_respawn->integer;
