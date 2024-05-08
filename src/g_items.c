@@ -1543,7 +1543,7 @@ const gitem_t itemlist[] = {
         .chain = IT_WEAPON_GRAPPLE,
         .flags = IF_WEAPON | IF_STAY_COOP | IF_NOT_RANDOM,
         .vwep_model = "#w_blaster.md2",
-        .precaches = "weapons/blastf1a.wav misc/lasfly.wav"
+        .precaches = "models/objects/laser/tris.md2 weapons/blastf1a.wav misc/lasfly.wav"
     },
 
     /*QUAKED weapon_chainfist (.3 .3 1) (-16 -16 -16) (16 16 16) TRIGGER_SPAWN
@@ -1695,7 +1695,7 @@ const gitem_t itemlist[] = {
         .ammo = IT_AMMO_BULLETS,
         .flags = IF_WEAPON | IF_STAY_COOP,
         .vwep_model = "#w_chaingun.md2",
-        .precaches = "weapons/chngnu1a.wav weapons/chngnl1a.wav weapons/machgf3b.wav weapons/chngnd1a.wav",
+        .precaches = "weapons/machgf1b.wav weapons/machgf2b.wav weapons/machgf3b.wav weapons/machgf4b.wav weapons/machgf5b.wav weapons/chngnu1a.wav weapons/chngnl1a.wav weapons/chngnd1a.wav",
         .quantity_warn = 60
     },
 
@@ -1831,7 +1831,7 @@ const gitem_t itemlist[] = {
         .flags = IF_WEAPON | IF_STAY_COOP,
         .vwep_model = "#w_plauncher.md2",
         .tag = AMMO_PROX,
-        .precaches = "weapons/grenlf1a.wav weapons/grenlr1b.wav weapons/grenlb1b.wav weapons/proxwarn.wav weapons/proxopen.wav",
+        .precaches = "weapons/grenlf1a.wav weapons/grenlr1b.wav weapons/grenlb1b.wav weapons/proxlr1a.wav weapons/proxwarn.wav weapons/proxopen.wav",
     },
     // ROGUE
 
@@ -1881,7 +1881,7 @@ const gitem_t itemlist[] = {
         .chain = IT_WEAPON_IONRIPPER,
         .flags = IF_WEAPON | IF_STAY_COOP,
         .vwep_model = "#w_hyperblaster.md2",
-        .precaches = "weapons/hyprbu1a.wav weapons/hyprbl1a.wav weapons/hyprbf1a.wav weapons/hyprbd1a.wav misc/lasfly.wav",
+        .precaches = "models/objects/laser/tris.md2 weapons/hyprbu1a.wav weapons/hyprbl1a.wav weapons/hyprbf1a.wav weapons/hyprbd1a.wav misc/lasfly.wav",
         .quantity_warn = 30
     },
 
@@ -1989,7 +1989,7 @@ const gitem_t itemlist[] = {
         .chain = IT_WEAPON_RAILGUN,
         .flags = IF_WEAPON | IF_STAY_COOP,
         .vwep_model = "#w_phalanx.md2",
-        .precaches = "weapons/plasshot.wav sprites/s_photon.sp2 weapons/rockfly.wav"
+        .precaches = "weapons/phaloop.wav weapons/plasshot.wav sprites/s_photon.sp2 weapons/rockfly.wav"
     },
 // RAFAEL
 
