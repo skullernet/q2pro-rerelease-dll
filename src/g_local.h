@@ -435,7 +435,6 @@ typedef struct gitem_s {
 
     const char *precaches; // string of all models, sounds, and images this item will use
 
-    int         sort_id;        // used by some items to control their sorting
     int         quantity_warn;  // when to warn on low ammo
 } gitem_t;
 

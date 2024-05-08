@@ -3108,7 +3108,6 @@ const gitem_t itemlist[] = {
         .flags = IF_STAY_COOP | IF_POWERUP_WHEEL | IF_POWERUP_ONOFF | IF_NOT_RANDOM,
         .tag = POWERUP_FLASHLIGHT,
         .precaches = "items/flashlight_on.wav items/flashlight_off.wav",
-        .sort_id = -1
     },
 };
 // clang-format on
