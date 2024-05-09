@@ -14,7 +14,7 @@ env:
   MESON_ARGS_WIN: >-
     -Dwrap_mode=forcefallback
 
-  MESON_ARGS_LINUX: >-
+  MESON_ARGS_OTHER: >-
     -Dwrap_mode=nofallback
 
 jobs:
@@ -110,7 +110,40 @@ jobs:
 
       - name: Build
         run: |
-          meson setup ${{ env.MESON_ARGS }} ${{ env.MESON_ARGS_LINUX }} builddir
+          meson setup ${{ env.MESON_ARGS }} ${{ env.MESON_ARGS_OTHER }} builddir
           meson compile -C builddir
         env:
           CC: ${{ matrix.cc }}
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          brew update
+          brew install meson
+
+      - name: Build
+        run: |
+          meson setup ${{ env.MESON_ARGS }} ${{ env.MESON_ARGS_OTHER }} builddir
+          meson compile -C builddir
+
+  freebsd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build
+        uses: cross-platform-actions/action@v0.24.0
+        with:
+          operating_system: freebsd
+          architecture: x86-64
+          version: '14.0'
+          run: |
+            sudo pkg update
+            sudo pkg install -y git meson
+            meson setup ${{ env.MESON_ARGS }} ${{ env.MESON_ARGS_OTHER }} builddir
+            meson compile -C builddir
