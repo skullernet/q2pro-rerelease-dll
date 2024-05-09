@@ -1143,9 +1143,6 @@ extern cvar_t *g_debug_monster_paths;
 extern cvar_t *g_debug_monster_kills;
 extern cvar_t *maxspectators;
 
-extern cvar_t *bot_debug_follow_actor;
-extern cvar_t *bot_debug_move_to_point;
-
 extern cvar_t *flood_msgs;
 extern cvar_t *flood_persecond;
 extern cvar_t *flood_waitdelay;
@@ -1185,7 +1182,6 @@ extern cvar_t *g_allow_techs;
 extern cvar_t *g_start_items;
 extern cvar_t *g_map_list;
 extern cvar_t *g_map_list_shuffle;
-extern cvar_t *g_lag_compensation;
 
 // ROGUE
 extern cvar_t *gamerules;
