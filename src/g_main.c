@@ -421,7 +421,7 @@ q_exported const game_export_ex_t *GetGameAPIEx(const game_import_ex_t *import)
         .CanSave = G_CanSave,
         .PrepFrame = G_PrepFrame,
         .RestartFilesystem = G_RestartFilesystem,
-        .CustomizeEntity = G_CustomizeEntity,
+        .EntityVisibleToClient = G_EntityVisibleToClient,
     };
 
     return &gex;
