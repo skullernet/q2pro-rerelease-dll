@@ -1042,18 +1042,17 @@ void USE(trigger_coop_relay_use)(edict_t *self, edict_t *other, edict_t *activat
 
 void THINK(trigger_coop_relay_think)(edict_t *self)
 {
-    edict_t *players[MAX_CLIENTS];
+    edict_t *players[MAX_EDICTS_OLD];
     int i, j, num_active = 0, num_present = 0;
 
     for (i = 1; i <= game.maxclients; i++)
         if (trigger_coop_relay_ok(&g_edicts[i]))
             num_active++;
 
-    edict_t *list[MAX_EDICTS_OLD];
-    int count = gi.BoxEdicts(self->absmin, self->absmax, list, q_countof(list), AREA_SOLID);
+    int count = gi.BoxEdicts(self->absmin, self->absmax, players, q_countof(players), AREA_SOLID);
     for (i = 0; i < count; i++) {
-        edict_t *ent = list[i];
-        if (trigger_coop_relay_ok(ent) && num_present < q_countof(players))
+        edict_t *ent = players[i];
+        if (trigger_coop_relay_ok(ent))
             players[num_present++] = ent;
     }
 
