@@ -11,6 +11,7 @@ typedef enum {
     F_LSTRING,
     F_VECTOR,
     F_ANGLEHACK,
+    F_EFFECTS,
     F_COLOR,
     F_L10N_STRING,
     F_POWER_ARMOR,
@@ -495,11 +496,10 @@ static const spawn_field_t entity_fields[] = {
     { "hackflags", FOFS(hackflags), F_INT }, // [Paril-KEX] n64
     { "alpha", FOFS(x.alpha), F_FLOAT }, // [Paril-KEX]
     { "scale", FOFS(x.scale), F_FLOAT }, // [Paril-KEX]
-    { "morefx", FOFS(x.morefx), F_INT },
     { "mangle", 0, F_IGNORE }, // editor field
     { "dead_frame", FOFS(monsterinfo.start_frame), F_INT }, // [Paril-KEX]
     { "frame", FOFS(s.frame), F_INT },
-    { "effects", FOFS(s.effects), F_INT },
+    { "effects", FOFS(s.effects), F_EFFECTS },
     { "renderfx", FOFS(s.renderfx), F_INT },
 
     // [Paril-KEX] func_eye stuff
@@ -725,6 +725,7 @@ static void ED_LoadField(const spawn_field_t *f, const char *value, byte *b)
 {
     float   v;
     vec3_t  vec;
+    uint64_t l;
 
     // found it
     switch (f->type) {
@@ -751,6 +752,11 @@ static void ED_LoadField(const spawn_field_t *f, const char *value, byte *b)
         ((float *)(b + f->ofs))[0] = 0;
         ((float *)(b + f->ofs))[1] = v;
         ((float *)(b + f->ofs))[2] = 0;
+        break;
+    case F_EFFECTS:
+        l = strtoull(value, NULL, 10);
+        *(int *)(b + FOFS(s.effects)) = l;
+        *(int *)(b + FOFS(x.morefx)) = l >> 32;
         break;
     case F_BOOL:
         *(bool *)(b + f->ofs) = Q_atoi(value);
