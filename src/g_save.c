@@ -707,7 +707,7 @@ static const union {
     bmodel_anim_t bmodel_anim;
     level_entry_t level_entries[MAX_LEVELS_PER_UNIT];
     int inventory[IT_TOTAL];
-    short max_ammo[AMMO_MAX];
+    int16_t max_ammo[AMMO_MAX];
 } empty;
 
 static struct {
@@ -756,7 +756,7 @@ static void write_uint64_hex(const char *name, uint64_t v)
     gzprintf(fp, "%*s %#"PRIx64"\n", indent(name), v);
 }
 
-static void write_short_v(const char *name, short *v, int n)
+static void write_short_v(const char *name, int16_t *v, int n)
 {
     gzprintf(fp, "%*s ", indent(name));
     for (int i = 0; i < n; i++)
@@ -833,7 +833,7 @@ static void write_inventory(int *inven)
     end_block();
 }
 
-static void write_max_ammo(short *max_ammo)
+static void write_max_ammo(int16_t *max_ammo)
 {
     begin_block("max_ammo");
     for (int i = AMMO_BULLETS; i < AMMO_MAX; i++)
@@ -879,7 +879,7 @@ static void write_field(const save_field_t *field, void *base)
             write_byte_v(field->name, p, field->size);
         break;
     case F_SHORT:
-        if (memcmp(p, &empty, field->size * sizeof(short)))
+        if (memcmp(p, &empty, field->size * sizeof(int16_t)))
             write_short_v(field->name, p, field->size);
         break;
     case F_INT:
@@ -1217,7 +1217,7 @@ static uint64_t parse_uint64(void)
     return v;
 }
 
-static void parse_short_v(short *v, int n)
+static void parse_short_v(int16_t *v, int n)
 {
     for (int i = 0; i < n; i++)
         v[i] = parse_int16();
@@ -1324,7 +1324,7 @@ static void read_inventory(int *inven)
     }
 }
 
-static void read_max_ammo(short *max_ammo)
+static void read_max_ammo(int16_t *max_ammo)
 {
     expect("{");
     while (1) {

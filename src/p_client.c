@@ -2554,7 +2554,7 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
         }
 
         // PGM  trigger_gravity support
-        client->ps.pmove.gravity = (short)(level.gravity * ent->gravity);
+        client->ps.pmove.gravity = (int)(level.gravity * ent->gravity);
         pm.s = client->ps.pmove;
 
         for (i = 0; i < 3; i++) {

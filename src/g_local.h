@@ -2020,7 +2020,7 @@ typedef struct {
     int       inventory[IT_TOTAL];
 
     // ammo capacities
-    short max_ammo[AMMO_MAX];
+    int16_t max_ammo[AMMO_MAX];
 
     const gitem_t *weapon;
     const gitem_t *lastweapon;
