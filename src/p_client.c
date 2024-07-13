@@ -1511,7 +1511,7 @@ void G_PostRespawn(edict_t *self)
 
     // hold in place briefly
     self->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
-    self->client->ps.pmove.pm_time = 112 >> 3;
+    self->client->ps.pmove.pm_time = 112 >> PM_TIME_SHIFT;
 
     self->client->respawn_time = level.time;
 }
@@ -1610,7 +1610,7 @@ static void spectator_respawn(edict_t *ent)
 
         // hold in place briefly
         ent->client->ps.pmove.pm_flags = PMF_TIME_TELEPORT;
-        ent->client->ps.pmove.pm_time = 112 >> 3;
+        ent->client->ps.pmove.pm_time = 112 >> PM_TIME_SHIFT;
     }
 
     ent->client->respawn_time = level.time;
@@ -3002,6 +3002,7 @@ static bool G_CoopRespawn(edict_t *ent)
             ent->s.modelindex = 0;
             ent->svflags |= SVF_NOCLIENT;
             ent->client->ps.blend[3] = 0;
+            ent->client->ps.damage_blend[3] = 0;
             ent->client->ps.rdflags = RDF_NONE;
             ent->movetype = MOVETYPE_NOCLIP;
             // TODO: check if anything else needs to be reset

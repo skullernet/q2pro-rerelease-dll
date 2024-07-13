@@ -474,6 +474,7 @@ static void SV_CalcBlend(edict_t *ent)
     gtime_t remaining;
 
     Vector4Clear(ent->client->ps.blend);
+    Vector4Clear(ent->client->ps.damage_blend);
 
     // add for contents
     vec3_t vieworg;
@@ -560,14 +561,14 @@ static void SV_CalcBlend(edict_t *ent)
 
     // add for damage
     if (ent->client->damage_alpha > 0)
-        G_AddBlend(ent->client->damage_blend[0], ent->client->damage_blend[1], ent->client->damage_blend[2], ent->client->damage_alpha, ent->client->ps.blend);
+        G_AddBlend(ent->client->damage_blend[0], ent->client->damage_blend[1], ent->client->damage_blend[2], ent->client->damage_alpha, ent->client->ps.damage_blend);
 
     // [Paril-KEX] drowning visual indicator
     if (ent->air_finished < level.time + SEC(9)) {
         float alpha = 1.0f;
         if (ent->air_finished > level.time)
             alpha = 1.0f - TO_SEC(ent->air_finished - level.time) / 9.0f;
-        G_AddBlend(0.1f, 0.1f, 0.2f, alpha * 0.5f, ent->client->ps.blend);
+        G_AddBlend(0.1f, 0.1f, 0.2f, alpha * 0.75f, ent->client->ps.damage_blend);
     }
 
     if (ent->client->bonus_alpha > 0)
@@ -642,7 +643,8 @@ static void P_FallingDamage(edict_t *ent)
     }
 
     if (delta < 15) {
-        ent->s.event = EV_FOOTSTEP;
+        if (!(ent->client->ps.pmove.pm_flags & PMF_ON_LADDER))
+            ent->s.event = EV_FOOTSTEP;
         return;
     }
 
@@ -1188,6 +1190,7 @@ void ClientEndServerFrame(edict_t *ent)
     if (level.intermissiontime || ent->client->awaiting_respawn) {
         if (ent->client->awaiting_respawn || (level.intermission_eou || level.is_n64 || (deathmatch->integer && level.intermissiontime))) {
             current_client->ps.blend[3] = 0;
+            current_client->ps.damage_blend[3] = 0;
             current_client->ps.fov = 90;
             current_client->ps.gunindex = 0;
         }

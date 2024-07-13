@@ -4,8 +4,8 @@ Port of Quake 2 re-release game source designed to run with Q2PRO, with all
 KEX-specific APIs removed. The goal of this project is to make re-release
 single player campaign playable in Q2PRO.
 
-Although this game library uses game API version 3, it will *not* run on
-standard Quake 2 server, latest version of Q2PRO server and client is required!
+This game library uses custom game API version and will *not* run on standard
+Quake 2 server. Latest version of Q2PRO client and server is required!
 
 ## Compatibility
 

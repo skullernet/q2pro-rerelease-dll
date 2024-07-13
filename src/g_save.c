@@ -543,10 +543,10 @@ static const save_field_t clientfields[] = {
 #define _OFS CLOFS
     I(ps.pmove.pm_type),
 
-    SA(ps.pmove.origin, 3),
-    SA(ps.pmove.velocity, 3),
-    B(ps.pmove.pm_flags),
-    B(ps.pmove.pm_time),
+    IA(ps.pmove.origin, 3),
+    IA(ps.pmove.velocity, 3),
+    S(ps.pmove.pm_flags),
+    S(ps.pmove.pm_time),
     S(ps.pmove.gravity),
     SA(ps.pmove.delta_angles, 3),
 
@@ -560,6 +560,7 @@ static const save_field_t clientfields[] = {
     I(ps.gunframe),
 
     FA(ps.blend, 4),
+    FA(ps.damage_blend, 4),
 
     F(ps.fov),
 

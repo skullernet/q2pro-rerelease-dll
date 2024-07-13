@@ -860,8 +860,10 @@ typedef enum {
 
 //KEX
 #define PMF_IGNORE_PLAYER_COLLISION     BIT(7)
-#define PMF_ON_LADDER                   0
+#define PMF_ON_LADDER                   BIT(8)
 //KEX
+
+#define PM_TIME_SHIFT       0
 
 // this structure needs to be communicated bit-accurate
 // from the server to the client to guarantee that
@@ -871,12 +873,12 @@ typedef enum {
 typedef struct {
     pmtype_t    pm_type;
 
-    short       origin[3];      // 12.3
-    short       velocity[3];    // 12.3
-    byte        pm_flags;       // ducked, jump_held, etc
-    byte        pm_time;        // each unit = 8 ms
-    short       gravity;
-    short       delta_angles[3];    // add to command angles to get view direction
+    int32_t     origin[3];      // 19.3
+    int32_t     velocity[3];    // 19.3
+    uint16_t    pm_flags;       // ducked, jump_held, etc
+    uint16_t    pm_time;        // in msec
+    int16_t     gravity;
+    int16_t     delta_angles[3];    // add to command angles to get view direction
                                     // changed by spawns, rotating objects, and teleporters
 } pmove_state_t;
 
@@ -1216,7 +1218,7 @@ enum {
     STAT_CHASE,
     STAT_SPECTATOR,
 
-    MAX_STATS = 32
+    MAX_STATS = 64
 };
 
 // STAT_LAYOUTS flags
@@ -1390,7 +1392,7 @@ typedef enum {
 // entity_state_t is the information conveyed from the server
 // in an update message about entities that the client will
 // need to render in some way
-typedef struct entity_state_s {
+typedef struct {
     int     number;         // edict index
 
     vec3_t  origin;
@@ -1432,13 +1434,16 @@ typedef struct {
     int         gunindex;
     int         gunframe;
 
-    float       blend[4];       // rgba full screen effect
+    vec4_t      blend;          // rgba full screen effect
+    vec4_t      damage_blend;
 
     float       fov;            // horizontal field of view
 
     int         rdflags;        // refdef flags
 
-    short       stats[MAX_STATS];       // fast status bar updates
+    int         reserved[4];
+
+    int16_t     stats[MAX_STATS];       // fast status bar updates
 } player_state_t;
 
 //==============================================
