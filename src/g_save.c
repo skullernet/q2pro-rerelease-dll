@@ -54,6 +54,7 @@ typedef enum {
     F_CLIENT_PERSISTENT,
     F_INVENTORY,
     F_MAX_AMMO,
+    F_STATS,
     F_MOVEINFO,
     F_MONSTERINFO,
     F_REINFORCEMENTS,
@@ -566,7 +567,7 @@ static const save_field_t clientfields[] = {
 
     I(ps.rdflags),
 
-    SA(ps.stats, MAX_STATS),
+    F_(F_STATS, ps.stats),
 
     F_(F_CLIENT_PERSISTENT, pers),
 
@@ -842,6 +843,32 @@ static void write_max_ammo(int16_t *max_ammo)
     end_block();
 }
 
+static const struct {
+    const char *name;
+    int         stat;
+} statdefs[] = {
+    { "pickup_icon", STAT_PICKUP_ICON },
+    { "pickup_string", STAT_PICKUP_STRING },
+    { "selected_item_name", STAT_SELECTED_ITEM_NAME },
+};
+
+static void write_stats(int16_t *stats)
+{
+    int i;
+
+    for (i = 0; i < q_countof(statdefs); i++)
+        if (stats[statdefs[i].stat])
+            break;
+    if (i == q_countof(statdefs))
+        return;
+
+    begin_block("ps.stats");
+    for (i = 0; i < q_countof(statdefs); i++)
+        if (stats[statdefs[i].stat])
+            write_int(statdefs[i].name, stats[statdefs[i].stat]);
+    end_block();
+}
+
 static void write_fields(const char *name, const save_field_t *fields, int count, void *base);
 
 static void write_reinforcements(reinforcement_list_t *list)
@@ -959,6 +986,10 @@ static void write_field(const save_field_t *field, void *base)
             write_max_ammo(p);
         break;
 
+    case F_STATS:
+        write_stats((int16_t *)p);
+        break;
+
     case F_MOVEINFO:
         if (memcmp(p, &empty.moveinfo, sizeof(empty.moveinfo)))
             write_fields(field->name, moveinfo_fields, q_countof(moveinfo_fields), p);
@@ -1002,6 +1033,7 @@ static struct {
     const char *ptr;
     int len;
     int number;
+    int version;
 } line;
 
 static const char *read_line(void)
@@ -1339,6 +1371,29 @@ static void read_max_ammo(int16_t *max_ammo)
     }
 }
 
+static void read_stats(int16_t *stats)
+{
+    if (line.version == 1) {
+        parse_short_v(stats, 32);
+        return;
+    }
+
+    expect("{");
+    while (1) {
+        char *tok = parse();
+        if (!strcmp(tok, "}"))
+            break;
+        int i;
+        for (i = 0; i < q_countof(statdefs); i++)
+            if (!strcmp(tok, statdefs[i].name))
+                break;
+        if (i < q_countof(statdefs))
+            stats[statdefs[i].stat] = parse_int16();
+        else
+            unknown("stat");
+    }
+}
+
 static void read_fields(const save_field_t *fields, int count, void *base);
 
 static void read_reinforcements(reinforcement_list_t *list)
@@ -1428,6 +1483,9 @@ static void read_field(const save_field_t *field, void *base)
     case F_MAX_AMMO:
         read_max_ammo(p);
         break;
+    case F_STATS:
+        read_stats(p);
+        break;
 
     case F_MOVEINFO:
         read_fields(moveinfo_fields, q_countof(moveinfo_fields), p);
@@ -1477,7 +1535,7 @@ static void read_fields(const save_field_t *fields, int count, void *base)
 
 #define SAVE_MAGIC1     "SSV2"
 #define SAVE_MAGIC2     "SAV2"
-#define SAVE_VERSION    "1"
+#define SAVE_VERSION    "2"
 
 /*
 ============
@@ -1537,7 +1595,9 @@ void ReadGame(const char *filename)
     memset(&line, 0, sizeof(line));
     expect(SAVE_MAGIC1);
     expect("version");
-    expect(SAVE_VERSION);
+    line.version = parse_int32();
+    if (line.version < 1 || line.version > 2)
+        gi.error("Savegame has bad version");
 
     int maxclients = game.maxclients;
     int maxentities = game.maxentities;
@@ -1641,7 +1701,9 @@ void ReadLevel(const char *filename)
     memset(&line, 0, sizeof(line));
     expect(SAVE_MAGIC2);
     expect("version");
-    expect(SAVE_VERSION);
+    line.version = parse_int32();
+    if (line.version < 1 || line.version > 2)
+        gi.error("Savegame has bad version");
 
     // wipe all the entities
     memset(g_edicts, 0, game.maxentities * sizeof(g_edicts[0]));
