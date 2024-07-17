@@ -2572,11 +2572,6 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
         // perform a pmove
         gi.Pmove(&pm);
 
-        if (ent->client->landmark_free_fall && pm.groundentity) {
-            ent->client->landmark_free_fall = false;
-            ent->client->landmark_noise_time = level.time + HZ(10);
-        }
-
         // [Paril-KEX] save old position for G_TouchProjectiles
         vec3_t old_origin;
         VectorCopy(ent->s.origin, old_origin);

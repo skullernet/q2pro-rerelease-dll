@@ -1262,6 +1262,11 @@ void ClientEndServerFrame(edict_t *ent)
     // detect hitting the floor
     P_FallingDamage(ent);
 
+    if (ent->client->landmark_free_fall && ent->groundentity) {
+        ent->client->landmark_free_fall = false;
+        ent->client->landmark_noise_time = level.time + HZ(10);
+    }
+
     // apply all the damage taken this frame
     P_DamageFeedback(ent);
 
