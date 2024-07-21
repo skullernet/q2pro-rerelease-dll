@@ -76,3 +76,5 @@ static void sb_stat_str(statusbar_t *sb, const char *cmd, const char *str)
 #define sb_string2(str) sb_stat_str(sb_ptr, "string2", str);
 #define sb_rstring2(str) sb_stat_str(sb_ptr, "rstring2", str);
 #define sb_cstring2(str) sb_stat_str(sb_ptr, "cstring2", str);
+
+#define sb_health_bars(stat, name) sb_printf(sb_ptr, "health_bars %d %d ", stat, name);

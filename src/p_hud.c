@@ -550,6 +550,50 @@ void G_SetCoopStats(edict_t *ent)
         ent->client->ps.stats[STAT_COOP_RESPAWN] = 0;
 }
 
+static int G_EncodeHealthBar(int bar)
+{
+    edict_t *ent = level.health_bar_entities[bar];
+
+    if (!ent)
+        return 0;
+
+    if (!ent->inuse) {
+        level.health_bar_entities[bar] = NULL;
+        return 0;
+    }
+
+    if (ent->timestamp) {
+        if (ent->timestamp < level.time) {
+            level.health_bar_entities[bar] = NULL;
+            return 0;
+        }
+        return 1;
+    }
+
+    Q_assert(ent->enemy);
+
+    // enemy dead
+    if (!ent->enemy->inuse || ent->enemy->health <= 0) {
+        // hack for Makron
+        if (ent->enemy->monsterinfo.aiflags & AI_DOUBLE_TROUBLE)
+            return 1;
+
+        if (ent->delay) {
+            ent->timestamp = level.time + SEC(ent->delay);
+            return 1;
+        }
+
+        level.health_bar_entities[bar] = NULL;
+        return 0;
+    }
+
+    if (ent->spawnflags & SPAWNFLAG_HEALTHBAR_PVS_ONLY && !gi.inPVS(ent->s.origin, ent->enemy->s.origin))
+        return 0;
+
+    float percent = (float)ent->enemy->health / ent->enemy->max_health;
+    return 1 + Q_clip(percent * 254 + 0.5f, 1, 254);
+}
+
 typedef struct {
     item_id_t item;
     int ofs;
@@ -767,6 +811,9 @@ void G_SetStats(edict_t *ent)
         ent->client->ps.stats[STAT_HELPICON] = 0;
 
     ent->client->ps.stats[STAT_SPECTATOR] = 0;
+
+    // set & run the health bar stuff
+    ent->client->ps.stats[STAT_HEALTH_BARS] = G_EncodeHealthBar(0) | (G_EncodeHealthBar(1) << 8);
 
     // ZOID
     SetCTFStats(ent);

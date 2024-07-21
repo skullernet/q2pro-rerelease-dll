@@ -1374,6 +1374,10 @@ static void G_InitStatusbar(void)
                 sb_rstring("Lives")
             sb_endif()
         }
+
+        sb_if(STAT_HEALTH_BARS)
+            sb_xv(0) sb_yt(24) sb_health_bars(STAT_HEALTH_BARS, CONFIG_HEALTH_BAR_NAME)
+        sb_endif()
     } else if (G_TeamplayEnabled()) {
         CTFPrecache();
 

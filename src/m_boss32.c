@@ -810,4 +810,9 @@ void MakronToss(edict_t *self)
     ent->enemy = self->enemy;
 
     MakronSpawn(ent);
+
+    // [Paril-KEX] set health bar over to Makron when we throw him out
+    for (int i = 0; i < MAX_HEALTH_BARS; i++)
+        if (level.health_bar_entities[i] && level.health_bar_entities[i]->enemy == self)
+            level.health_bar_entities[i]->enemy = ent;
 }

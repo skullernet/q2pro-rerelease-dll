@@ -495,6 +495,8 @@ static const save_field_t levelfields[] = {
 
     F(gravity),
     O(hub_map),
+    E(health_bar_entities[0]),
+    E(health_bar_entities[1]),
     O(story_active),
     T(next_auto_save),
 

@@ -16,7 +16,7 @@ bugs, or are incompatible with classic Quake 2 player movement code.
 ## Removed features
 
 This project aims to recreate mostly vanilla Quake 2 experience. For this sake,
-the following remaster-specific features have been removed.
+the following remaster-specific features have been removed / not implemented.
 
 * Cgame module
 * Bots
@@ -27,7 +27,6 @@ the following remaster-specific features have been removed.
 * Shadow lights
 * Fog
 * Weapon wheel
-* Health bars
 * Hit/damage indicators
 * POIs
 * Achievements

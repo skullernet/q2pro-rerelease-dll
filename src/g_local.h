@@ -625,6 +625,8 @@ typedef struct {
     precache_t *precaches;
 } game_locals_t;
 
+#define MAX_HEALTH_BARS 2
+
 //
 // this structure is cleared as each map is entered
 // it is read/written to the level.sav file for savegames
@@ -710,6 +712,8 @@ typedef struct {
     float gravity;
     // level is a hub map, and shouldn't be included in EOU stuff
     bool hub_map;
+    // active health bar entities
+    edict_t *health_bar_entities[MAX_HEALTH_BARS];
     bool deadly_kill_box;
     bool story_active;
     gtime_t next_auto_save;
@@ -1340,6 +1344,8 @@ void target_laser_off(edict_t *self);
 #define SPAWNFLAG_LASER_ZAP         0x80000000
 #define SPAWNFLAG_LASER_LIGHTNING   0x00010000
 
+#define SPAWNFLAG_HEALTHBAR_PVS_ONLY    1
+
 // damage flags
 typedef enum {
     DAMAGE_NONE             = 0,      // no damage flags
@@ -1937,6 +1943,9 @@ enum {
     STAT_LIVES = 22,
 
     // [Paril-KEX]
+    STAT_HEALTH_BARS = 23, // two health bar values (0 - inactive, 1 - dead, 2-255 - alive)
+
+    // [Paril-KEX]
     STAT_SELECTED_ITEM_NAME = 31,
 };
 
@@ -1964,6 +1973,8 @@ enum {
     // nb: offset by 1 since NONE is zero
     CONFIG_COOP_RESPAWN_STRING,
     CONFIG_COOP_RESPAWN_STRING_END = CONFIG_COOP_RESPAWN_STRING + (COOP_RESPAWN_TOTAL - 1),
+
+    CONFIG_HEALTH_BAR_NAME, // active health bar name
 
     CONFIG_LAST
 };

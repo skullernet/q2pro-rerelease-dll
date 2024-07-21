@@ -1527,6 +1527,17 @@ void USE(use_target_healthbar)(edict_t *ent, edict_t *other, edict_t *activator)
         return;
     }
 
+    for (int i = 0; i < MAX_HEALTH_BARS; i++) {
+        if (level.health_bar_entities[i])
+            continue;
+
+        ent->enemy = target;
+        level.health_bar_entities[i] = ent;
+        gi.configstring(CONFIG_HEALTH_BAR_NAME, ent->message);
+        return;
+    }
+
+    gi.dprintf("%s: too many health bars\n", etos(ent));
     G_FreeEdict(ent);
 }
 
