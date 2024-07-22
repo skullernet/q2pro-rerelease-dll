@@ -734,10 +734,7 @@ static void M_CheckDodge(edict_t *self)
         trace_t tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, pos, ent, ent->clipmask);
 
         if (tr.ent == self) {
-            float dist = Distance(tr.endpos, ent->s.origin);
-            float speed = VectorLength(ent->velocity);
-            gtime_t eta = SEC(dist / speed);
-
+            gtime_t eta = SEC(Distance(tr.endpos, ent->s.origin) / VectorLength(ent->velocity));
             self->monsterinfo.dodge(self, ent->owner, eta, &tr, (ent->movetype == MOVETYPE_BOUNCE || ent->movetype == MOVETYPE_TOSS));
             break;
         }
