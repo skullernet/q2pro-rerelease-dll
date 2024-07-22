@@ -98,6 +98,7 @@ config.set_quoted('VERSION',   meson.project_version())
 config.set_quoted('CPUSTRING', cpu)
 config.set10('USE_' + host_machine.endian().to_upper() + '_ENDIAN', true)
 config.set10('USE_ZLIB', zlib.found())
+config.set10('USE_FPS', get_option('variable-fps'))
 
 cfg_file = configure_file(output: 'config.h', configuration: config)
 

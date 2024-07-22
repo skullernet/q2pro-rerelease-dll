@@ -190,7 +190,7 @@ static void InitGame(void)
     gi.dprintf("==== InitGame ====\n");
 
     cvar_t *cv = gi.cvar("sv_features", NULL, 0);
-    if (!cv || !(cv->flags & BIT(7)) || ((int)cv->value & G_FEATURES) != G_FEATURES || gix.apiversion < GAME_API_VERSION_EX_MINIMUM)
+    if (!cv || !(cv->flags & BIT(7)) || ((int)cv->value & G_FEATURES_REQUIRED) != G_FEATURES_REQUIRED || gix.apiversion < GAME_API_VERSION_EX_MINIMUM)
         gi.error("This game library requires enhanced Q2PRO server");
 
     gi.cvar_forceset("g_features", va("%d", G_FEATURES));
@@ -336,6 +336,22 @@ static void InitGame(void)
     game.maxclients = maxclients->integer;
     game.clients = gi.TagMalloc(game.maxclients * sizeof(game.clients[0]), TAG_GAME);
     globals.num_edicts = game.maxclients + 1;
+
+#if USE_FPS
+    // variable FPS support
+    if (cv->integer & GMF_VARIABLE_FPS) {
+        cv = gi.cvar("sv_fps", NULL, 0);
+        if (!cv || !cv->integer)
+            gi.error("GMF_VARIABLE_FPS exported but no 'sv_fps' cvar");
+        game.tick_rate = cv->integer;
+        game.frame_time = 1000 / game.tick_rate;
+        game.frame_time_sec = 1.0f / game.tick_rate;
+    } else {
+        game.tick_rate = BASE_FRAMERATE;
+        game.frame_time = BASE_FRAMETIME;
+        game.frame_time_sec = BASE_FRAMETIME_1000;
+    }
+#endif
 
     //======
     // ROGUE

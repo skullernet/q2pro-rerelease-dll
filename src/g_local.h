@@ -13,8 +13,15 @@
 #define GAME_INCLUDE
 #include "game.h"
 
+#if USE_FPS
+#define G_GMF_VARIABLE_FPS  GMF_VARIABLE_FPS
+#else
+#define G_GMF_VARIABLE_FPS  0
+#endif
+
 // features this game supports
-#define G_FEATURES  (GMF_PROPERINUSE | GMF_WANT_ALL_DISCONNECTS | GMF_ENHANCED_SAVEGAMES | GMF_PROTOCOL_EXTENSIONS)
+#define G_FEATURES_REQUIRED (GMF_PROPERINUSE | GMF_WANT_ALL_DISCONNECTS | GMF_ENHANCED_SAVEGAMES | GMF_PROTOCOL_EXTENSIONS)
+#define G_FEATURES          (G_FEATURES_REQUIRED | G_GMF_VARIABLE_FPS)
 
 // the "gameversion" client command will print this plus compile date
 #define GAMEVERSION "baseq2"
@@ -57,8 +64,6 @@ extern game_import_ex_t gix;
 #define SPAWNFLAG_RESERVED2         0x00008000
 #define SPAWNFLAG_EDITOR_MASK       0x0000ff00
 
-#define TICK_RATE 10 // in hz
-
 // stores a level time; most newer engines use int64_t for
 // time storage, but seconds are handy for compatibility
 // with Quake and older mods.
@@ -77,8 +82,15 @@ typedef int svflags_t;
 #define TO_SEC(f)   ((f) * 0.001f)
 #define TO_MSEC(f)  (f)
 
-#define FRAME_TIME      (1000LL / TICK_RATE)
-#define FRAME_TIME_SEC  (1.0f / TICK_RATE)
+#if USE_FPS
+#define TICK_RATE       game.tick_rate
+#define FRAME_TIME      game.frame_time
+#define FRAME_TIME_SEC  game.frame_time_sec
+#else
+#define TICK_RATE       BASE_FRAMERATE
+#define FRAME_TIME      ((gtime_t)BASE_FRAMETIME)
+#define FRAME_TIME_SEC  BASE_FRAMETIME_1000
+#endif
 
 // view pitching times
 #define DAMAGE_TIME SEC(0.5f)
@@ -623,6 +635,12 @@ typedef struct {
     level_entry_t level_entries[MAX_LEVELS_PER_UNIT];
 
     precache_t *precaches;
+
+#if USE_FPS
+    int tick_rate;
+    gtime_t frame_time;
+    float frame_time_sec;
+#endif
 } game_locals_t;
 
 #define MAX_HEALTH_BARS 2
