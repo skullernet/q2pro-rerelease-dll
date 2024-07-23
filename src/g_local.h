@@ -2148,6 +2148,7 @@ struct gclient_s {
     int    damage_blood;     // damage taken out of health
     int    damage_knockback; // impact damage
     vec3_t damage_from;      // origin for vector calculation
+    int    damage_dealt;     // hit markers
 
     float killer_yaw; // when dead, look at killer
 

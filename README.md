@@ -27,7 +27,7 @@ the following remaster-specific features have been removed / not implemented.
 * Shadow lights
 * Fog
 * Weapon wheel
-* Hit/damage indicators
+* Damage indicators
 * POIs
 * Achievements
 * Localization

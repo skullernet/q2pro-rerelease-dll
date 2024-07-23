@@ -1355,4 +1355,13 @@ void ClientEndServerFrame(edict_t *ent)
         if (!clipped_player)
             ent->clipmask |= CONTENTS_PLAYER;
     }
+
+    // player hit markers
+    if (ent->client->damage_dealt > 0) {
+        gi.WriteByte(svc_temp_entity);
+        gi.WriteByte(TE_DAMAGE_DEALT);
+        gi.WriteShort(min(ent->client->damage_dealt, INT16_MAX));
+        gi.unicast(ent, false);
+        ent->client->damage_dealt = 0;
+    }
 }
