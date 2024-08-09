@@ -1742,7 +1742,7 @@ static void SpawnTech(const gitem_t *item, edict_t *spot)
     ent->item = item;
     ent->spawnflags = SPAWNFLAG_ITEM_DROPPED;
     ent->s.effects = item->world_model_flags;
-    ent->s.renderfx = RF_GLOW | RF_NO_LOD;
+    ent->s.renderfx = RF_GLOW;
     VectorSet(ent->mins, -15, -15, -15);
     VectorSet(ent->maxs, 15, 15, 15);
     gi.setmodel(ent, ent->item->world_model);

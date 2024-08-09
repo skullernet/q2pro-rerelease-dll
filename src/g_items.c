@@ -983,7 +983,7 @@ edict_t *Drop_Item(edict_t *ent, const gitem_t *item)
     dropped->classname = item->classname;
     dropped->s.effects = item->world_model_flags;
     gi.setmodel(dropped, dropped->item->world_model);
-    dropped->s.renderfx = RF_GLOW | RF_NO_LOD | RF_IR_VISIBLE; // PGM
+    dropped->s.renderfx = RF_GLOW | RF_IR_VISIBLE; // PGM
     VectorSet(dropped->mins, -15, -15, -15);
     VectorSet(dropped->maxs, 15, 15, 15);
     dropped->solid = SOLID_TRIGGER;
@@ -1341,7 +1341,7 @@ void SpawnItem(edict_t *ent, const gitem_t *item)
     ent->nextthink = level.time + HZ(5); // items start after other solids
     ent->think = droptofloor;
     ent->s.effects = item->world_model_flags;
-    ent->s.renderfx = RF_GLOW | RF_NO_LOD;
+    ent->s.renderfx = RF_GLOW;
     if (ent->model)
         gi.modelindex(ent->model);
 

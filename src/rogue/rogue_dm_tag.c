@@ -153,7 +153,7 @@ static void Tag_DropToken(edict_t *ent, const gitem_t *item)
     tag_token->item = item;
     tag_token->spawnflags = SPAWNFLAG_ITEM_DROPPED;
     tag_token->s.effects = EF_ROTATE | EF_TAGTRAIL;
-    tag_token->s.renderfx = RF_GLOW | RF_NO_LOD;
+    tag_token->s.renderfx = RF_GLOW;
     VectorSet(tag_token->mins, -15, -15, -15);
     VectorSet(tag_token->maxs, 15, 15, 15);
     gi.setmodel(tag_token, tag_token->item->world_model);
