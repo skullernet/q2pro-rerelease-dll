@@ -12,6 +12,7 @@ src = files(
   'g_phys.c',
   'g_save.c',
   'g_spawn.c',
+  'g_statusbar.c',
   'g_svcmds.c',
   'g_target.c',
   'g_trigger.c',

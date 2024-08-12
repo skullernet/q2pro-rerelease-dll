@@ -101,10 +101,8 @@ void PMenu_Do_Update(edict_t *ent)
     if (hnd->UpdateFunc)
         hnd->UpdateFunc(ent);
 
-    statusbar_t sb, *sb_ptr = &sb;
-    sb.size = 0;
-
-    sb_xv(32) sb_yv(8) sb_picn("inventory");
+    sb_begin();
+    sb_xv(32), sb_yv(8), sb_picn("inventory");
 
     for (i = 0, p = hnd->entries; i < hnd->num; i++, p++) {
         if (!*(p->text))
@@ -121,19 +119,19 @@ void PMenu_Do_Update(edict_t *ent)
 
         if (p->align == PMENU_ALIGN_CENTER) {
             sb_xv(0);
-            sb_printf(sb_ptr, "cstring");
+            sb_puts("cstring");
         } else if (p->align == PMENU_ALIGN_RIGHT) {
             sb_xv(260);
-            sb_printf(sb_ptr, "rstring");
+            sb_puts("rstring");
         } else {
             sb_xv(64);
-            sb_printf(sb_ptr, "string");
+            sb_puts("string");
         }
 
         if (hnd->cur == i || alt)
-            sb_printf(sb_ptr, "2");
+            sb_puts("2");
 
-        sb_printf(sb_ptr, " \"%s\" ", t);
+        sb_printf(" \"%s\" ", t);
 
         if (hnd->cur == i) {
             sb_xv(56);
@@ -144,7 +142,7 @@ void PMenu_Do_Update(edict_t *ent)
     }
 
     gi.WriteByte(svc_layout);
-    gi.WriteString(sb.buffer);
+    gi.WriteString(sb_buffer());
 }
 
 void PMenu_Update(edict_t *ent)

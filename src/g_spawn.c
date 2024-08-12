@@ -1288,56 +1288,55 @@ void SpawnEntities(const char *mapname, const char *entities, const char *spawnp
 // create & set the statusbar string for the current gamemode
 static void G_InitStatusbar(void)
 {
-    statusbar_t sb, *sb_ptr = &sb;
-    sb.size = 0;
+    sb_begin();
 
     // ---- shared stuff that every gamemode uses ----
-    sb_yb(-24)
+    sb_yb(-24);
 
     // health
-    sb_xv(0) sb_hnum() sb_xv(50) sb_pic(STAT_HEALTH_ICON)
+    sb_xv(0), sb_hnum(), sb_xv(50), sb_pic(STAT_HEALTH_ICON);
 
     // ammo
-    sb_if(STAT_AMMO_ICON) sb_xv(100) sb_anum() sb_xv(150) sb_pic(STAT_AMMO_ICON) sb_endif()
+    sb_if(STAT_AMMO_ICON), sb_xv(100), sb_anum(), sb_xv(150), sb_pic(STAT_AMMO_ICON), sb_endif();
 
     // armor
-    sb_if(STAT_ARMOR_ICON) sb_xv(200) sb_rnum() sb_xv(250) sb_pic(STAT_ARMOR_ICON) sb_endif()
+    sb_if(STAT_ARMOR_ICON), sb_xv(200), sb_rnum(), sb_xv(250), sb_pic(STAT_ARMOR_ICON), sb_endif();
 
     // selected item
-    sb_if(STAT_SELECTED_ICON) sb_xv(296) sb_pic(STAT_SELECTED_ICON) sb_endif()
+    sb_if(STAT_SELECTED_ICON), sb_xv(296), sb_pic(STAT_SELECTED_ICON), sb_endif();
 
-    sb_yb(-50)
+    sb_yb(-50);
 
     // picked up item
-    sb_if(STAT_PICKUP_ICON)
-        sb_xv(0)
-        sb_pic(STAT_PICKUP_ICON)
-        sb_xv(26)
-        sb_yb(-42)
-        sb_stat_string(STAT_PICKUP_STRING)
-        sb_yb(-50)
-    sb_endif()
+    sb_if(STAT_PICKUP_ICON),
+        sb_xv(0),
+        sb_pic(STAT_PICKUP_ICON),
+        sb_xv(26),
+        sb_yb(-42),
+        sb_stat_string(STAT_PICKUP_STRING),
+        sb_yb(-50),
+    sb_endif();
 
     // selected item name
-    sb_if(STAT_SELECTED_ITEM_NAME)
-        sb_yb(-34)
-        sb_xv(319)
-        sb_stat_rstring(STAT_SELECTED_ITEM_NAME)
-        sb_yb(-58)
-    sb_endif()
+    sb_if(STAT_SELECTED_ITEM_NAME),
+        sb_yb(-34),
+        sb_xv(319),
+        sb_stat_rstring(STAT_SELECTED_ITEM_NAME),
+        sb_yb(-58),
+    sb_endif();
 
     // timer
-    sb_if(STAT_TIMER_ICON)
-        sb_xv(262)
-        sb_num(2, STAT_TIMER)
-        sb_xv(296)
-        sb_pic(STAT_TIMER_ICON)
-    sb_endif()
+    sb_if(STAT_TIMER_ICON),
+        sb_xv(262),
+        sb_num(2, STAT_TIMER),
+        sb_xv(296),
+        sb_pic(STAT_TIMER_ICON),
+    sb_endif();
 
-    sb_yb(-50)
+    sb_yb(-50);
 
     // help / weapon icon
-    sb_if(STAT_HELPICON) sb_xv(150) sb_pic(STAT_HELPICON) sb_endif()
+    sb_if(STAT_HELPICON), sb_xv(150), sb_pic(STAT_HELPICON), sb_endif();
 
     // ---- gamemode-specific stuff ----
     if (!deathmatch->integer) {
@@ -1345,140 +1344,140 @@ static void G_InitStatusbar(void)
         // key display
         // move up if the timer is active
         // FIXME: ugly af
-        sb_if(STAT_TIMER_ICON) sb_yb(-76) sb_endif()
+        sb_if(STAT_TIMER_ICON), sb_yb(-76), sb_endif();
 
-        sb_if(STAT_SELECTED_ITEM_NAME)
-            sb_yb(-58)
-            sb_if(STAT_TIMER_ICON) sb_yb(-84) sb_endif()
-        sb_endif()
+        sb_if(STAT_SELECTED_ITEM_NAME),
+            sb_yb(-58),
+            sb_if(STAT_TIMER_ICON), sb_yb(-84), sb_endif(),
+        sb_endif();
 
-        sb_if(STAT_KEY_A) sb_xv(296) sb_pic(STAT_KEY_A) sb_endif()
-        sb_if(STAT_KEY_B) sb_xv(272) sb_pic(STAT_KEY_B) sb_endif()
-        sb_if(STAT_KEY_C) sb_xv(248) sb_pic(STAT_KEY_C) sb_endif()
+        sb_if(STAT_KEY_A), sb_xv(296), sb_pic(STAT_KEY_A), sb_endif();
+        sb_if(STAT_KEY_B), sb_xv(272), sb_pic(STAT_KEY_B), sb_endif();
+        sb_if(STAT_KEY_C), sb_xv(248), sb_pic(STAT_KEY_C), sb_endif();
 
         if (coop->integer) {
             // top of screen coop respawn display
-            sb_if(STAT_COOP_RESPAWN)
-                sb_xv(0)
-                sb_yt(0)
-                sb_stat_cstring2(STAT_COOP_RESPAWN)
-            sb_endif()
+            sb_if(STAT_COOP_RESPAWN),
+                sb_xv(0),
+                sb_yt(0),
+                sb_stat_cstring2(STAT_COOP_RESPAWN),
+            sb_endif();
 
             // coop lives
-            sb_if(STAT_LIVES)
-                sb_xr(-16)
-                sb_yt(2)
-                sb_num(3, STAT_LIVES)
-                sb_xr(0)
-                sb_yt(28)
-                sb_rstring("Lives")
-            sb_endif()
+            sb_if(STAT_LIVES),
+                sb_xr(-16),
+                sb_yt(2),
+                sb_num(3, STAT_LIVES),
+                sb_xr(0),
+                sb_yt(28),
+                sb_rstring("Lives"),
+            sb_endif();
         }
 
-        sb_if(STAT_HEALTH_BARS)
-            sb_xv(0) sb_yt(24) sb_health_bars(STAT_HEALTH_BARS, CONFIG_HEALTH_BAR_NAME)
-        sb_endif()
+        sb_if(STAT_HEALTH_BARS),
+            sb_xv(0), sb_yt(24), sb_health_bars(STAT_HEALTH_BARS, CONFIG_HEALTH_BAR_NAME),
+        sb_endif();
     } else if (G_TeamplayEnabled()) {
         CTFPrecache();
 
         // ctf/tdm
         // red team
-        sb_yb(-110)
-        sb_if(STAT_CTF_TEAM1_PIC)
-            sb_xr(-26)
-            sb_pic(STAT_CTF_TEAM1_PIC)
-        sb_endif()
+        sb_yb(-110),
+        sb_if(STAT_CTF_TEAM1_PIC),
+            sb_xr(-26),
+            sb_pic(STAT_CTF_TEAM1_PIC),
+        sb_endif();
 
-        sb_xr(-78)
-        sb_num(3, STAT_CTF_TEAM1_CAPS)
+        sb_xr(-78),
+        sb_num(3, STAT_CTF_TEAM1_CAPS);
 
         // joined overlay
-        sb_if(STAT_CTF_JOINED_TEAM1_PIC)
-            sb_yb(-112)
-            sb_xr(-28)
-            sb_pic(STAT_CTF_JOINED_TEAM1_PIC)
-        sb_endif()
+        sb_if(STAT_CTF_JOINED_TEAM1_PIC),
+            sb_yb(-112),
+            sb_xr(-28),
+            sb_pic(STAT_CTF_JOINED_TEAM1_PIC),
+        sb_endif();
 
         // blue team
-        sb_yb(-83)
-        sb_if(STAT_CTF_TEAM2_PIC)
-            sb_xr(-26)
-            sb_pic(STAT_CTF_TEAM2_PIC)
-        sb_endif()
+        sb_yb(-83),
+        sb_if(STAT_CTF_TEAM2_PIC),
+            sb_xr(-26),
+            sb_pic(STAT_CTF_TEAM2_PIC),
+        sb_endif();
 
-        sb_xr(-78)
-        sb_num(3, STAT_CTF_TEAM2_CAPS)
+        sb_xr(-78),
+        sb_num(3, STAT_CTF_TEAM2_CAPS);
 
         // joined overlay
-        sb_if(STAT_CTF_JOINED_TEAM2_PIC)
-            sb_yb(-85)
-            sb_xr(-28)
-            sb_pic(STAT_CTF_JOINED_TEAM2_PIC)
-        sb_endif()
+        sb_if(STAT_CTF_JOINED_TEAM2_PIC),
+            sb_yb(-85),
+            sb_xr(-28),
+            sb_pic(STAT_CTF_JOINED_TEAM2_PIC),
+        sb_endif();
 
         if (ctf->integer) {
             // have flag graph
-            sb_if(STAT_CTF_FLAG_PIC)
-                sb_yt(26)
-                sb_xr(-24)
-                sb_pic(STAT_CTF_FLAG_PIC)
-            sb_endif()
+            sb_if(STAT_CTF_FLAG_PIC),
+                sb_yt(26),
+                sb_xr(-24),
+                sb_pic(STAT_CTF_FLAG_PIC),
+            sb_endif();
         }
 
         // id view state
-        sb_if(STAT_CTF_ID_VIEW)
-            sb_xv(112)
-            sb_yb(-58)
-            sb_stat_string(STAT_CTF_ID_VIEW)
-        sb_endif()
+        sb_if(STAT_CTF_ID_VIEW),
+            sb_xv(112),
+            sb_yb(-58),
+            sb_stat_string(STAT_CTF_ID_VIEW),
+        sb_endif();
 
         // id view color
-        sb_if(STAT_CTF_ID_VIEW_COLOR)
-            sb_xv(96)
-            sb_yb(-58)
-            sb_pic(STAT_CTF_ID_VIEW_COLOR)
-        sb_endif()
+        sb_if(STAT_CTF_ID_VIEW_COLOR),
+            sb_xv(96),
+            sb_yb(-58),
+            sb_pic(STAT_CTF_ID_VIEW_COLOR),
+        sb_endif();
 
         if (ctf->integer) {
             // match
-            sb_if(STAT_CTF_MATCH)
-                sb_xl(0)
-                sb_yb(-78)
-                sb_stat_string(STAT_CTF_MATCH)
-            sb_endif()
+            sb_if(STAT_CTF_MATCH),
+                sb_xl(0),
+                sb_yb(-78),
+                sb_stat_string(STAT_CTF_MATCH),
+            sb_endif();
         }
 
         // team info
-        //sb_if(STAT_CTF_TEAMINFO) sb_xl(0) sb_yb(-88) sb_stat_string(STAT_CTF_TEAMINFO) sb_endif()
+        //sb_if(STAT_CTF_TEAMINFO), sb_xl(0), sb_yb(-88), sb_stat_string(STAT_CTF_TEAMINFO), sb_endif();
     } else {
         // dm
         // frags
-        sb_xr(-50) sb_yt(2) sb_num(3, STAT_FRAGS)
+        sb_xr(-50), sb_yt(2), sb_num(3, STAT_FRAGS);
 
         // spectator
-        sb_if(STAT_SPECTATOR) sb_xv(0) sb_yb(-58) sb_string2("SPECTATOR MODE") sb_endif()
+        sb_if(STAT_SPECTATOR), sb_xv(0), sb_yb(-58), sb_string2("SPECTATOR MODE"), sb_endif();
 
         // chase cam
-        sb_if(STAT_CHASE)
-            sb_xv(0)
-            sb_yb(-68)
-            sb_string("CHASING")
-            sb_xv(64)
-            sb_stat_string(STAT_CHASE)
-        sb_endif()
+        sb_if(STAT_CHASE),
+            sb_xv(0),
+            sb_yb(-68),
+            sb_string("CHASING"),
+            sb_xv(64),
+            sb_stat_string(STAT_CHASE),
+        sb_endif();
     }
 
     // ---- more shared stuff ----
     if (deathmatch->integer) {
         // tech
-        sb_if(STAT_CTF_TECH)
-            sb_yb(-137)
-            sb_xr(-26)
-            sb_pic(STAT_CTF_TECH)
-        sb_endif()
+        sb_if(STAT_CTF_TECH),
+            sb_yb(-137),
+            sb_xr(-26),
+            sb_pic(STAT_CTF_TECH),
+        sb_endif();
     }
 
-    gi.configstring(CS_STATUSBAR, sb.buffer);
+    gi.configstring(CS_STATUSBAR, sb_buffer());
 }
 
 static const char *const lightstyles[] = {

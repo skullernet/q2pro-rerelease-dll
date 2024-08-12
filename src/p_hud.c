@@ -82,7 +82,7 @@ void G_UpdateLevelEntry(void)
     level.entry->total_monsters = level.total_monsters;
 }
 
-static void G_EndOfUnitEntry(statusbar_t *sb_ptr, int y, const level_entry_t *entry, int maxlen)
+static void G_EndOfUnitEntry(int y, const level_entry_t *entry, int maxlen)
 {
     sb_yv(y);
 
@@ -97,7 +97,7 @@ static void G_EndOfUnitEntry(statusbar_t *sb_ptr, int y, const level_entry_t *en
     int seconds = (msec / 1000) % 60;
     int tensofsec = (msec / 100) % 10;
 
-    sb_printf(sb_ptr, "string \"%*s %4d/%-4d %3d/%-3d %02d:%02d.%d\" ",
+    sb_printf("string \"%*s %4d/%-4d %3d/%-3d %02d:%02d.%d\" ",
               maxlen, entry->pretty_name,
               entry->killed_monsters, entry->total_monsters,
               entry->found_secrets, entry->total_secrets,
@@ -124,9 +124,6 @@ void G_EndOfUnitMessage(void)
     // [Paril-KEX] update game level entry
     G_UpdateLevelEntry();
 
-    statusbar_t sb, *sb_ptr = &sb;
-    sb.size = 0;
-
     // sort entries
     qsort(game.level_entries, MAX_LEVELS_PER_UNIT, sizeof(game.level_entries[0]), entrycmp);
 
@@ -138,9 +135,10 @@ void G_EndOfUnitMessage(void)
         maxlen = max(maxlen, strlen(entry->pretty_name));
     }
 
+    sb_begin();
     sb_xv(60 - maxlen * 4);
     sb_yv(26);
-    sb_printf(sb_ptr, "string2 \"%*s   Kills   Secrets  Time  \" ", maxlen, "Level");
+    sb_printf("string2 \"%*s   Kills   Secrets  Time  \" ", maxlen, "Level");
 
     level_entry_t totals = { 0 };
     int num_rows = 0;
@@ -151,7 +149,7 @@ void G_EndOfUnitMessage(void)
         if (!entry->map_name[0])
             break;
 
-        G_EndOfUnitEntry(sb_ptr, y, entry, maxlen);
+        G_EndOfUnitEntry(y, entry, maxlen);
         y += 8;
 
         totals.found_secrets += entry->found_secrets;
@@ -169,13 +167,13 @@ void G_EndOfUnitMessage(void)
     // make this a space so it prints totals
     if (num_rows > 1) {
         totals.pretty_name[0] = ' ';
-        G_EndOfUnitEntry(sb_ptr, y, &totals, maxlen);
+        G_EndOfUnitEntry(y, &totals, maxlen);
     }
 
-    sb_yb(-48) sb_xv(0) sb_cstring2("Press any button to continue.");
+    sb_yb(-48), sb_xv(0), sb_cstring2("Press any button to continue.");
 
     gi.WriteByte(svc_layout);
-    gi.WriteString(sb.buffer);
+    gi.WriteString(sb_buffer());
     gi.multicast(vec3_origin, MULTICAST_ALL_R);
 
     for (int i = 0; i < game.maxclients; i++) {
@@ -467,32 +465,30 @@ static void HelpComputer(edict_t *ent)
         sk = "Nightmare";
 
     // send the layout
-    statusbar_t sb, *sb_ptr = &sb;
-    sb.size = 0;
-
-    sb_xv(32) sb_yv(8) sb_picn("help") sb_xv(0) sb_yv(25) sb_cstring2(level.level_name);
+    sb_begin();
+    sb_xv(32), sb_yv(8), sb_picn("help"), sb_xv(0), sb_yv(25), sb_cstring2(level.level_name);
 
     if (level.is_n64) {
-        sb_xv(0) sb_yv(54) sb_cstring(game.helpmessage1);
+        sb_xv(0), sb_yv(54), sb_cstring(game.helpmessage1);
     } else {
         int y = 54;
         if (game.helpmessage1[0]) {
-            sb_xv(0) sb_yv(y) sb_cstring2("Primary Objective") sb_yv(y + 11) sb_cstring(game.helpmessage1);
+            sb_xv(0), sb_yv(y), sb_cstring2("Primary Objective"), sb_yv(y + 11), sb_cstring(game.helpmessage1);
             y += 58;
         }
 
         if (game.helpmessage2[0]) {
-            sb_xv(0) sb_yv(y) sb_cstring2("Secondary Objective") sb_yv(y + 11) sb_cstring(game.helpmessage2);
+            sb_xv(0), sb_yv(y), sb_cstring2("Secondary Objective"), sb_yv(y + 11), sb_cstring(game.helpmessage2);
         }
     }
 
-    sb_xv(55) sb_yv(164) sb_string2(sk);
-    sb_xv(55) sb_yv(172) sb_string2(va("Kills: %d/%d", level.killed_monsters, level.total_monsters));
-    sb_xv(265) sb_yv(164) sb_rstring2(va("Goals: %d/%d", level.found_goals, level.total_goals));
-    sb_xv(265) sb_yv(172) sb_rstring2(va("Secrets: %d/%d", level.found_secrets, level.total_secrets));
+    sb_xv(55), sb_yv(164), sb_string2(sk);
+    sb_xv(55), sb_yv(172), sb_string2(va("Kills: %d/%d", level.killed_monsters, level.total_monsters));
+    sb_xv(265), sb_yv(164), sb_rstring2(va("Goals: %d/%d", level.found_goals, level.total_goals));
+    sb_xv(265), sb_yv(172), sb_rstring2(va("Secrets: %d/%d", level.found_secrets, level.total_secrets));
 
     gi.WriteByte(svc_layout);
-    gi.WriteString(sb.buffer);
+    gi.WriteString(sb_buffer());
     gi.unicast(ent, true);
 }
 
