@@ -97,7 +97,7 @@ static void G_EndOfUnitEntry(statusbar_t *sb_ptr, int y, const level_entry_t *en
     int seconds = (msec / 1000) % 60;
     int tensofsec = (msec / 100) % 10;
 
-    sb_printf(sb_ptr, "string \"%.*s %4d/%-4d %3d/%-3d %02d:%02d.%d\" ",
+    sb_printf(sb_ptr, "string \"%*s %4d/%-4d %3d/%-3d %02d:%02d.%d\" ",
               maxlen, entry->pretty_name,
               entry->killed_monsters, entry->total_monsters,
               entry->found_secrets, entry->total_secrets,
@@ -128,7 +128,7 @@ void G_EndOfUnitMessage(void)
     sb.size = 0;
 
     // sort entries
-    qsort(game.level_entries, sizeof(game.level_entries[0]), MAX_LEVELS_PER_UNIT, entrycmp);
+    qsort(game.level_entries, MAX_LEVELS_PER_UNIT, sizeof(game.level_entries[0]), entrycmp);
 
     int maxlen = 0;
     for (int i = 0; i < MAX_LEVELS_PER_UNIT; i++) {
@@ -140,7 +140,7 @@ void G_EndOfUnitMessage(void)
 
     sb_xv(60 - maxlen * 4);
     sb_yv(26);
-    sb_printf(&sb, "string2 \"%.*s   Kills   Secrets  Time  \" ", maxlen, "Level");
+    sb_printf(sb_ptr, "string2 \"%*s   Kills   Secrets  Time  \" ", maxlen, "Level");
 
     level_entry_t totals = { 0 };
     int num_rows = 0;
