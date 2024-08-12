@@ -39,6 +39,7 @@ edict_t *CreateMonster(const vec3_t origin, const vec3_t angles, const char *cla
     newEnt->classname = classname;
     newEnt->monsterinfo.aiflags |= AI_DO_NOT_COUNT;
 
+    ED_InitSpawnVars();
     ED_CallSpawn(newEnt);
     newEnt->s.renderfx |= RF_IR_VISIBLE;
 
