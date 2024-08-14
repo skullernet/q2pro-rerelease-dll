@@ -1096,8 +1096,6 @@ static void medic_determine_spawn(edict_t *self)
 static void medic_spawngrows(edict_t *self)
 {
     vec3_t f, r, offset, startpoint, spawnpoint;
-    int    count;
-    int    num_summoned; // should be 1, 3, or 5
     int    num_success = 0;
     float  current_yaw;
 
@@ -1116,25 +1114,22 @@ static void medic_spawngrows(edict_t *self)
 
     AngleVectors(self->s.angles, f, r, NULL);
 
-    num_summoned = 0;
-
-    for (int i = 0; i < MAX_REINFORCEMENTS; i++, num_summoned++)
-        if (self->monsterinfo.chosen_reinforcements[i] == 255)
-            break;
-
     float scale = self->x.scale;
     if (!scale)
         scale = 1;
 
-    for (count = 0; count < num_summoned; count++) {
-        VectorScale(reinforcement_position[count], scale, offset);
+    for (int i = 0; i < MAX_REINFORCEMENTS; i++) {
+        if (self->monsterinfo.chosen_reinforcements[i] == 255)
+            break;
+
+        VectorScale(reinforcement_position[i], scale, offset);
 
         M_ProjectFlashSource(self, offset, f, r, startpoint);
 
         // a little off the ground
         startpoint[2] += 10 * scale;
 
-        const reinforcement_t *reinforcement = &self->monsterinfo.reinforcements.reinforcements[self->monsterinfo.chosen_reinforcements[count]];
+        const reinforcement_t *reinforcement = &self->monsterinfo.reinforcements.reinforcements[self->monsterinfo.chosen_reinforcements[i]];
 
         if (!FindSpawnPoint(startpoint, reinforcement->mins, reinforcement->maxs, spawnpoint, 32, true))
             continue;
@@ -1157,31 +1152,26 @@ static void medic_finish_spawn(edict_t *self)
 {
     edict_t *ent;
     vec3_t   f, r, offset, startpoint, spawnpoint;
-    int      count;
-    int      num_summoned; // should be 1, 3, or 5
     edict_t *designated_enemy;
 
     AngleVectors(self->s.angles, f, r, NULL);
-
-    num_summoned = 0;
-
-    for (int i = 0; i < MAX_REINFORCEMENTS; i++, num_summoned++)
-        if (self->monsterinfo.chosen_reinforcements[i] == 255)
-            break;
 
     float scale = self->x.scale;
     if (!scale)
         scale = 1;
 
-    for (count = 0; count < num_summoned; count++) {
-        VectorScale(reinforcement_position[count], scale, offset);
+    for (int i = 0; i < MAX_REINFORCEMENTS; i++) {
+        if (self->monsterinfo.chosen_reinforcements[i] == 255)
+            break;
+
+        VectorScale(reinforcement_position[i], scale, offset);
 
         M_ProjectFlashSource(self, offset, f, r, startpoint);
 
         // a little off the ground
         startpoint[2] += 10 * scale;
 
-        const reinforcement_t *reinforcement = &self->monsterinfo.reinforcements.reinforcements[self->monsterinfo.chosen_reinforcements[count]];
+        const reinforcement_t *reinforcement = &self->monsterinfo.reinforcements.reinforcements[self->monsterinfo.chosen_reinforcements[i]];
 
         if (!FindSpawnPoint(startpoint, reinforcement->mins, reinforcement->maxs, spawnpoint, 32, true))
             continue;
