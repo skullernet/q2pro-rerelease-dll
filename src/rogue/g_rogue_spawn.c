@@ -167,7 +167,7 @@ void THINK(spawngrow_think)(edict_t *self)
     float t = 1.0f - TO_SEC(level.time - self->teleport_time) / self->wait;
     float s = lerp(self->decel, self->accel, t) / 16;
 
-    self->x.scale = Q_clipf(s, 0.001f, 16);
+    self->x.scale = Q_clipf(s, 1.0f / 16, 16);
     self->x.alpha = t * t;
 
     self->nextthink += FRAME_TIME;
@@ -222,7 +222,7 @@ void SpawnGrow_Spawn(const vec3_t startpos, float start_size, float end_size)
     ent->decel = end_size;
     ent->think = spawngrow_think;
 
-    ent->x.scale = Q_clipf(start_size / 16, 0.001f, 16);
+    ent->x.scale = Q_clipf(start_size / 16, 1.0f / 16, 16);
 
     ent->teleport_time = level.time;
     ent->wait = SPAWNGROW_LIFESPAN_SEC;
