@@ -743,13 +743,13 @@ void fire_rail(edict_t *self, const vec3_t start, const vec3_t aimdir, int damag
 
 static void bfg_laser_pos(const vec3_t p, float dist, vec3_t out)
 {
-    float theta = frandom1(2 * M_PI);
-    float phi = acos(crandom());
+    float theta = frandom1(2 * M_PIf);
+    float phi = acosf(crandom());
 
     vec3_t d = {
-        sin(phi) * cos(theta),
-        sin(phi) * sin(theta),
-        cos(phi)
+        sinf(phi) * cosf(theta),
+        sinf(phi) * sinf(theta),
+        cosf(phi)
     };
 
     VectorMA(p, dist, d, out);

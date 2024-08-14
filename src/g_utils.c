@@ -341,7 +341,7 @@ float vectoyaw(const vec3_t vec)
             return 270;
     }
 
-    float yaw = RAD2DEG(atan2(vec[YAW], vec[PITCH]));
+    float yaw = RAD2DEG(atan2f(vec[YAW], vec[PITCH]));
 
     if (yaw < 0)
         yaw += 360;
@@ -362,7 +362,7 @@ void vectoangles(const vec3_t value1, vec3_t angles)
             pitch = 270;
     } else {
         if (value1[0])
-            yaw = RAD2DEG(atan2(value1[1], value1[0]));
+            yaw = RAD2DEG(atan2f(value1[1], value1[0]));
         else if (value1[1] > 0)
             yaw = 90;
         else
@@ -371,7 +371,7 @@ void vectoangles(const vec3_t value1, vec3_t angles)
             yaw += 360;
 
         forward = sqrtf(value1[0] * value1[0] + value1[1] * value1[1]);
-        pitch = RAD2DEG(atan2(value1[2], forward));
+        pitch = RAD2DEG(atan2f(value1[2], forward));
         if (pitch < 0)
             pitch += 360;
     }

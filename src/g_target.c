@@ -1252,7 +1252,7 @@ void USE(use_target_gravity)(edict_t *self, edict_t *other, edict_t *activator)
 void SP_target_gravity(edict_t *self)
 {
     self->use = use_target_gravity;
-    self->gravity = atof(st.gravity);
+    self->gravity = Q_atof(st.gravity);
 }
 
 /*QUAKED target_soundfx (1 0 0) (-8 -8 -8) (8 8 8) NOTRAIL NOEFFECTS

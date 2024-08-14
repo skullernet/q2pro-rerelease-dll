@@ -1272,7 +1272,7 @@ static void Weapon_HyperBlaster_Fire(edict_t *ent)
                 return;
             }
 
-            rotation = (ent->client->ps.gunframe - 5) * 2 * M_PI / 6;
+            rotation = (ent->client->ps.gunframe - 5) * 2 * M_PIf / 6;
             offset[0] = -4 * sinf(rotation);
             offset[2] = 0;
             offset[1] = 4 * cosf(rotation);

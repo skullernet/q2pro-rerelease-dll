@@ -745,10 +745,10 @@ static void ED_LoadField(const spawn_field_t *f, const char *value, byte *b)
         *(int *)(b + f->ofs) = Q_atoi(value);
         break;
     case F_FLOAT:
-        *(float *)(b + f->ofs) = atof(value);
+        *(float *)(b + f->ofs) = Q_atof(value);
         break;
     case F_ANGLEHACK:
-        v = atof(value);
+        v = Q_atof(value);
         ((float *)(b + f->ofs))[0] = 0;
         ((float *)(b + f->ofs))[1] = v;
         ((float *)(b + f->ofs))[2] = 0;
@@ -1639,7 +1639,7 @@ void SP_worldspawn(edict_t *ent)
         level.gravity = 800;
         gi.cvar_set("sv_gravity", "800");
     } else {
-        level.gravity = atof(st.gravity);
+        level.gravity = Q_atof(st.gravity);
         gi.cvar_set("sv_gravity", st.gravity);
     }
 

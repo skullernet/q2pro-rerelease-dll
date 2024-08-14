@@ -26,14 +26,14 @@ void AngleVectors(const vec3_t angles, vec3_t forward, vec3_t right, vec3_t up)
     float        sr, sp, sy, cr, cp, cy;
 
     angle = DEG2RAD(angles[YAW]);
-    sy = sin(angle);
-    cy = cos(angle);
+    sy = sinf(angle);
+    cy = cosf(angle);
     angle = DEG2RAD(angles[PITCH]);
-    sp = sin(angle);
-    cp = cos(angle);
+    sp = sinf(angle);
+    cp = cosf(angle);
     angle = DEG2RAD(angles[ROLL]);
-    sr = sin(angle);
-    cr = cos(angle);
+    sr = sinf(angle);
+    cr = cosf(angle);
 
     if (forward) {
         forward[0] = cp * cy;
@@ -135,8 +135,8 @@ void SetupRotationMatrix(vec3_t matrix[3], const vec3_t dir, float degrees)
     float   angle, s, c, one_c, xx, yy, zz, xy, yz, zx, xs, ys, zs;
 
     angle = DEG2RAD(degrees);
-    s = sin(angle);
-    c = cos(angle);
+    s = sinf(angle);
+    c = cosf(angle);
     one_c = 1.0f - c;
 
     xx = dir[0] * dir[0];

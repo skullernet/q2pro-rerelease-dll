@@ -750,7 +750,7 @@ void SP_trigger_gravity(edict_t *self)
     InitTrigger(self);
 
     // PGM
-    self->gravity = atof(st.gravity);
+    self->gravity = Q_atof(st.gravity);
 
     if (self->spawnflags & SPAWNFLAG_GRAVITY_TOGGLE)
         self->use = trigger_gravity_use;

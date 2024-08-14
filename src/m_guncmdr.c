@@ -1142,7 +1142,7 @@ void MONSTERINFO_ATTACK(guncmdr_attack)(edict_t *self)
     VectorSubtract(self->enemy->s.origin, self->s.origin, aim);
     VectorNormalize(aim);
 
-    if ((d >= RANGE_GRENADE_MORTAR || fabs(self->absmin[2] - self->enemy->absmax[2]) > 64) // enemy is far below or above us, always try mortar
+    if ((d >= RANGE_GRENADE_MORTAR || fabsf(self->absmin[2] - self->enemy->absmax[2]) > 64) // enemy is far below or above us, always try mortar
         && M_CheckClearShot(self, monster_flash_offset[MZ2_GUNCMDR_GRENADE_MORTAR_1])) {
         M_ProjectFlashSource(self, monster_flash_offset[MZ2_GUNCMDR_GRENADE_MORTAR_1], forward, right, start);
         if (M_CalculatePitchToFire(self, self->enemy->s.origin, start, aim, MORTAR_SPEED, 2.5f, true, false)) {

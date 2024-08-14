@@ -176,13 +176,13 @@ void THINK(spawngrow_think)(edict_t *self)
 static void SpawnGro_laser_pos(edict_t *ent, vec3_t pos)
 {
     // pick random direction
-    float theta = frandom1(2 * M_PI);
-    float phi = acos(crandom());
+    float theta = frandom1(2 * M_PIf);
+    float phi = acosf(crandom());
 
     vec3_t d = {
-        sin(phi) * cos(theta),
-        sin(phi) * sin(theta),
-        cos(phi)
+        sinf(phi) * cosf(theta),
+        sinf(phi) * sinf(theta),
+        cosf(phi)
     };
 
     VectorMA(ent->s.origin, ent->owner->x.scale * 9, d, pos);

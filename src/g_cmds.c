@@ -430,14 +430,14 @@ static void Cmd_Teleport_f(edict_t *ent)
         return;
     }
 
-    ent->s.origin[0] = atof(gi.argv(1));
-    ent->s.origin[1] = atof(gi.argv(2));
-    ent->s.origin[2] = atof(gi.argv(3));
+    ent->s.origin[0] = Q_atof(gi.argv(1));
+    ent->s.origin[1] = Q_atof(gi.argv(2));
+    ent->s.origin[2] = Q_atof(gi.argv(3));
 
     if (gi.argc() > 4) {
-        float pitch = atof(gi.argv(4));
-        float yaw = atof(gi.argv(5));
-        float roll = atof(gi.argv(6));
+        float pitch = Q_atof(gi.argv(4));
+        float yaw = Q_atof(gi.argv(5));
+        float roll = Q_atof(gi.argv(6));
         vec3_t ang = { pitch, yaw, roll };
 
         for (int i = 0; i < 3; i++)

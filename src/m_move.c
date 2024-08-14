@@ -166,22 +166,22 @@ static void G_IdealHoverPosition(edict_t *ent, vec3_t pos)
     }
 
     // pick random direction
-    float theta = frandom1(2 * M_PI);
+    float theta = frandom1(2 * M_PIf);
     float phi;
 
     // buzzards pick half sphere
     if (ent->monsterinfo.fly_above)
-        phi = acos(0.7f + frandom1(0.3f));
+        phi = acosf(0.7f + frandom1(0.3f));
     else if (ent->monsterinfo.fly_buzzard || (ent->monsterinfo.aiflags & AI_MEDIC))
-        phi = acos(frandom());
+        phi = acosf(frandom());
     // non-buzzards pick a level around the center
     else
-        phi = acos(crandom() * 0.06f);
+        phi = acosf(crandom() * 0.06f);
 
     vec3_t d = {
-        sin(phi) * cos(theta),
-        sin(phi) * sin(theta),
-        cos(phi)
+        sinf(phi) * cosf(theta),
+        sinf(phi) * sinf(theta),
+        cosf(phi)
     };
 
     float scale = frandom2(ent->monsterinfo.fly_min_distance, ent->monsterinfo.fly_max_distance);
@@ -225,10 +225,10 @@ void slerp(const vec3_t from, const vec3_t to, float t, vec3_t out)
         aFactor = 1.0f - t;
         bFactor = t;
     } else {
-        float ang = acos(dot);
-        float sinOmega = sin(ang);
-        float sinAOmega = sin((1.0f - t) * ang);
-        float sinBOmega = sin(t * ang);
+        float ang = acosf(dot);
+        float sinOmega = sinf(ang);
+        float sinAOmega = sinf((1.0f - t) * ang);
+        float sinBOmega = sinf(t * ang);
         aFactor = sinAOmega / sinOmega;
         bFactor = sinBOmega / sinOmega;
     }
