@@ -49,7 +49,6 @@ static int commander_sound_spawn;
 
 #define DEFAULT_REINFORCEMENTS      "monster_soldier_light 1;monster_soldier 2;monster_soldier_ss 2;monster_infantry 3;monster_gunner 4;monster_medic 5;monster_gladiator 6"
 #define DEFAULT_MONSTER_SLOTS_BASE  3
-#define INVERSE_LOG_SLOTS           BIT(MAX_REINFORCEMENTS)
 
 static const vec3_t reinforcement_position[MAX_REINFORCEMENTS] = {
    { 80, 0, 0 },
@@ -65,24 +64,25 @@ int M_PickReinforcements(edict_t *self, int max_slots)
     for (int i = 0; i < MAX_REINFORCEMENTS; i++)
         self->monsterinfo.chosen_reinforcements[i] = 255;
 
+    if (!max_slots)
+        max_slots = MAX_REINFORCEMENTS;
+
     // decide how many things we want to spawn;
     // this is on a logarithmic scale
     // so we don't spawn too much too often.
-    int num_slots = log2f(1.0f + frandom1(INVERSE_LOG_SLOTS));
-    if (!num_slots)
-        num_slots = 1;
+    int num_slots = Q_log2(irandom2(2, BIT(max_slots) + 1));
 
     // we only have this many slots left to use
     int remaining = self->monsterinfo.monster_slots - self->monsterinfo.monster_used;
     const reinforcement_list_t *r = &self->monsterinfo.reinforcements;
 
-    int num_chosen;
-    for (num_chosen = 0; num_chosen < num_slots; num_chosen++) {
+    int num_chosen = 0;
+    while (num_chosen < num_slots) {
         byte available[MAX_REINFORCEMENTS_TOTAL];
         int num_avail = 0;
 
         // ran out of slots!
-        if ((max_slots && num_chosen == max_slots) || !remaining)
+        if (remaining <= 0)
             break;
 
         // get everything we could choose
@@ -96,7 +96,7 @@ int M_PickReinforcements(edict_t *self, int max_slots)
 
         // select monster, TODO fairly
         int chosen = available[irandom1(num_avail)];
-        self->monsterinfo.chosen_reinforcements[num_chosen] = chosen;
+        self->monsterinfo.chosen_reinforcements[num_chosen++] = chosen;
 
         remaining -= r->reinforcements[chosen].strength;
     }
