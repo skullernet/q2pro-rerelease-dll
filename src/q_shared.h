@@ -166,13 +166,19 @@ typedef union {
 extern const vec3_t vec3_origin;
 
 typedef struct vrect_s {
-    int             x, y, width, height;
+    int x, y, width, height;
 } vrect_t;
 
-#define DEG2RAD(a)      ((a) * (M_PI / 180))
-#define RAD2DEG(a)      ((a) * (180 / M_PI))
+#ifndef M_PIf
+#define M_PIf       3.14159265358979323846f
+#define M_SQRT2f    1.41421356237309504880f
+#define M_SQRT1_2f  0.70710678118654752440f
+#endif
 
-#define ALIGN(x, a)     (((x) + (a) - 1) & ~((a) - 1))
+#define DEG2RAD(a)      ((a) * (M_PIf / 180))
+#define RAD2DEG(a)      ((a) * (180 / M_PIf))
+
+#define Q_ALIGN(x, a)   (((x) + (a) - 1) & ~((a) - 1))
 
 #define BIT(n)          (1U << (n))
 #define BIT_ULL(n)      (1ULL << (n))
@@ -300,6 +306,22 @@ static inline uint32_t Q_npot32(uint32_t k)
     k = k | (k >> 16);
 
     return k + 1;
+}
+
+static inline int Q_log2(uint32_t k)
+{
+#if q_has_builtin(__builtin_clz)
+    return 31 - __builtin_clz(k | 1);
+#elif (defined _MSC_VER)
+    unsigned long index;
+    _BitScanReverse(&index, k | 1);
+    return index;
+#else
+    for (int i = 31; i > 0; i--)
+        if (k & BIT(i))
+            return i;
+    return 0;
+#endif
 }
 
 static inline float LerpAngle(float a2, float a1, float frac)
@@ -520,6 +542,8 @@ size_t Q_strnlen(const char *s, size_t maxlen);
 #else
 int Q_atoi(const char *s);
 #endif
+
+#define Q_atof(s) strtof(s, NULL)
 
 char *COM_SkipPath(const char *pathname);
 size_t COM_StripExtension(char *out, const char *in, size_t size);
