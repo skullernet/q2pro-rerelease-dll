@@ -106,12 +106,13 @@ int M_PickReinforcements(edict_t *self, int max_slots)
 
 void M_SetupReinforcements(const char *reinforcements, reinforcement_list_t *list)
 {
-    // count up the semicolons
+    list->reinforcements = NULL;
     list->num_reinforcements = 0;
 
     if (!*reinforcements)
         return;
 
+    // count up the semicolons
     int count = 1;
 
     for (int i = 0; reinforcements[i]; i++)
@@ -125,22 +126,22 @@ void M_SetupReinforcements(const char *reinforcements, reinforcement_list_t *lis
     list->reinforcements = gi.TagMalloc(sizeof(list->reinforcements[0]) * count, TAG_LEVEL);
 
     // parse
-    reinforcement_t *r = list->reinforcements;
-    reinforcement_t *end = list->reinforcements + count;
-
     ED_InitSpawnVars();
 
     char copy[MAX_STRING_CHARS];
     Q_strlcpy(copy, reinforcements, sizeof(copy));
 
     const char *s = copy;
-    while (r < end) {
+    while (1) {
         char *p = strchr(s, ';');
         if (p)
             *p = 0;
 
         const char *token = COM_Parse(&s);
         if (*token) {
+            Q_assert(list->num_reinforcements < count);
+            reinforcement_t *r = &list->reinforcements[list->num_reinforcements];
+
             r->classname = G_CopyString(token, TAG_LEVEL);
             r->strength = Q_atoi(COM_Parse(&s));
 
@@ -153,9 +154,8 @@ void M_SetupReinforcements(const char *reinforcements, reinforcement_list_t *lis
                 VectorCopy(newEnt->mins, r->mins);
                 VectorCopy(newEnt->maxs, r->maxs);
                 r->radius = Distance(r->maxs, r->mins) * 0.5f;
-                r++;
-
                 G_FreeEdict(newEnt);
+                list->num_reinforcements++;
             }
         }
 
@@ -163,8 +163,6 @@ void M_SetupReinforcements(const char *reinforcements, reinforcement_list_t *lis
             break;
         s = p + 1;
     }
-
-    list->num_reinforcements = r - list->reinforcements;
 }
 
 static void cleanupHeal(edict_t *self, bool change_frame)
