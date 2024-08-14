@@ -1082,14 +1082,16 @@ static void medic_determine_spawn(edict_t *self)
             if (!CheckGroundSpawnPoint(spawnpoint, reinforcement->mins, reinforcement->maxs, 256, -1))
                 continue;
 
-            // we found a spot, we're done here
             if (spin) {
                 self->monsterinfo.aiflags |= AI_MANUAL_STEERING;
                 self->ideal_yaw = anglemod(self->s.angles[YAW] + 180);
             }
+
+            // we found a spot, we're done here
             return;
         }
 
+    // did not succeed
     self->monsterinfo.nextframe = FRAME_attack53;
 }
 
