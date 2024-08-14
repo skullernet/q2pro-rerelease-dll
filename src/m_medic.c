@@ -1087,9 +1087,7 @@ static void medic_determine_spawn(edict_t *self)
             // we found a spot, we're done here
             if (spin) {
                 self->monsterinfo.aiflags |= AI_MANUAL_STEERING;
-                self->ideal_yaw = anglemod(self->s.angles[YAW]) + 180;
-                if (self->ideal_yaw > 360.0f)
-                    self->ideal_yaw -= 360.0f;
+                self->ideal_yaw = anglemod(self->s.angles[YAW] + 180);
             }
             return;
         }
