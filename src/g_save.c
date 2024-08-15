@@ -1036,6 +1036,7 @@ static struct {
     int len;
     int number;
     int version;
+    const char *filename;
 } line;
 
 static const char *read_line(void)
@@ -1043,8 +1044,21 @@ static const char *read_line(void)
     line.number++;
     line.ptr = gzgets(fp, line.data, sizeof(line.data));
     if (!line.ptr)
-        gi.error("error reading input file");
+        gi.error("%s: error reading input file", line.filename);
     return line.ptr;
+}
+
+q_noreturn q_cold q_printf(1, 2)
+static void parse_error(const char *fmt, ...)
+{
+    va_list     argptr;
+    char        text[MAX_STRING_CHARS];
+
+    va_start(argptr, fmt);
+    Q_vsnprintf(text, sizeof(text), fmt, argptr);
+    va_end(argptr);
+
+    gi.error("%s: line %d: %s", line.filename, line.number, text);
 }
 
 static int unescape_char(int c)
@@ -1071,7 +1085,7 @@ static void parse_quoted(const char *s)
         int c;
 
         if (!*s)
-            gi.error("line %d: unterminated quoted string", line.number);
+            parse_error("unterminated quoted string");
 
         if (*s == '\"') {
             s++;
@@ -1086,7 +1100,7 @@ static void parse_quoted(const char *s)
                 int c1, c2;
 
                 if (s[1] != 'x' || (c1 = Q_charhex(s[2])) == -1 || (c2 = Q_charhex(s[3])) == -1)
-                    gi.error("line %d: bad escape sequence", line.number);
+                    parse_error("bad escape sequence");
 
                 c = (c1 << 4) | c2;
                 s += 4;
@@ -1096,7 +1110,7 @@ static void parse_quoted(const char *s)
         }
 
         if (len == sizeof(line.token) - 1)
-            gi.error("line %d: oversize token", line.number);
+            parse_error("oversize token");
 
         line.token[len++] = c;
     }
@@ -1111,7 +1125,7 @@ static void parse_word(const char *s)
 
     do {
         if (len == sizeof(line.token) - 1)
-            gi.error("line %d: oversize token", line.number);
+            parse_error("oversize token");
         line.token[len++] = *s++;
     } while (*s > 32);
 
@@ -1155,15 +1169,17 @@ static void expect(const char *what)
     char *token = parse();
 
     if (strcmp(token, what))
-        gi.error("line %d: expected %s, got %s", line.number, what, token);
+        parse_error("expected %s, got %s", what, COM_MakePrintable(token));
 }
 
 static void unknown(const char *what)
 {
-    if (g_strict_saves->integer)
-        gi.error("line %d: unknown %s: %s", line.number, what, line.token);
+    char *token = COM_MakePrintable(line.token);
 
-    gi.dprintf("WARNING: line %d: unknown %s: %s\n", line.number, what, line.token);
+    if (g_strict_saves->integer)
+        parse_error("unknown %s: %s", what, token);
+
+    gi.dprintf("WARNING: %s: line %d: unknown %s: %s\n", line.filename, line.number, what, token);
     line.ptr = NULL;    // skip to next line
 }
 
@@ -1174,10 +1190,10 @@ static int parse_int_tok(const char *tok, int v_min, int v_max)
 
     v = strtol(tok, &end, 0);
     if (end == tok || *end)
-        gi.error("line %d: expected int, got %s", line.number, tok);
+        parse_error("expected int, got %s", COM_MakePrintable(tok));
 
     if (v < v_min || v > v_max)
-        gi.error("line %d: value out of range: %ld", line.number, v);
+        parse_error("value out of range: %ld", v);
 
     return v;
 }
@@ -1204,10 +1220,10 @@ static unsigned parse_uint_tok(const char *tok, unsigned v_max)
 
     v = strtoul(tok, &end, 0);
     if (end == tok || *end)
-        gi.error("line %d: expected int, got %s", line.number, tok);
+        parse_error("expected int, got %s", COM_MakePrintable(tok));
 
     if (v > v_max)
-        gi.error("line %d: value out of range: %lu", line.number, v);
+        parse_error("value out of range: %lu", v);
 
     return v;
 }
@@ -1233,7 +1249,7 @@ static float parse_float(void)
     tok = parse();
     v = strtof(tok, &end);
     if (end == tok || *end)
-        gi.error("line %d: expected float, got %s", line.number, tok);
+        parse_error("expected float, got %s", COM_MakePrintable(tok));
 
     return v;
 }
@@ -1246,7 +1262,7 @@ static uint64_t parse_uint64(void)
     tok = parse();
     v = strtoull(tok, &end, 0);
     if (end == tok || *end)
-        gi.error("line %d: expected int, got %s", line.number, tok);
+        parse_error("expected int, got %s", COM_MakePrintable(tok));
 
     return v;
 }
@@ -1278,13 +1294,13 @@ static void parse_byte_v(byte *v, int n)
 
     parse();
     if (line.len != n * 2)
-        gi.error("line %d: unexpected number of characters", line.number);
+        parse_error("unexpected number of characters");
 
     for (int i = 0; i < n; i++) {
         int c1 = Q_charhex(line.token[i * 2 + 0]);
         int c2 = Q_charhex(line.token[i * 2 + 1]);
         if (c1 == -1 || c2 == -1)
-            gi.error("line %d: not a hex character", line.number);
+            parse_error("not a hex character");
         v[i] = (c1 << 4) | c2;
     }
 }
@@ -1303,7 +1319,7 @@ static char *read_string(int tag)
 static void read_zstring(char *s, int size)
 {
     if (Q_strlcpy(s, parse(), size) >= size)
-        gi.error("line %d: oversize string", line.number);
+        parse_error("oversize string");
 }
 
 static void read_vector(vec_t *v)
@@ -1595,6 +1611,7 @@ void ReadGame(const char *filename)
     gzbuffer(fp, 65536);
 
     memset(&line, 0, sizeof(line));
+    line.filename = COM_SkipPath(filename);
     expect(SAVE_MAGIC1);
     expect("version");
     line.version = parse_int32();
@@ -1701,6 +1718,7 @@ void ReadLevel(const char *filename)
     gzbuffer(fp, 65536);
 
     memset(&line, 0, sizeof(line));
+    line.filename = COM_SkipPath(filename);
     expect(SAVE_MAGIC2);
     expect("version");
     line.version = parse_int32();
@@ -1724,7 +1742,7 @@ void ReadLevel(const char *filename)
 
         ent = &g_edicts[entnum];
         if (ent->inuse)
-            gi.error("duplicate entity: %d", entnum);
+            parse_error("duplicate entity: %d", entnum);
         G_InitEdict(ent);
         read_fields(entityfields, q_countof(entityfields), ent);
 
@@ -1778,14 +1796,16 @@ void G_CleanupSaves(void)
 qboolean G_CanSave(void)
 {
     if (game.maxclients == 1 && g_edicts[1].health <= 0) {
-        gi.cprintf(&g_edicts[1], PRINT_CENTER, "\nCan't savegame while dead!\n");
+        gi.cprintf(&g_edicts[1], PRINT_HIGH, "Can't savegame while dead!\n");
         return qfalse;
     }
 
     // don't allow saving during cameras/intermissions as this
     // causes the game to act weird when these are loaded
-    if (level.intermissiontime)
+    if (level.intermissiontime) {
+        gi.cprintf(&g_edicts[1], PRINT_HIGH, "Can't savegame during intermission!\n");
         return qfalse;
+    }
 
     return qtrue;
 }
