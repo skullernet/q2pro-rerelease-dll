@@ -566,6 +566,7 @@ char *COM_Parse(const char **data_p);
 size_t COM_Compress(char *data);
 
 size_t COM_EscapeString(char *dst, const char *src, size_t size);
+char *COM_MakePrintable(const char *s);
 
 int SortStrcmp(const void *p1, const void *p2);
 int SortStricmp(const void *p1, const void *p2);

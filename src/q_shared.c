@@ -679,27 +679,27 @@ size_t COM_EscapeString(char *dst, const char *src, size_t size)
     static const char hex[] = "0123456789ABCDEF";
     char *p, *end;
 
-    if (size < 4) {
-        if (size)
-            *dst = 0;
+    if (!size)
         return 0;
-    }
 
     p = dst;
-    end = dst + size - 4;
+    end = dst + size;
     while (*src) {
-        int c = (uint8_t)*src++;
+        byte c = *src++;
         int e = escape_char(c);
 
-        if (p >= end)
-            break;
-
         if (e) {
+            if (end - p <= 2)
+                break;
             *p++ = '\\';
             *p++ = e;
         } else if (Q_isprint(c)) {
+            if (end - p <= 1)
+                break;
             *p++ = c;
         } else {
+            if (end - p <= 4)
+                break;
             *p++ = '\\';
             *p++ = 'x';
             *p++ = hex[c >> 4];
@@ -709,6 +709,13 @@ size_t COM_EscapeString(char *dst, const char *src, size_t size)
 
     *p = 0;
     return p - dst;
+}
+
+char *COM_MakePrintable(const char *s)
+{
+    static char buffer[4096];
+    COM_EscapeString(buffer, s, sizeof(buffer));
+    return buffer;
 }
 
 /*
