@@ -2,6 +2,7 @@
 // Licensed under the GNU General Public License 2.0.
 #include "g_local.h"
 #include "m_player.h"
+#include "q_debug.h"
 
 static void SelectNextItem(edict_t *ent, item_flags_t itflags, bool menu)
 {
@@ -1407,6 +1408,43 @@ static void Cmd_ListMonsters_f(edict_t *ent)
     }
 }
 
+static void Cmd_ShowSecrets_f(edict_t *self)
+{
+    edict_t *ent, *other;
+    int secrets = 0;
+    bool found;
+
+    if (game.maxclients > 1) {
+        gi.cprintf(self, PRINT_HIGH, "Only possible in single player\n");
+        return;
+    }
+
+    const debug_draw_api_v1_t *draw = gix.GetExtension(DEBUG_DRAW_API_V1);
+    if (!draw) {
+        gi.cprintf(self, PRINT_HIGH, "Debug drawing API not available\n");
+        return;
+    }
+
+    draw->ClearDebugLines();
+    ent = NULL;
+    while ((ent = G_Find(ent, FOFS(classname), "target_secret"))) {
+        if (!ent->targetname)
+            continue;
+
+        other = NULL;
+        found = false;
+        while ((other = G_Find(other, FOFS(target), ent->targetname))) {
+            draw->AddDebugBounds(other->absmin, other->absmax, U32_RED, 10000, false);
+            found = true;
+        }
+
+        if (found)
+            secrets++;
+    }
+
+    gi.cprintf(self, PRINT_HIGH, "%d secrets revealed\n", secrets);
+}
+
 /*
 =================
 ClientCommand
@@ -1446,6 +1484,10 @@ void ClientCommand(edict_t *ent)
     }
     if (Q_strcasecmp(cmd, "listmonsters") == 0) {
         Cmd_ListMonsters_f(ent);
+        return;
+    }
+    if (Q_strcasecmp(cmd, "showsecrets") == 0) {
+        Cmd_ShowSecrets_f(ent);
         return;
     }
 

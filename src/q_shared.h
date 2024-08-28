@@ -682,6 +682,15 @@ static inline int32_t SignExtend(uint32_t v, int bits)
 #define MakeColor(r, g, b, a)   MakeRawLong(r, g, b, a)
 #endif
 
+#define U32_BLACK   MakeColor(  0,   0,   0, 255)
+#define U32_RED     MakeColor(255,   0,   0, 255)
+#define U32_GREEN   MakeColor(  0, 255,   0, 255)
+#define U32_YELLOW  MakeColor(255, 255,   0, 255)
+#define U32_BLUE    MakeColor(  0,   0, 255, 255)
+#define U32_CYAN    MakeColor(  0, 255, 255, 255)
+#define U32_MAGENTA MakeColor(255,   0, 255, 255)
+#define U32_WHITE   MakeColor(255, 255, 255, 255)
+
 //=============================================
 
 //
