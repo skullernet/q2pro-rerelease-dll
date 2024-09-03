@@ -18,6 +18,16 @@ static void AnglesNormalize(vec3_t vec)
         vec[1] += 360;
 }
 
+float SnapToEights(float x)
+{
+    x *= 8.0f;
+    if (x > 0.0f)
+        x += 0.5f;
+    else
+        x -= 0.5f;
+    return 0.125f * (int)x;
+}
+
 void MOVEINFO_BLOCKED(turret_blocked)(edict_t *self, edict_t *other)
 {
     edict_t *attacker;
@@ -159,8 +169,8 @@ void THINK(turret_breach_think)(edict_t *self)
 
         // x & y
         angle = DEG2RAD(self->s.angles[1] + self->owner->move_origin[1]);
-        target[0] = self->s.origin[0] + cosf(angle) * self->owner->move_origin[0];
-        target[1] = self->s.origin[1] + sinf(angle) * self->owner->move_origin[0];
+        target[0] = SnapToEights(self->s.origin[0] + cosf(angle) * self->owner->move_origin[0]);
+        target[1] = SnapToEights(self->s.origin[1] + sinf(angle) * self->owner->move_origin[0]);
         target[2] = self->owner->s.origin[2];
 
         VectorSubtract(target, self->owner->s.origin, dir);
@@ -169,7 +179,7 @@ void THINK(turret_breach_think)(edict_t *self)
 
         // z
         angle = DEG2RAD(self->s.angles[PITCH]);
-        target_z = self->s.origin[2] + self->owner->move_origin[0] * tanf(angle) + self->owner->move_origin[2];
+        target_z = SnapToEights(self->s.origin[2] + self->owner->move_origin[0] * tanf(angle) + self->owner->move_origin[2]);
 
         diff = target_z - self->owner->s.origin[2];
         self->owner->velocity[2] = diff * 1.0f / FRAME_TIME_SEC;

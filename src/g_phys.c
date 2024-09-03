@@ -413,6 +413,8 @@ static pushed_t pushed[MAX_EDICTS], *pushed_p;
 
 static edict_t *obstacle;
 
+float SnapToEights(float x);
+
 /*
 ============
 SV_Push
@@ -427,6 +429,11 @@ static bool SV_Push(edict_t *pusher, vec3_t move, vec3_t amove)
     vec3_t    mins, maxs;
     pushed_t *p;
     vec3_t    org, org2, move2, forward, right, up;
+
+    // clamp the move to 1/8 units, so the position will
+    // be accurate for client side prediction
+    for (int i = 0; i < 3; i++)
+        move[i] = SnapToEights(move[i]);
 
     // find the bounding box
     VectorAdd(pusher->absmin, move, mins);
