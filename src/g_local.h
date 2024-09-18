@@ -6,6 +6,7 @@
 
 #include "q_shared.h"
 #include "m_flash.h"
+#include "g_nav.h"
 
 // define GAME_INCLUDE so that game.h does not define the
 // short, server-visible gclient_t and edict_t structures,
@@ -46,6 +47,9 @@ extern const vec3_t player_maxs;
 
 extern game_import_t    gi;
 extern game_import_ex_t gix;
+
+extern filesystem_api_v1_t *fs;
+extern debug_draw_api_v1_t *draw;
 
 // edict->spawnflags
 // these are set with checkboxes on each entity in the map editor.
@@ -100,9 +104,10 @@ typedef int svflags_t;
 
 // memory tags to allow dynamic memory to be cleaned up
 enum {
-    TAG_GAME  = 765, // clear when unloading the dll
-    TAG_LEVEL = 766, // clear when loading a new level
-    TAG_L10N  = 767, // for localization strings
+    TAG_GAME = 765, // clear when unloading the dll
+    TAG_LEVEL,      // clear when loading a new level
+    TAG_L10N,       // localization strings
+    TAG_NAV,        // bot navigation data
 };
 
 #define MELEE_DISTANCE  50
@@ -979,6 +984,8 @@ typedef struct {
     gtime_t   random_change_time; // high tickrate
     gtime_t   path_blocked_counter; // break out of paths when > a certain time
     gtime_t   path_wait_time; // don't try nav nodes until this is over
+    PathInfo  nav_path; // if AI_PATHING, this is where we are trying to reach
+    gtime_t   nav_path_cache_time; // cache nav_path result for this much time
     combat_style_t combat_style; // pathing style
 
     edict_t *damage_attacker;

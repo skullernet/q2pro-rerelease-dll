@@ -114,6 +114,7 @@ void SP_misc_player_mannequin(edict_t *self);
 void SP_misc_model(edict_t *self); // [Paril-KEX]
 void SP_path_corner(edict_t *self);
 void SP_point_combat(edict_t *self);
+void SP_info_nav_lock(edict_t *self); // [Paril-KEX]
 
 void SP_misc_explobox(edict_t *self);
 void SP_misc_banner(edict_t *self);
@@ -320,6 +321,7 @@ static const spawn_func_t spawn_funcs[] = {
     { "info_landmark", SP_info_landmark },
     { "path_corner", SP_path_corner },
     { "point_combat", SP_point_combat },
+    { "info_nav_lock", SP_info_nav_lock },
 
     { "misc_explobox", SP_misc_explobox },
     { "misc_banner", SP_misc_banner },
@@ -1185,6 +1187,8 @@ void SpawnEntities(const char *mapname, const char *entities, const char *spawnp
 
     gi.FreeTags(TAG_LEVEL);
 
+    Nav_Unload();
+
     G_FreePrecaches();
 
     memset(&level, 0, sizeof(level));
@@ -1263,6 +1267,8 @@ void SpawnEntities(const char *mapname, const char *entities, const char *spawnp
     // ZOID
     CTFSpawn();
     // ZOID
+
+    Nav_Load(level.mapname);
 
     // ROGUE
     if (deathmatch->integer) {

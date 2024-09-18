@@ -1418,7 +1418,6 @@ static void Cmd_ShowSecrets_f(edict_t *self)
         return;
     }
 
-    const debug_draw_api_v1_t *draw = gix.GetExtension(DEBUG_DRAW_API_V1);
     if (!draw) {
         gi.cprintf(self, PRINT_HIGH, "Debug drawing API not available\n");
         return;

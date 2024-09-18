@@ -260,7 +260,12 @@ static bool SV_alternate_flystep(edict_t *ent, vec3_t move, bool relink, edict_t
     if (isnan(dir[0]) || isnan(dir[1]) || isnan(dir[2]))
         return false;
 
-    if (ent->enemy && !(ent->monsterinfo.aiflags & (AI_COMBAT_POINT | AI_SOUND_TARGET | AI_LOST_SIGHT))) {
+    if (ent->monsterinfo.aiflags & AI_PATHING) {
+        if (ent->monsterinfo.nav_path.returnCode == PathReturnCode_TraversalPending)
+            VectorCopy(ent->monsterinfo.nav_path.secondMovePoint, towards_origin);
+        else
+            VectorCopy(ent->monsterinfo.nav_path.firstMovePoint, towards_origin);
+    } else if (ent->enemy && !(ent->monsterinfo.aiflags & (AI_COMBAT_POINT | AI_SOUND_TARGET | AI_LOST_SIGHT))) {
         VectorCopy(ent->enemy->s.origin, towards_origin);
         VectorCopy(ent->enemy->velocity, towards_velocity);
     } else if (ent->goalentity) {
@@ -492,7 +497,10 @@ static bool SV_flystep(edict_t *ent, vec3_t move, bool relink, edict_t *current_
             if (!ent->goalentity)
                 ent->goalentity = ent->enemy;
 
-            float dz = ent->s.origin[2] - ent->goalentity->s.origin[2];
+            float goal_position_z = (ent->monsterinfo.aiflags & AI_PATHING) ?
+                ent->monsterinfo.nav_path.firstMovePoint[2] : ent->goalentity->s.origin[2];
+
+            float dz = ent->s.origin[2] - goal_position_z;
             float dist = VectorLength(move);
 
             if (ent->goalentity->client) {
@@ -1102,6 +1110,115 @@ bool SV_CloseEnough(edict_t *ent, edict_t *goal, float dist)
     return true;
 }
 
+static bool M_NavPathToGoal(edict_t *self, float dist, const vec3_t goal)
+{
+    // mark us as *trying* now (nav_pos is valid)
+    self->monsterinfo.aiflags |= AI_PATHING;
+
+    if ((self->monsterinfo.nav_path.returnCode != PathReturnCode_TraversalPending &&
+         Distance(self->monsterinfo.nav_path.firstMovePoint, self->s.origin) <= VectorLength(self->size) * 0.5f) ||
+        self->monsterinfo.nav_path_cache_time <= level.time)
+    {
+        PathRequest request = { 0 };
+        if (self->enemy)
+            VectorCopy(self->enemy->s.origin, request.goal);
+        else
+            VectorCopy(self->goalentity->s.origin, request.goal);
+        request.moveDist = dist;
+        if (g_debug_monster_paths->integer == 1)
+            request.debugging.drawTime = 1.5f;
+        VectorCopy(self->s.origin, request.start);
+        request.pathFlags = PathFlags_Walk;
+
+        if (self->monsterinfo.can_jump || (self->flags & FL_FLY)) {
+            if (self->monsterinfo.jump_height) {
+                request.pathFlags |= PathFlags_BarrierJump;
+                request.traversals.jumpHeight = self->monsterinfo.jump_height;
+            }
+            if (self->monsterinfo.drop_height) {
+                request.pathFlags |= PathFlags_WalkOffLedge;
+                request.traversals.dropHeight = self->monsterinfo.drop_height;
+            }
+        }
+
+        if (self->flags & FL_FLY) {
+            request.nodeSearch.maxHeight = request.nodeSearch.minHeight = 8192;
+            request.pathFlags |= PathFlags_LongJump;
+        }
+
+        if (!Nav_GetPathToGoal(&request, &self->monsterinfo.nav_path)) {
+            // fatal error, don't bother ever trying nodes
+            if (self->monsterinfo.nav_path.returnCode == PathReturnCode_NoNavAvailable)
+                self->monsterinfo.aiflags |= AI_NO_PATH_FINDING;
+            return false;
+        }
+
+        self->monsterinfo.nav_path_cache_time = level.time + SEC(2);
+    }
+
+    float yaw;
+    float old_yaw = self->s.angles[YAW];
+    float old_ideal_yaw = self->ideal_yaw;
+
+    vec_t *path_to = (self->monsterinfo.nav_path.returnCode == PathReturnCode_TraversalPending) ?
+        self->monsterinfo.nav_path.secondMovePoint : self->monsterinfo.nav_path.firstMovePoint;
+
+    if (self->monsterinfo.random_change_time >= level.time &&
+        !(self->monsterinfo.aiflags & AI_ALTERNATE_FLY))
+        yaw = self->ideal_yaw;
+    else {
+        vec3_t dir;
+        VectorSubtract(path_to, self->s.origin, dir);
+        yaw = vectoyaw(dir);
+    }
+
+    if (!SV_StepDirection(self, yaw, dist, true)) {
+        if (!self->inuse)
+            return false;
+
+        if (self->monsterinfo.blocked && !(self->monsterinfo.aiflags & AI_TARGET_ANGER)) {
+            if ((self->inuse) && (self->health > 0)) {
+                // if we're blocked, the blocked function will be deferred to for yaw
+                self->s.angles[YAW] = old_yaw;
+                self->ideal_yaw = old_ideal_yaw;
+                if (self->monsterinfo.blocked(self, dist))
+                    return true;
+            }
+        }
+
+        // try the first point
+        if (self->monsterinfo.random_change_time >= level.time)
+            yaw = self->ideal_yaw;
+        else {
+            vec3_t dir;
+            VectorSubtract(self->monsterinfo.nav_path.firstMovePoint, self->s.origin, dir);
+            yaw = vectoyaw(dir);
+        }
+
+        if (!SV_StepDirection(self, yaw, dist, true)) {
+            // we got blocked, but all is not lost yet; do a similar bump around-ish behavior
+            // to try to regain our composure
+            if (self->monsterinfo.aiflags & AI_BLOCKED) {
+                self->monsterinfo.aiflags &= ~AI_BLOCKED;
+                return true;
+            }
+
+            if (self->monsterinfo.random_change_time < level.time && self->inuse) {
+                self->monsterinfo.random_change_time = level.time + SEC(1.5f);
+                if (SV_NewChaseDir(self, path_to, dist))
+                    return true;
+            }
+
+            self->monsterinfo.path_blocked_counter += FRAME_TIME * 3;
+        }
+
+        if (self->monsterinfo.path_blocked_counter > SEC(1.5f))
+            return false;
+    }
+
+    return true;
+}
+
 /*
 =============
 M_MoveToPath
@@ -1112,7 +1229,72 @@ Feel free to add any other conditions needed.
 */
 static bool M_MoveToPath(edict_t *self, float dist)
 {
-    return false;
+    if (self->flags & FL_STATIONARY)
+        return false;
+    if (self->monsterinfo.aiflags & AI_NO_PATH_FINDING)
+        return false;
+    if (self->monsterinfo.path_wait_time > level.time)
+        return false;
+    if (!self->enemy)
+        return false;
+    if (M_ClientInvisible(self->enemy))
+        return false;
+    if (self->monsterinfo.attack_state >= AS_MISSILE)
+        return true;
+
+    combat_style_t style = self->monsterinfo.combat_style;
+
+    if (self->monsterinfo.aiflags & AI_TEMP_MELEE_COMBAT)
+        style = COMBAT_MELEE;
+
+    if (visible_ex(self, self->enemy, false)) {
+        if ((self->flags & (FL_SWIM | FL_FLY)) || style == COMBAT_RANGED) {
+            // do the normal "shoot, walk, shoot" behavior...
+            return false;
+        } else if (style == COMBAT_MELEE) {
+            // path pretty close to the enemy, then let normal Quake movement take over.
+            if (range_to(self, self->enemy) > 240 ||
+                fabs(self->s.origin[2] - self->enemy->s.origin[2]) > max(self->maxs[2], -self->mins[2])) {
+                if (M_NavPathToGoal(self, dist, self->enemy->s.origin))
+                    return true;
+                self->monsterinfo.aiflags &= ~AI_TEMP_MELEE_COMBAT;
+            } else {
+                self->monsterinfo.aiflags &= ~AI_TEMP_MELEE_COMBAT;
+                return false;
+            }
+        } else if (style == COMBAT_MIXED) {
+            // most mixed combat AI have fairly short range attacks, so try to path within mid range.
+            if (range_to(self, self->enemy) > RANGE_NEAR ||
+                fabs(self->s.origin[2] - self->enemy->s.origin[2]) > max(self->maxs[2], -self->mins[2]) * 2.0f) {
+                if (M_NavPathToGoal(self, dist, self->enemy->s.origin))
+                    return true;
+            } else {
+                return false;
+            }
+        }
+    } else {
+        // we can't see our enemy, let's see if we can path to them
+        if (M_NavPathToGoal(self, dist, self->enemy->s.origin))
+            return true;
+    }
+
+    if (!self->inuse)
+        return false;
+
+    if (self->monsterinfo.nav_path.returnCode > PathReturnCode_StartPathErrors) {
+        self->monsterinfo.path_wait_time = level.time + SEC(10);
+        return false;
+    }
+
+    self->monsterinfo.path_blocked_counter += FRAME_TIME * 3;
+
+    if (self->monsterinfo.path_blocked_counter > SEC(5)) {
+        self->monsterinfo.path_blocked_counter = 0;
+        self->monsterinfo.path_wait_time = level.time + SEC(5);
+        return false;
+    }
+
+    return true;
 }
 
 /*

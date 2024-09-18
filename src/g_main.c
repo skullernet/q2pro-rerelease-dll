@@ -9,6 +9,9 @@ level_locals_t level;
 game_import_t       gi;
 game_import_ex_t    gix;
 
+filesystem_api_v1_t *fs;
+debug_draw_api_v1_t *draw;
+
 game_export_t  globals;
 spawn_temp_t   st;
 
@@ -200,6 +203,9 @@ static void InitGame(void)
     // seed RNG
     Q_srand(time(NULL));
 
+    fs = gix.GetExtension(FILESYSTEM_API_V1);
+    draw = gix.GetExtension(DEBUG_DRAW_API_V1);
+
     gun_x = gi.cvar("gun_x", "0", 0);
     gun_y = gi.cvar("gun_y", "0", 0);
     gun_z = gi.cvar("gun_z", "0", 0);
@@ -361,6 +367,8 @@ static void InitGame(void)
     //======
 
     G_LoadL10nFile();
+
+    Nav_Init();
 }
 
 //===================================================================
@@ -374,6 +382,7 @@ static void ShutdownGame(void)
     gi.FreeTags(TAG_LEVEL);
     gi.FreeTags(TAG_GAME);
 
+    Nav_Shutdown();
     G_FreeL10nFile();
     G_CleanupSaves();
 }
@@ -386,6 +395,9 @@ static void *G_GetExtension(const char *name)
 static void G_RestartFilesystem(void)
 {
     G_LoadL10nFile();
+
+    Nav_Unload();
+    Nav_Load(level.mapname);
 }
 
 /*
@@ -776,6 +788,8 @@ static void G_RunFrame_(bool main_loop)
     G_CheckCvars();
 
     level.time += FRAME_TIME;
+
+    Nav_Frame();
 
     if (level.intermission_fading) {
         if (level.intermission_fade_time > level.time) {

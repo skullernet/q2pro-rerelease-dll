@@ -20,7 +20,6 @@ the following remaster-specific features have been removed / not implemented.
 
 * Cgame module
 * Bots
-* AI navigation using bot pathfinding
 * Custom pmove
 * Lag compensation
 * Variable tick rate

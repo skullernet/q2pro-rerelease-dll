@@ -73,7 +73,6 @@ void G_LoadL10nFile(void)
 {
     G_FreeL10nFile();
 
-    filesystem_api_v1_t *fs = gix.GetExtension("FILESYSTEM_API_V1");
     if (!fs) {
         gi.dprintf("FILESYSTEM_API_V1 not available\n");
         return;

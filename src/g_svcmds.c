@@ -2,6 +2,7 @@
 // Licensed under the GNU General Public License 2.0.
 
 #include "g_local.h"
+#include "q_files.h"
 
 static void Svcmd_Test_f(void)
 {
@@ -214,6 +215,34 @@ static void SVCmd_NextMap_f(void)
     EndDMLevel();
 }
 
+static void SVCmd_TestNav_f(void)
+{
+    if (!fs) {
+        gi.cprintf(NULL, PRINT_HIGH, "Filesystem API not available\n");
+        return;
+    }
+
+    void **list;
+    int count;
+
+    list = fs->ListFiles("bots/navigation", ".nav", FS_SEARCH_RECURSIVE | FS_SEARCH_STRIPEXT, &count);
+    if (!list) {
+        gi.cprintf(NULL, PRINT_HIGH, "No navigation files found\n");
+        return;
+    }
+
+    Nav_Unload();
+
+    for (int i = 0; i < count; i++) {
+        Nav_Load(list[i]);
+        Nav_Unload();
+    }
+
+    Nav_Load(level.mapname);
+
+    fs->FreeFileList(list);
+}
+
 /*
 =================
 SV_WriteIP_f
@@ -284,6 +313,8 @@ void ServerCommand(void)
         SVCmd_WriteIP_f();
     else if (Q_strcasecmp(cmd, "nextmap") == 0)
         SVCmd_NextMap_f();
+    else if (Q_strcasecmp(cmd, "testnav") == 0)
+        SVCmd_TestNav_f();
     else
         gi.cprintf(NULL, PRINT_HIGH, "Unknown server command \"%s\"\n", cmd);
 }

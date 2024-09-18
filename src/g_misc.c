@@ -2157,3 +2157,38 @@ void SP_misc_model(edict_t *ent)
     gi.setmodel(ent, ent->model);
     gi.linkentity(ent);
 }
+
+void USE(info_nav_lock_use)(edict_t *self, edict_t *other, edict_t *activator)
+{
+    edict_t *n = NULL;
+
+    while ((n = G_Find(n, FOFS(targetname), self->target))) {
+        if (!(n->svflags & SVF_DOOR)) {
+            gi.dprintf("%s tried targeting %s, a non-SVF_DOOR\n", etos(self), etos(n));
+            continue;
+        }
+
+        n->flags ^= FL_LOCKED;
+    }
+}
+
+/*QUAKED info_nav_lock (1.0 1.0 0.0) (-16 -16 0) (16 16 32)
+toggle locked state on linked entity
+*/
+void SP_info_nav_lock(edict_t *self)
+{
+    if (!self->targetname) {
+        gi.dprintf("%s missing targetname\n", etos(self));
+        G_FreeEdict(self);
+        return;
+    }
+
+    if (!self->target) {
+        gi.dprintf("%s missing target\n", etos(self));
+        G_FreeEdict(self);
+        return;
+    }
+
+    self->svflags |= SVF_NOCLIENT;
+    self->use = info_nav_lock_use;
+}

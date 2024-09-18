@@ -115,6 +115,28 @@ blocked_jump_result_t blocked_checkjump(edict_t *self, float dist)
     if (self->monsterinfo.jump_time > level.time)
         return NO_JUMP;
 
+    // if we're pathing, the nodes will ensure we can reach the destination.
+    if (self->monsterinfo.aiflags & AI_PATHING) {
+        if (self->monsterinfo.nav_path.returnCode != PathReturnCode_TraversalPending)
+            return NO_JUMP;
+
+        vec3_t dir;
+        VectorSubtract(self->monsterinfo.nav_path.secondMovePoint, self->monsterinfo.nav_path.firstMovePoint, dir);
+        self->ideal_yaw = vectoyaw(dir);
+
+        if (!FacingIdeal(self)) {
+            M_ChangeYaw(self);
+            return JUMP_TURN;
+        }
+
+        monster_jump_start(self);
+
+        if (self->monsterinfo.nav_path.secondMovePoint[2] > self->monsterinfo.nav_path.firstMovePoint[2])
+            return JUMP_JUMP_UP;
+        else
+            return JUMP_JUMP_DOWN;
+    }
+
     int     playerPosition;
     trace_t trace;
     vec3_t  pt1, pt2;
