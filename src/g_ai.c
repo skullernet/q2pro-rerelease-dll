@@ -355,7 +355,7 @@ visible
 returns 1 if the entity is visible to self, even if not infront ()
 =============
 */
-bool visible_ex(edict_t *self, edict_t *other, contents_t mask)
+bool visible_ex(edict_t *self, edict_t *other, bool through_glass)
 {
     // never visible
     if (other->flags & FL_NOVISIBLE)
@@ -392,13 +392,18 @@ bool visible_ex(edict_t *self, edict_t *other, contents_t mask)
     VectorCopy(other->s.origin, spot2);
     spot2[2] += other->viewheight;
 
+    contents_t mask = MASK_OPAQUE;
+
+    if (!through_glass)
+        mask |= CONTENTS_WINDOW;
+
     trace = gi.trace(spot1, NULL, NULL, spot2, self, mask);
     return trace.fraction == 1.0f || trace.ent == other; // PGM
 }
 
 bool visible(edict_t *self, edict_t *other)
 {
-    return visible_ex(self, other, MASK_OPAQUE);
+    return visible_ex(self, other, true);
 }
 
 /*
@@ -591,11 +596,6 @@ static bool G_MonsterSourceVisible(edict_t *self, edict_t *client)
         return true;
 
     return false;
-}
-
-static bool M_ClientInvisible(edict_t *ent)
-{
-    return ent->client && ent->client->invisible_time > level.time && ent->client->invisibility_fade_time <= level.time;
 }
 
 /*

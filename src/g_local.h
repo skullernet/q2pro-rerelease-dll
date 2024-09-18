@@ -1588,7 +1588,7 @@ bool FindTarget(edict_t *self);
 void FoundTarget(edict_t *self);
 void HuntTarget(edict_t *self, bool animate_state);
 bool infront(edict_t *self, edict_t *other);
-bool visible_ex(edict_t *self, edict_t *other, contents_t mask);
+bool visible_ex(edict_t *self, edict_t *other, bool through_glass);
 bool visible(edict_t *self, edict_t *other);
 bool FacingIdeal(edict_t *self);
 
@@ -2553,4 +2553,9 @@ static inline bool M_CheckGib(edict_t *self, mod_t mod)
         return true;
 
     return self->health <= self->gib_health;
+}
+
+static inline bool M_ClientInvisible(edict_t *ent)
+{
+    return ent->client && ent->client->invisible_time > level.time && ent->client->invisibility_fade_time <= level.time;
 }

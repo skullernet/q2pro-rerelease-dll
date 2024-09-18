@@ -115,7 +115,7 @@ bool MONSTERINFO_CHECKATTACK(gekk_checkattack)(edict_t *self)
         return false;
     }
 
-    if (visible_ex(self, self->enemy, MASK_OPAQUE | CONTENTS_WINDOW)) {
+    if (visible_ex(self, self->enemy, false)) {
         if (gekk_check_jump(self)) {
             self->monsterinfo.attack_state = AS_MISSILE;
             return true;
