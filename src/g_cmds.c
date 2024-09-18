@@ -2,7 +2,6 @@
 // Licensed under the GNU General Public License 2.0.
 #include "g_local.h"
 #include "m_player.h"
-#include "q_debug.h"
 
 static void SelectNextItem(edict_t *ent, item_flags_t itflags, bool menu)
 {

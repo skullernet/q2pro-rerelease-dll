@@ -12,6 +12,7 @@
 // because we define the full size ones in this file
 #define GAME_INCLUDE
 #include "game.h"
+#include "gameext.h"
 
 #if USE_FPS
 #define G_GMF_VARIABLE_FPS  GMF_VARIABLE_FPS
