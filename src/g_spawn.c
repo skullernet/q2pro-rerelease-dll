@@ -110,6 +110,7 @@ void SP_light_mine2(edict_t *ent);
 void SP_info_null(edict_t *self);
 void SP_info_notnull(edict_t *self);
 void SP_info_landmark(edict_t *self);  // [Paril-KEX]
+void SP_info_world_text(edict_t *self);
 void SP_misc_player_mannequin(edict_t *self);
 void SP_misc_model(edict_t *self); // [Paril-KEX]
 void SP_path_corner(edict_t *self);
@@ -319,6 +320,7 @@ static const spawn_func_t spawn_funcs[] = {
     { "func_group", SP_info_null },
     { "info_notnull", SP_info_notnull },
     { "info_landmark", SP_info_landmark },
+    { "info_world_text", SP_info_world_text },
     { "path_corner", SP_path_corner },
     { "point_combat", SP_point_combat },
     { "info_nav_lock", SP_info_nav_lock },

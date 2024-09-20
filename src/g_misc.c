@@ -2002,6 +2002,81 @@ void SP_info_landmark(edict_t *self)
     VectorCopy(self->s.origin, self->absmax);
 }
 
+#define SPAWNFLAG_WORLD_TEXT_START_OFF          1
+#define SPAWNFLAG_WORLD_TEXT_TRIGGER_ONCE       2
+#define SPAWNFLAG_WORLD_TEXT_REMOVE_ON_TRIGGER  4
+
+void USE(info_world_text_use)(edict_t *self, edict_t *other, edict_t *activator)
+{
+    if (!self->activator) {
+        self->activator = activator;
+        self->think(self);
+    } else {
+        self->nextthink = 0;
+        self->activator = NULL;
+    }
+
+    if (self->spawnflags & SPAWNFLAG_WORLD_TEXT_TRIGGER_ONCE)
+        self->use = NULL;
+
+    if (self->target) {
+        edict_t *target = G_PickTarget(self->target);
+        if (target && target->use && target != self)
+            target->use(target, self, self);
+    }
+
+    if (self->spawnflags & SPAWNFLAG_WORLD_TEXT_REMOVE_ON_TRIGGER)
+        G_FreeEdict(self);
+}
+
+#define U32_ORANGE  MakeColor(255, 165, 0, 255)
+
+void THINK(info_world_text_think)(edict_t *self)
+{
+    static const uint32_t colors[] = {
+        U32_WHITE, U32_RED, U32_BLUE, U32_GREEN, U32_YELLOW, U32_BLACK, U32_CYAN, U32_ORANGE
+    };
+
+    if (!draw)
+        return;
+
+    if (self->sounds >= q_countof(colors)) {
+        gi.dprintf("%s: invalid color\n", etos(self));
+        self->sounds = 0;
+    }
+
+    if (self->s.angles[YAW] == -3.0f) {
+        draw->AddDebugText(self->s.origin, NULL, self->message, self->size[2], colors[self->sounds], FRAME_TIME, true);
+    } else {
+        vec3_t textAngle = { 0 };
+        textAngle[YAW] = anglemod(self->s.angles[YAW] + 180);
+        draw->AddDebugText(self->s.origin, textAngle, self->message, self->size[2], colors[self->sounds], FRAME_TIME, true);
+    }
+    self->nextthink = level.time + FRAME_TIME;
+}
+
+/*QUAKED info_world_text (1.0 1.0 0.0) (-16 -16 0) (16 16 32)
+designer placed in world text for debugging.
+*/
+void SP_info_world_text(edict_t *self)
+{
+    if (!self->message) {
+        gi.dprintf("%s: no message\n", etos(self));
+        G_FreeEdict(self);
+        return;
+    }
+
+    self->think = info_world_text_think;
+    self->use = info_world_text_use;
+    self->size[2] = st.radius ? st.radius : 0.2f;
+    self->size[2] *= 16;
+
+    if (!(self->spawnflags & SPAWNFLAG_WORLD_TEXT_START_OFF)) {
+        self->nextthink = level.time + FRAME_TIME;
+        self->activator = self;
+    }
+}
+
 #include "m_player.h"
 
 void USE(misc_player_mannequin_use)(edict_t *self, edict_t *other, edict_t *activator)
