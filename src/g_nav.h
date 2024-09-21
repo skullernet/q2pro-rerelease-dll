@@ -20,11 +20,11 @@ typedef enum {
 } PathReturnCode;
 
 typedef enum {
-    PathReturnCode_Walk,            // can walk between the path points
-    PathReturnCode_WalkOffLedge,    // will walk off a ledge going between path points
-    PathReturnCode_LongJump,        // will need to perform a long jump between path points
-    PathReturnCode_BarrierJump,     // will need to jump over a low barrier between path points
-    PathReturnCode_Elevator         // will need to use an elevator between path points
+    PathLinkType_Walk,          // can walk between the path points
+    PathLinkType_WalkOffLedge,  // will walk off a ledge going between path points
+    PathLinkType_LongJump,      // will need to perform a long jump between path points
+    PathLinkType_BarrierJump,   // will need to jump over a low barrier between path points
+    PathLinkType_Elevator       // will need to use an elevator between path points
 } PathLinkType;
 
 typedef enum {
