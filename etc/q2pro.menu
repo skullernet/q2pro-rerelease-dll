@@ -144,7 +144,9 @@ end
 
 begin crosshair
     title "Crosshair Setup"
-    values "crosshair type" crosshair none cross dot angle
+    values "crosshair type" crosshair "none" "circle" "small cross" \
+        "cross" "alpha circle" "alpha circle 2" "dot" "circled cross" \
+        "double cross" "large cross"
     pairs "crosshair scale" ch_scale 0.5x 0.5 1x 1 2x 2
     toggle "color by health" ch_health
     range "red channel" ch_red 0 1
