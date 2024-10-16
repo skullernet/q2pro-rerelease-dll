@@ -1452,6 +1452,21 @@ typedef struct {
 
 //==============================================
 
+typedef struct {
+    vec3_t color;
+    float density;
+    float sky_factor;
+} player_fog_t;
+
+typedef struct {
+    struct {
+        vec3_t color;
+        float dist;
+    } start, end;
+    float density;
+    float falloff;
+} player_heightfog_t;
+
 // player_state_t is the information needed in addition to pmove_state_t
 // to rendered a view.  There will only be 10 player_state_t sent each second,
 // but the number of pmove_state_t changes will be reletive to client
@@ -1470,15 +1485,21 @@ typedef struct {
     vec3_t      gunoffset;
     int         gunindex;
     int         gunframe;
+    int         reserved_1;
+    int         reserved_2;
 
     vec4_t      blend;          // rgba full screen effect
     vec4_t      damage_blend;
+
+    player_fog_t        fog;
+    player_heightfog_t  heightfog;
 
     float       fov;            // horizontal field of view
 
     int         rdflags;        // refdef flags
 
-    int         reserved[4];
+    int         reserved_3;
+    int         reserved_4;
 
     int16_t     stats[MAX_STATS];       // fast status bar updates
 } player_state_t;

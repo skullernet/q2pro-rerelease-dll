@@ -24,7 +24,6 @@ the following remaster-specific features have been removed / not implemented.
 * Lag compensation
 * Variable tick rate
 * Shadow lights
-* Fog
 * Weapon wheel
 * Damage indicators
 * POIs

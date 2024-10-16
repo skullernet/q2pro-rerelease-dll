@@ -1048,6 +1048,12 @@ static inline float lerp(float a, float b, float f)
     return a * (1.0f - f) + b * f;
 }
 
+static inline void lerp_values(const void *from, const void *to, float frac, void *out, int count)
+{
+    for (int i = 0; i < count; i++)
+        ((float *)out)[i] = lerp(((const float *)from)[i], ((const float *)to)[i], frac);
+}
+
 // uniform float [0, 1)
 static inline float frandom(void)
 {
@@ -2277,6 +2283,13 @@ struct gclient_s {
     bool awaiting_respawn;
     gtime_t respawn_timeout; // after this time, force a respawn
 
+    // [Paril-KEX] fog that we want to achieve; density rgb skyfogfactor
+    player_fog_t start_fog, wanted_fog;
+    player_heightfog_t start_heightfog, wanted_heightfog;
+    // copied from last touched trigger
+    gtime_t fog_transition_start;
+    gtime_t fog_transition_end;
+
     gtime_t  last_attacker_time;
     // saved - for coop; last time we were in a firing state
     gtime_t  last_firing_time;
@@ -2462,6 +2475,10 @@ struct edict_s {
     edict_t *disintegrator;
     gtime_t disintegrator_time;
     int hackflags; // n64
+
+    // fog stuff
+    player_fog_t fog_off, fog;
+    player_heightfog_t heightfog_off, heightfog;
 
     // instanced coop items
     byte    item_picked_up_by[MAX_CLIENTS / 8];

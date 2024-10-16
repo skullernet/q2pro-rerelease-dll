@@ -1756,6 +1756,8 @@ void PutClientInServer(edict_t *ent)
         client->awaiting_respawn = true;
         client->ps.pmove.pm_type = PM_FREEZE;
         client->ps.rdflags = RDF_NONE;
+        client->wanted_fog = client->ps.fog = world->fog;
+        client->wanted_heightfog = client->ps.heightfog = world->heightfog;
         ent->deadflag = false;
         ent->solid = SOLID_NOT;
         ent->movetype = MOVETYPE_NOCLIP;
@@ -1886,6 +1888,10 @@ void PutClientInServer(edict_t *ent)
     ent->s.frame = 0;
 
     PutClientOnSpawnPoint(ent, spawn_origin, spawn_angles);
+
+    // [Paril-KEX] set up world fog & send it instantly
+    client->wanted_fog = client->ps.fog = world->fog;
+    client->wanted_heightfog = client->ps.heightfog = world->heightfog;
 
     // ZOID
     if (CTFStartClient(ent))

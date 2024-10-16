@@ -506,6 +506,28 @@ static const spawn_field_t entity_fields[] = {
     { "effects", FOFS(s.effects), F_EFFECTS },
     { "renderfx", FOFS(s.renderfx), F_INT },
 
+    // [Paril-KEX] fog keys
+    { "fog_color", FOFS(fog.color), F_VECTOR },
+    { "fog_color_off", FOFS(fog_off.color), F_VECTOR },
+    { "fog_density", FOFS(fog.density), F_FLOAT },
+    { "fog_density_off", FOFS(fog_off.density), F_FLOAT },
+    { "fog_sky_factor", FOFS(fog.sky_factor), F_FLOAT },
+    { "fog_sky_factor_off", FOFS(fog_off.sky_factor), F_FLOAT },
+
+    { "heightfog_falloff", FOFS(heightfog.falloff), F_FLOAT },
+    { "heightfog_density", FOFS(heightfog.density), F_FLOAT },
+    { "heightfog_start_color", FOFS(heightfog.start.color), F_VECTOR },
+    { "heightfog_start_dist", FOFS(heightfog.start.dist), F_FLOAT },
+    { "heightfog_end_color", FOFS(heightfog.end.color), F_VECTOR },
+    { "heightfog_end_dist", FOFS(heightfog.end.dist), F_FLOAT },
+
+    { "heightfog_falloff_off", FOFS(heightfog_off.falloff), F_FLOAT },
+    { "heightfog_density_off", FOFS(heightfog_off.density), F_FLOAT },
+    { "heightfog_start_color_off", FOFS(heightfog_off.start.color), F_VECTOR },
+    { "heightfog_start_dist_off", FOFS(heightfog_off.start.dist), F_FLOAT },
+    { "heightfog_end_color_off", FOFS(heightfog_off.end.color), F_VECTOR },
+    { "heightfog_end_dist_off", FOFS(heightfog_off.end.dist), F_FLOAT },
+
     // [Paril-KEX] func_eye stuff
     { "eye_position", FOFS(move_origin), F_VECTOR },
     { "vision_cone", FOFS(yaw_speed), F_FLOAT },
@@ -796,8 +818,6 @@ void ED_ParseField(const char *key, const char *value, edict_t *ent)
     int i;
 
     if (!Q_strncasecmp(key, "shadowlight", 11))
-        return;
-    if (!Q_strncasecmp(key, "fog_", 4) || !Q_strncasecmp(key, "heightfog_", 10))
         return;
 
     // check st first

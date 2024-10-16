@@ -59,6 +59,8 @@ typedef enum {
     F_MONSTERINFO,
     F_REINFORCEMENTS,
     F_BMODEL_ANIM,
+    F_PLAYER_FOG,
+    F_PLAYER_HEIGHTFOG,
     F_LEVEL_ENTRY,
 } fieldtype_t;
 
@@ -273,6 +275,25 @@ static const save_field_t bmodel_anim_fields[] = {
 #undef _OFS
 };
 
+static const save_field_t player_fog_fields[] = {
+#define _OFS(x) q_offsetof(player_fog_t, x)
+    V(color),
+    F(density),
+    F(sky_factor),
+#undef _OFS
+};
+
+static const save_field_t player_heightfog_fields[] = {
+#define _OFS(x) q_offsetof(player_heightfog_t, x)
+    V(start.color),
+    F(start.dist),
+    V(end.color),
+    F(end.dist),
+    F(density),
+    F(falloff),
+#undef _OFS
+};
+
 static const save_field_t entityfields[] = {
 #define _OFS FOFS
     V(s.origin),
@@ -435,6 +456,12 @@ static const save_field_t entityfields[] = {
     E(disintegrator),
     T(disintegrator_time),
     H(hackflags),
+
+    F_(F_PLAYER_FOG, fog_off),
+    F_(F_PLAYER_FOG, fog),
+
+    F_(F_PLAYER_HEIGHTFOG, heightfog_off),
+    F_(F_PLAYER_HEIGHTFOG, heightfog),
 
     BA(item_picked_up_by, MAX_CLIENTS / 8),
     T(slime_debounce_time),
@@ -659,6 +686,9 @@ static const save_field_t clientfields[] = {
     E(sound2_entity),
     T(sound2_entity_time),
 
+    F_(F_PLAYER_FOG, wanted_fog),
+    F_(F_PLAYER_HEIGHTFOG, wanted_heightfog),
+
     T(last_firing_time),
 #undef _OFS
 };
@@ -708,6 +738,8 @@ static const union {
     moveinfo_t moveinfo;
     monsterinfo_t monsterinfo;
     bmodel_anim_t bmodel_anim;
+    player_fog_t player_fog;
+    player_heightfog_t player_heightfog;
     level_entry_t level_entries[MAX_LEVELS_PER_UNIT];
     int inventory[IT_TOTAL];
     int16_t max_ammo[AMMO_MAX];
@@ -1009,6 +1041,16 @@ static void write_field(const save_field_t *field, void *base)
     case F_BMODEL_ANIM:
         if (memcmp(p, &empty.bmodel_anim, sizeof(empty.bmodel_anim)))
             write_fields(field->name, bmodel_anim_fields, q_countof(bmodel_anim_fields), p);
+        break;
+
+    case F_PLAYER_FOG:
+        if (memcmp(p, &empty.player_fog, sizeof(empty.player_fog)))
+            write_fields(field->name, player_fog_fields, q_countof(player_fog_fields), p);
+        break;
+
+    case F_PLAYER_HEIGHTFOG:
+        if (memcmp(p, &empty.player_heightfog, sizeof(empty.player_heightfog)))
+            write_fields(field->name, player_heightfog_fields, q_countof(player_heightfog_fields), p);
         break;
 
     case F_LEVEL_ENTRY:
@@ -1519,6 +1561,14 @@ static void read_field(const save_field_t *field, void *base)
 
     case F_BMODEL_ANIM:
         read_fields(bmodel_anim_fields, q_countof(bmodel_anim_fields), p);
+        break;
+
+    case F_PLAYER_FOG:
+        read_fields(player_fog_fields, q_countof(player_fog_fields), p);
+        break;
+
+    case F_PLAYER_HEIGHTFOG:
+        read_fields(player_heightfog_fields, q_countof(player_heightfog_fields), p);
         break;
 
     case F_LEVEL_ENTRY:

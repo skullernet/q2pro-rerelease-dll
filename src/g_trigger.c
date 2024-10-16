@@ -950,6 +950,72 @@ with respect to angles.
 
 void TOUCH(trigger_fog_touch)(edict_t *self, edict_t *other, const trace_t *tr, bool other_touching_self)
 {
+    if (!other->client)
+        return;
+
+    if (self->timestamp > level.time)
+        return;
+
+    self->timestamp = level.time + SEC(self->wait);
+
+    edict_t *fog_value_storage = self;
+
+    if (self->movetarget)
+        fog_value_storage = self->movetarget;
+
+    if (self->spawnflags & SPAWNFLAG_FOG_INSTANTANEOUS) {
+        other->client->fog_transition_end   = 0;
+        other->client->fog_transition_start = 0;
+    } else if (other->client->fog_transition_end <= level.time) {
+        other->client->fog_transition_end   = level.time + SEC(fog_value_storage->delay);
+        other->client->fog_transition_start = level.time;
+        other->client->start_fog            = other->client->ps.fog;
+        other->client->start_heightfog      = other->client->ps.heightfog;
+    }
+
+    if (self->spawnflags & SPAWNFLAG_FOG_BLEND) {
+        vec3_t center, half_size, start, end, player_dist;
+
+        VectorAvg(self->absmin, self->absmax, center);
+        VectorAvg(self->size, other->size, half_size);
+        VectorVectorScale(half_size, self->movedir, end);
+        VectorNegate(end, start);
+        VectorSubtract(other->s.origin, center, player_dist);
+        player_dist[0] *= fabsf(self->movedir[0]);
+        player_dist[1] *= fabsf(self->movedir[1]);
+        player_dist[2] *= fabsf(self->movedir[2]);
+
+        float frac = Q_clipf(Distance(player_dist, start) / Distance(end, start), 0, 1);
+
+        if (self->spawnflags & SPAWNFLAG_FOG_AFFECT_FOG)
+            lerp_values(&fog_value_storage->fog_off, &fog_value_storage->fog, frac,
+                        &other->client->wanted_fog, sizeof(other->client->wanted_fog) / sizeof(float));
+
+        if (self->spawnflags & SPAWNFLAG_FOG_AFFECT_HEIGHTFOG)
+            lerp_values(&fog_value_storage->heightfog_off, &fog_value_storage->heightfog, frac,
+                        &other->client->wanted_heightfog, sizeof(other->client->wanted_heightfog) / sizeof(float));
+
+        return;
+    }
+
+    bool use_on = true;
+
+    if (!(self->spawnflags & SPAWNFLAG_FOG_FORCE)) {
+        vec3_t forward;
+
+        // not moving enough to trip; this is so we don't trip
+        // the wrong direction when on an elevator, etc.
+        if (VectorNormalize2(other->velocity, forward) <= 0.0001f)
+            return;
+
+        use_on = DotProduct(forward, self->movedir) > 0;
+    }
+
+    if (self->spawnflags & SPAWNFLAG_FOG_AFFECT_FOG)
+        other->client->wanted_fog = use_on ? fog_value_storage->fog : fog_value_storage->fog_off;
+
+    if (self->spawnflags & SPAWNFLAG_FOG_AFFECT_HEIGHTFOG)
+        other->client->wanted_heightfog = use_on ? fog_value_storage->heightfog : fog_value_storage->heightfog_off;
 }
 
 void SP_trigger_fog(edict_t *self)

@@ -1123,6 +1123,24 @@ newanim:
     }
 }
 
+static void P_SetClientFog(edict_t *ent)
+{
+    if (ent->client->fog_transition_end <= level.time) {
+        ent->client->ps.fog = ent->client->wanted_fog;
+        ent->client->ps.heightfog = ent->client->wanted_heightfog;
+        return;
+    }
+
+    float frac = (float)(level.time - ent->client->fog_transition_start) /
+        (ent->client->fog_transition_end - ent->client->fog_transition_start);
+
+    lerp_values(&ent->client->start_fog, &ent->client->wanted_fog, frac,
+                &ent->client->ps.fog, sizeof(ent->client->ps.fog) / sizeof(float));
+
+    lerp_values(&ent->client->start_heightfog, &ent->client->wanted_heightfog, frac,
+                &ent->client->ps.heightfog, sizeof(ent->client->ps.heightfog) / sizeof(float));
+}
+
 // [Paril-KEX]
 static void P_RunMegaHealth(edict_t *ent)
 {
@@ -1298,6 +1316,8 @@ void ClientEndServerFrame(edict_t *ent)
     G_SetClientSound(ent);
 
     G_SetClientFrame(ent);
+
+    P_SetClientFog(ent);
 
     VectorCopy(ent->velocity, ent->client->oldvelocity);
     VectorCopy(ent->client->ps.viewangles, ent->client->oldviewangles);
