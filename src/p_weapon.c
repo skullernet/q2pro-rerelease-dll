@@ -433,27 +433,25 @@ void Think_Weapon(edict_t *ent)
     // call active weapon think routine
     Weapon_RunThink(ent);
 
-#if 0
     // check remainder from haste; on 100ms/50ms server frames we may have
     // 'run next frame in' times that we can't possibly catch up to,
     // so we have to run them now.
-    if (33_ms < FRAME_TIME) {
+    if (MSEC(33) < FRAME_TIME) {
         gtime_t relative_time = Weapon_AnimationTime(ent);
 
         if (relative_time < FRAME_TIME) {
             // check how many we can't run before the next server tick
             gtime_t next_frame = level.time + FRAME_TIME;
-            int64_t remaining_ms = (next_frame - ent->client->weapon_think_time).milliseconds();
+            int64_t remaining_ms = TO_MSEC(next_frame - ent->client->weapon_think_time);
 
             while (remaining_ms > 0) {
                 ent->client->weapon_think_time -= relative_time;
                 ent->client->weapon_fire_finished -= relative_time;
                 Weapon_RunThink(ent);
-                remaining_ms -= relative_time.milliseconds();
+                remaining_ms -= TO_MSEC(relative_time);
             }
         }
     }
-#endif
 }
 
 typedef enum {
