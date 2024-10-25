@@ -1,2 +1,2 @@
 option('zlib', type: 'feature', value: 'auto', description: 'zlib support')
-option('variable-fps', type: 'boolean', value: 'false', description: 'Variable server FPS support')
+option('variable-fps', type: 'boolean', value: false, description: 'Variable server FPS support')
