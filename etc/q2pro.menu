@@ -136,6 +136,8 @@ begin effects
     toggle "ground shadows" gl_shadows
     toggle "screen blending" gl_polyblend
     toggle "screen warping" gl_waterwarp
+    toggle "fog" gl_fog
+    toggle "bloom" gl_bloom
     toggle "grenade explosions" cl_disable_explosions ~0
     toggle "rocket explosions" cl_disable_explosions ~1
     blank
