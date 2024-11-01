@@ -223,11 +223,12 @@ static void WidowSpawn(edict_t *self)
 
         self->monsterinfo.monster_used++;
         ent->monsterinfo.commander = self;
+        ent->monsterinfo.slots_from_commander = 1;
 
         ent->nextthink = level.time;
         ent->think(ent);
 
-        ent->monsterinfo.aiflags |= AI_SPAWNED_WIDOW | AI_DO_NOT_COUNT | AI_IGNORE_SHOTS;
+        ent->monsterinfo.aiflags |= AI_SPAWNED_COMMANDER | AI_DO_NOT_COUNT | AI_IGNORE_SHOTS;
 
         if (!coop->integer) {
             designated_enemy = self->enemy;

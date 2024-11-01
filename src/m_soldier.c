@@ -22,6 +22,15 @@ static int sound_death;
 static int sound_death_ss;
 static int sound_cock;
 
+enum { Blaster, Shotgun, Machinegun, Ripper, BlueHyper, Laser };
+
+#define soldier_style() ((self->count / 2) + (self->style * 3))
+
+#define is_xatrix()     (soldier_style() >= Ripper)
+#define is_light()      (soldier_style() == Blaster    || soldier_style() == Ripper)
+#define is_blitz()      (soldier_style() == Shotgun    || soldier_style() == BlueHyper)
+#define is_sustain()    (soldier_style() == Machinegun || soldier_style() == Laser)
+
 static void soldier_start_charge(edict_t *self)
 {
     self->monsterinfo.aiflags |= AI_CHARGING;
@@ -50,18 +59,16 @@ static void soldier_cock(edict_t *self)
 }
 
 // RAFAEL
-static void soldierh_hyper_laser_sound_start(edict_t *self)
+static void soldierh_hyper_sound_start(edict_t *self)
 {
-    if (self->style == 1) {
-        if (self->count >= 2 && self->count < 4)
-            self->monsterinfo.weapon_sound = gi.soundindex("weapons/hyprbl1a.wav");
-    }
+    if (soldier_style() == BlueHyper)
+        self->monsterinfo.weapon_sound = gi.soundindex("weapons/hyprbl1a.wav");
 }
 
-static void soldierh_hyper_laser_sound_end(edict_t *self)
+static void soldierh_hyper_sound_end(edict_t *self)
 {
     if (self->monsterinfo.weapon_sound) {
-        if (self->count >= 2 && self->count < 4)
+        if (soldier_style() == BlueHyper)
             gi.sound(self, CHAN_AUTO, gi.soundindex("weapons/hyprbd1a.wav"), 1, ATTN_NORM, 0);
 
         self->monsterinfo.weapon_sound = 0;
@@ -212,7 +219,7 @@ void MONSTERINFO_STAND(soldier_stand)(edict_t *self)
         M_SetAnimation(self, &soldier_move_stand2);
     else
         M_SetAnimation(self, &soldier_move_stand3);
-    soldierh_hyper_laser_sound_end(self);
+    soldierh_hyper_sound_end(self);
 }
 
 //
@@ -316,7 +323,7 @@ const mmove_t MMOVE_T(soldier_move_run) = { FRAME_run03, FRAME_run08, soldier_fr
 void MONSTERINFO_RUN(soldier_run)(edict_t *self)
 {
     monster_done_dodge(self);
-    soldierh_hyper_laser_sound_end(self);
+    soldierh_hyper_sound_end(self);
 
     if (self->monsterinfo.aiflags & AI_STAND_GROUND) {
         M_SetAnimation(self, &soldier_move_stand1);
@@ -402,7 +409,6 @@ const mmove_t MMOVE_T(soldier_move_pain4) = { FRAME_pain401, FRAME_pain417, sold
 void PAIN(soldier_pain)(edict_t *self, edict_t *other, float kick, int damage, mod_t mod)
 {
     float r;
-    int   n;
 
     monster_done_dodge(self);
     soldier_stop_charge(self);
@@ -416,17 +422,16 @@ void PAIN(soldier_pain)(edict_t *self, edict_t *other, float kick, int damage, m
             if (self->monsterinfo.aiflags & AI_DUCKED)
                 monster_duck_up(self);
             M_SetAnimation(self, &soldier_move_pain4);
-            soldierh_hyper_laser_sound_end(self);
+            soldierh_hyper_sound_end(self);
         }
         return;
     }
 
     self->pain_debounce_time = level.time + SEC(3);
 
-    n = self->count | 1;
-    if (n == 1)
+    if (is_light())
         gi.sound(self, CHAN_VOICE, sound_pain_light, 1, ATTN_NORM, 0);
-    else if (n == 3)
+    else if (is_blitz())
         gi.sound(self, CHAN_VOICE, sound_pain, 1, ATTN_NORM, 0);
     else
         gi.sound(self, CHAN_VOICE, sound_pain_ss, 1, ATTN_NORM, 0);
@@ -436,7 +441,7 @@ void PAIN(soldier_pain)(edict_t *self, edict_t *other, float kick, int damage, m
         if (self->monsterinfo.aiflags & AI_DUCKED)
             monster_duck_up(self);
         M_SetAnimation(self, &soldier_move_pain4);
-        soldierh_hyper_laser_sound_end(self);
+        soldierh_hyper_sound_end(self);
         return;
     }
 
@@ -455,7 +460,7 @@ void PAIN(soldier_pain)(edict_t *self, edict_t *other, float kick, int damage, m
     // PMM - clear duck flag
     if (self->monsterinfo.aiflags & AI_DUCKED)
         monster_duck_up(self);
-    soldierh_hyper_laser_sound_end(self);
+    soldierh_hyper_sound_end(self);
 }
 
 void MONSTERINFO_SETSKIN(soldier_setskin)(edict_t *self)
@@ -488,92 +493,17 @@ static const uint16_t machinegun_flash[] = {
     MZ2_SOLDIER_MACHINEGUN_7, MZ2_SOLDIER_MACHINEGUN_8, MZ2_SOLDIER_MACHINEGUN_9
 };
 
-static void soldier_fire_vanilla(edict_t *self, int flash_number, bool angle_limited)
-{
-    vec3_t                   start;
-    vec3_t                   forward, right, up;
-    vec3_t                   aim;
-    vec3_t                   dir;
-    vec3_t                   end;
-    float                    r, u;
-    monster_muzzleflash_id_t flash_index;
-    vec3_t                   aim_norm;
+static const uint16_t ripper_flash[] = {
+    MZ2_SOLDIER_RIPPER_1, MZ2_SOLDIER_RIPPER_2, MZ2_SOLDIER_RIPPER_3,
+    MZ2_SOLDIER_RIPPER_4, MZ2_SOLDIER_RIPPER_5, MZ2_SOLDIER_RIPPER_6,
+    MZ2_SOLDIER_RIPPER_7, MZ2_SOLDIER_RIPPER_8, MZ2_SOLDIER_RIPPER_9
+};
 
-    if (self->count < 2)
-        flash_index = blaster_flash[flash_number];
-    else if (self->count < 4)
-        flash_index = shotgun_flash[flash_number];
-    else
-        flash_index = machinegun_flash[flash_number];
-
-    AngleVectors(self->s.angles, forward, right, NULL);
-    M_ProjectFlashSource(self, monster_flash_offset[flash_index], forward, right, start);
-
-    if (flash_number == 5 || flash_number == 6) { // he's dead
-        if (self->spawnflags & SPAWNFLAG_MONSTER_DEAD)
-            return;
-
-        VectorCopy(forward, aim);
-    } else {
-        if ((!self->enemy) || (!self->enemy->inuse)) {
-            self->monsterinfo.aiflags &= ~AI_HOLD_FRAME;
-            return;
-        }
-
-        // PMM
-        if (self->monsterinfo.attack_state == AS_BLIND)
-            VectorCopy(self->monsterinfo.blind_fire_target, end);
-        else
-            VectorCopy(self->enemy->s.origin, end);
-        // pmm
-        end[2] += self->enemy->viewheight;
-        VectorSubtract(end, start, aim);
-        // PMM
-        if (angle_limited) {
-            VectorNormalize2(aim, aim_norm);
-            if (DotProduct(aim_norm, forward) < 0.5f) { // ~25 degree angle
-                if (level.time >= self->monsterinfo.fire_wait)
-                    self->monsterinfo.aiflags &= ~AI_HOLD_FRAME;
-                else
-                    self->monsterinfo.aiflags |= AI_HOLD_FRAME;
-
-                return;
-            }
-        }
-        //-PMM
-        vectoangles(aim, dir);
-        AngleVectors(dir, forward, right, up);
-
-        r = crandom() * 1000;
-        u = crandom() * 500;
-
-        VectorMA(start, 8192, forward, end);
-        VectorMA(end, r, right, end);
-        VectorMA(end, u, up, end);
-
-        VectorSubtract(end, start, aim);
-        VectorNormalize(aim);
-    }
-
-    if (self->count <= 1) {
-        monster_fire_blaster(self, start, aim, 5, 600, flash_index, EF_BLASTER);
-    } else if (self->count <= 3) {
-        monster_fire_shotgun(self, start, aim, 2, 1, 1500, 750, 9, flash_index);
-        // [Paril-KEX] indicates to soldier that he must cock
-        self->dmg = 1;
-    } else {
-        // PMM - changed to wait from pausetime to not interfere with dodge code
-        if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
-            self->monsterinfo.fire_wait = level.time + random_time_sec(0.3f, 1.1f);
-
-        monster_fire_bullet(self, start, aim, 2, 4, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, flash_index);
-
-        if (level.time >= self->monsterinfo.fire_wait)
-            self->monsterinfo.aiflags &= ~AI_HOLD_FRAME;
-        else
-            self->monsterinfo.aiflags |= AI_HOLD_FRAME;
-    }
-}
+static const uint16_t hyper_flash[] = {
+    MZ2_SOLDIER_HYPERGUN_1, MZ2_SOLDIER_HYPERGUN_2, MZ2_SOLDIER_HYPERGUN_3,
+    MZ2_SOLDIER_HYPERGUN_4, MZ2_SOLDIER_HYPERGUN_5, MZ2_SOLDIER_HYPERGUN_6,
+    MZ2_SOLDIER_HYPERGUN_7, MZ2_SOLDIER_HYPERGUN_8, MZ2_SOLDIER_HYPERGUN_9
+};
 
 void PRETHINK(soldierh_laser_update)(edict_t *laser)
 {
@@ -603,20 +533,11 @@ static void soldierh_laserbeam(edict_t *self, int flash_index)
     self->radius_dmg = flash_index;
     monster_fire_dabeam(self, 1, false, soldierh_laser_update);
 }
+// RAFAEL
 
-static const uint16_t ripper_flash[] = {
-    MZ2_SOLDIER_RIPPER_1, MZ2_SOLDIER_RIPPER_2, MZ2_SOLDIER_RIPPER_3,
-    MZ2_SOLDIER_RIPPER_4, MZ2_SOLDIER_RIPPER_5, MZ2_SOLDIER_RIPPER_6,
-    MZ2_SOLDIER_RIPPER_7, MZ2_SOLDIER_RIPPER_8, MZ2_SOLDIER_RIPPER_9
-};
+bool M_AdjustBlindfireTarget(edict_t *self, const vec3_t start, const vec3_t target, const vec3_t right, vec3_t out_dir);
 
-static const uint16_t hyper_flash[] = {
-    MZ2_SOLDIER_HYPERGUN_1, MZ2_SOLDIER_HYPERGUN_2, MZ2_SOLDIER_HYPERGUN_3,
-    MZ2_SOLDIER_HYPERGUN_4, MZ2_SOLDIER_HYPERGUN_5, MZ2_SOLDIER_HYPERGUN_6,
-    MZ2_SOLDIER_HYPERGUN_7, MZ2_SOLDIER_HYPERGUN_8, MZ2_SOLDIER_HYPERGUN_9
-};
-
-static void soldier_fire_xatrix(edict_t *self, int flash_number, bool angle_limited)
+static void soldier_fire(edict_t *self, int flash_number, bool angle_limited)
 {
     vec3_t                   start;
     vec3_t                   forward, right, up;
@@ -627,17 +548,28 @@ static void soldier_fire_xatrix(edict_t *self, int flash_number, bool angle_limi
     monster_muzzleflash_id_t flash_index;
     vec3_t                   aim_norm;
 
-    if (self->count < 2)
-        flash_index = ripper_flash[flash_number]; // ripper
-    else if (self->count < 4)
-        flash_index = hyper_flash[flash_number]; // hyperblaster
-    else
-        flash_index = machinegun_flash[flash_number]; // laserbeam
+    switch (soldier_style()) {
+    case Blaster:
+        flash_index = blaster_flash[flash_number];
+        break;
+    case Shotgun:
+        flash_index = shotgun_flash[flash_number];
+        break;
+    case Ripper:
+        flash_index = ripper_flash[flash_number];
+        break;
+    case BlueHyper:
+        flash_index = hyper_flash[flash_number];
+        break;
+    default:
+        flash_index = machinegun_flash[flash_number];
+        break;
+    }
 
     AngleVectors(self->s.angles, forward, right, NULL);
     M_ProjectFlashSource(self, monster_flash_offset[flash_index], forward, right, start);
 
-    if (flash_number == 5 || flash_number == 6) {
+    if (flash_number == 5 || flash_number == 6) { // he's dead
         if (self->spawnflags & SPAWNFLAG_MONSTER_DEAD)
             return;
 
@@ -650,14 +582,16 @@ static void soldier_fire_xatrix(edict_t *self, int flash_number, bool angle_limi
         }
 
         // PMM
-        if (self->monsterinfo.attack_state == AS_BLIND)
+        if (self->monsterinfo.aiflags & AI_MANUAL_STEERING)
             VectorCopy(self->monsterinfo.blind_fire_target, end);
         else
             VectorCopy(self->enemy->s.origin, end);
         // pmm
         end[2] += self->enemy->viewheight;
-
         VectorSubtract(end, start, aim);
+
+        if (self->monsterinfo.aiflags & AI_MANUAL_STEERING)
+            M_AdjustBlindfireTarget(self, start, end, right, dir);
 
         // PMM
         if (angle_limited) {
@@ -676,8 +610,14 @@ static void soldier_fire_xatrix(edict_t *self, int flash_number, bool angle_limi
         vectoangles(aim, dir);
         AngleVectors(dir, forward, right, up);
 
-        r = crandom() * 100;
-        u = crandom() * 50;
+        r = crandom() * 1000;
+        u = crandom() * 500;
+
+        if (is_xatrix()) {
+            r /= 10;
+            u /= 10;
+        }
+
         VectorMA(start, 8192, forward, end);
         VectorMA(end, r, right, end);
         VectorMA(end, u, up, end);
@@ -686,35 +626,42 @@ static void soldier_fire_xatrix(edict_t *self, int flash_number, bool angle_limi
         VectorNormalize(aim);
     }
 
-    if (self->count <= 1) {
+    switch (soldier_style()) {
+    case Ripper:
         // RAFAEL 24-APR-98
         // droped the damage from 15 to 5
         monster_fire_ionripper(self, start, aim, 5, 600, flash_index, EF_IONRIPPER);
-    } else if (self->count <= 3) {
+        break;
+    case BlueHyper:
         monster_fire_blueblaster(self, start, aim, 1, 600, flash_index, EF_BLUEHYPERBLASTER);
-    } else {
+        break;
+    case Blaster:
+        monster_fire_blaster(self, start, aim, 5, 600, flash_index, EF_BLASTER);
+        break;
+    case Shotgun:
+        monster_fire_shotgun(self, start, aim, 2, 1, 1500, 750, 9, flash_index);
+        // [Paril-KEX] indicates to soldier that he must cock
+        self->dmg = 1;
+        break;
+    default:
         // PMM - changed to wait from pausetime to not interfere with dodge code
         if (!(self->monsterinfo.aiflags & AI_HOLD_FRAME))
             self->monsterinfo.fire_wait = level.time + random_time_sec(0.3f, 1.1f);
 
-        soldierh_laserbeam(self, flash_index);
-
-        if (level.time >= self->monsterinfo.fire_wait)
-            self->monsterinfo.aiflags &= ~AI_HOLD_FRAME;
+        if (soldier_style() == Laser)
+            soldierh_laserbeam(self, flash_index);
         else
-            self->monsterinfo.aiflags |= AI_HOLD_FRAME;
-    }
-}
-// RAFAEL
+            monster_fire_bullet(self, start, aim, 2, 4, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, flash_index);
 
-static void soldier_fire(edict_t *self, int flash_number, bool angle_limited)
-{
-    // RAFAEL
-    if (self->style == 1)
-        soldier_fire_xatrix(self, flash_number, angle_limited);
-    else
-    // RAFAEL
-        soldier_fire_vanilla(self, flash_number, angle_limited);
+        if (level.time >= self->monsterinfo.fire_wait) {
+            self->monsterinfo.aiflags &= ~AI_HOLD_FRAME;
+
+            if (self->s.frame == FRAME_attak303)
+                self->monsterinfo.nextframe = FRAME_attak306;
+        } else
+            self->monsterinfo.aiflags |= AI_HOLD_FRAME;
+        break;
+    }
 }
 
 // ATTACK1 (blaster/shotgun)
@@ -727,7 +674,7 @@ static void soldier_fire1(edict_t *self)
 static void soldier_attack1_refire1(edict_t *self)
 {
     // [Paril-KEX]
-    if (self->count <= 0)
+    if (is_light())
         self->monsterinfo.nextframe = FRAME_attak110;
 
     // PMM - blindfire
@@ -740,7 +687,7 @@ static void soldier_attack1_refire1(edict_t *self)
     if (!self->enemy)
         return;
 
-    if (self->count > 1)
+    if (!is_light())
         return;
 
     if (self->enemy->health <= 0)
@@ -757,7 +704,7 @@ static void soldier_attack1_refire2(edict_t *self)
     if (!self->enemy)
         return;
 
-    if (self->count < 2)
+    if (is_light())
         return;
 
     if (self->enemy->health <= 0)
@@ -809,19 +756,19 @@ static void soldierh_hyper_refire1(edict_t *self)
     if (!self->enemy)
         return;
 
-    if (self->count >= 2 && self->count < 4 && frandom() < 0.7f && visible(self, self->enemy))
+    if (soldier_style() == BlueHyper && frandom() < 0.7f && visible(self, self->enemy))
         self->s.frame = FRAME_attak103;
 }
 
 static void soldierh_hyperripper1(edict_t *self)
 {
-    if (self->count < 4)
+    if (!is_sustain())
         soldier_fire(self, 0, false);
 }
 
 static const mframe_t soldierh_frames_attack1[] = {
     { ai_charge, 0, soldier_blind_check },
-    { ai_charge, 0, soldierh_hyper_laser_sound_start },
+    { ai_charge, 0, soldierh_hyper_sound_start },
     { ai_charge, 0, soldier_fire1 },
     { ai_charge, 0, soldierh_hyperripper1 },
     { ai_charge, 0, soldierh_hyperripper1 },
@@ -829,7 +776,7 @@ static const mframe_t soldierh_frames_attack1[] = {
     { ai_charge, 0, soldierh_hyper_refire1 },
     { ai_charge, 0, soldier_cock },
     { ai_charge, 0, soldier_attack1_refire2 },
-    { ai_charge, 0, soldierh_hyper_laser_sound_end },
+    { ai_charge, 0, soldierh_hyper_sound_end },
     { ai_charge },
     { ai_charge }
 };
@@ -844,13 +791,13 @@ static void soldier_fire2(edict_t *self)
 
 static void soldier_attack2_refire1(edict_t *self)
 {
-    if (self->count <= 0)
+    if (is_light())
         self->monsterinfo.nextframe = FRAME_attak216;
 
     if (!self->enemy)
         return;
 
-    if (self->count > 1)
+    if (!is_light())
         return;
 
     if (self->enemy->health <= 0)
@@ -865,15 +812,15 @@ static void soldier_attack2_refire2(edict_t *self)
     if (!self->enemy)
         return;
 
-    if (self->count < 2)
+    if (is_light())
         return;
 
     if (self->enemy->health <= 0)
         return;
 
     // RAFAEL
-    if (((self->radius_dmg || brandom()) && visible(self, self->enemy)) || ((self->style == 0 || self->count < 4) && (range_to(self, self->enemy) <= RANGE_MELEE))) {
-        // RAFAEL
+    if (((self->radius_dmg || brandom()) && visible(self, self->enemy)) || (range_to(self, self->enemy) <= RANGE_MELEE)) {
+    // RAFAEL
         self->monsterinfo.nextframe = FRAME_attak204;
         self->radius_dmg = 0;
     }
@@ -916,13 +863,13 @@ static void soldierh_hyper_refire2(edict_t *self)
     if (!self->enemy)
         return;
 
-    if (self->count >= 2 && self->count < 4 && frandom() < 0.7f && visible(self, self->enemy))
+    if (is_blitz() && frandom() < 0.7f && visible(self, self->enemy))
         self->s.frame = FRAME_attak205;
 }
 
 static void soldierh_hyperripper2(edict_t *self)
 {
-    if (self->count < 4)
+    if (!is_sustain())
         soldier_fire(self, 1, false);
 }
 
@@ -930,7 +877,7 @@ static const mframe_t soldierh_frames_attack2[] = {
     { ai_charge },
     { ai_charge },
     { ai_charge },
-    { ai_charge, 0, soldierh_hyper_laser_sound_start },
+    { ai_charge, 0, soldierh_hyper_sound_start },
     { ai_charge, 0, soldier_fire2 },
     { ai_charge, 0, soldierh_hyperripper2 },
     { ai_charge, 0, soldierh_hyperripper2 },
@@ -942,7 +889,7 @@ static const mframe_t soldierh_frames_attack2[] = {
     { ai_charge, 0, soldier_cock },
     { ai_charge },
     { ai_charge, 0, soldier_attack2_refire2 },
-    { ai_charge, 0, soldierh_hyper_laser_sound_end },
+    { ai_charge, 0, soldierh_hyper_sound_end },
     { ai_charge },
     { ai_charge }
 };
@@ -957,7 +904,7 @@ static void soldier_fire3(edict_t *self)
 
 static void soldierh_hyperripper3(edict_t *self)
 {
-    if (self->s.skinnum >= 6 && self->count < 4)
+    if (soldier_style() == Ripper || soldier_style() == BlueHyper)
         soldier_fire(self, 2, false);
 }
 
@@ -971,13 +918,13 @@ static void soldier_attack3_refire(edict_t *self)
 
 static const mframe_t soldier_frames_attack3[] = {
     { ai_charge, 0, monster_duck_down },
-    { ai_charge, 0, soldierh_hyper_laser_sound_start },
+    { ai_charge, 0, soldierh_hyper_sound_start },
     { ai_charge, 0, soldier_fire3 },
     { ai_charge, 0, soldierh_hyperripper3 },
     { ai_charge, 0, soldierh_hyperripper3 },
     { ai_charge, 0, soldier_attack3_refire },
     { ai_charge, 0, monster_duck_up },
-    { ai_charge, 0, soldierh_hyper_laser_sound_end },
+    { ai_charge, 0, soldierh_hyper_sound_end },
     { ai_charge }
 };
 const mmove_t MMOVE_T(soldier_move_attack3) = { FRAME_attak301, FRAME_attak309, soldier_frames_attack3, soldier_run };
@@ -991,9 +938,9 @@ static void soldier_fire4(edict_t *self)
 
 static const mframe_t soldier_frames_attack4[] = {
     { ai_charge },
-    { ai_charge, 0, soldierh_hyper_laser_sound_start },
+    { ai_charge, 0, soldierh_hyper_sound_start },
     { ai_charge, 0, soldier_fire4 },
-    { ai_charge, 0, soldierh_hyper_laser_sound_end },
+    { ai_charge, 0, soldierh_hyper_sound_end },
     { ai_charge },
     { ai_charge }
 };
@@ -1015,7 +962,7 @@ static void soldier_attack6_refire1(edict_t *self)
     if (!self->enemy)
         return;
 
-    if (self->count > 1)
+    if (!is_light())
         return;
 
     if (self->enemy->health <= 0 ||
@@ -1037,13 +984,13 @@ static void soldier_attack6_refire2(edict_t *self)
     monster_done_dodge(self);
     soldier_stop_charge(self);
 
-    if (!self->enemy || self->count <= 0)
+    if (!self->enemy || is_light())
         return;
 
     if (self->enemy->health <= 0 ||
         (!self->radius_dmg && range_to(self, self->enemy) < RANGE_NEAR) ||
         !visible(self, self->enemy)) { // don't endlessly run into walls
-        soldierh_hyper_laser_sound_end(self);
+        soldierh_hyper_sound_end(self);
         return;
     }
 
@@ -1059,12 +1006,20 @@ static void soldier_attack6_shotgun_check(edict_t *self)
         self->monsterinfo.nextframe = FRAME_runs09;
         // [Paril-KEX] indicate that we should force a refire
         self->radius_dmg = 1;
+        return;
+    }
+
+    // [Paril-KEX] don't let the shotgun guard fire immediately.
+    if (soldier_style() == Shotgun && !self->sounds) {
+        self->sounds = 1;
+        self->radius_dmg = 1;
+        self->monsterinfo.nextframe = FRAME_runs09;
     }
 }
 
 static void soldierh_hyperripper8(edict_t *self)
 {
-    if (self->s.skinnum >= 6 && self->count < 4)
+    if (soldier_style() == Ripper || soldier_style() == BlueHyper)
         soldier_fire(self, 7, true);
 }
 
@@ -1083,7 +1038,7 @@ static void soldierh_hyperripper8_2(edict_t *self)
 static const mframe_t soldier_frames_attack6[] = {
     { ai_run, 10, soldier_start_charge },
     { ai_run, 4, soldier_attack6_shotgun_check },
-    { ai_run, 12, soldierh_hyper_laser_sound_start },
+    { ai_run, 12, soldierh_hyper_sound_start },
     { ai_run, 11, soldier_fire8_2 },
     { ai_run, 13, soldierh_hyperripper8_2 },
     { ai_run, 18, soldierh_hyperripper8 },
@@ -1100,8 +1055,6 @@ const mmove_t MMOVE_T(soldier_move_attack6) = { FRAME_runs01, FRAME_runs14, sold
 
 void MONSTERINFO_ATTACK(soldier_attack)(edict_t *self)
 {
-    float r;
-
     monster_done_dodge(self);
 
     // PMM - blindfire!
@@ -1131,7 +1084,7 @@ void MONSTERINFO_ATTACK(soldier_attack)(edict_t *self)
         self->monsterinfo.aiflags |= AI_MANUAL_STEERING;
 
         // RAFAEL
-        if (self->style == 1)
+        if (is_xatrix())
             M_SetAnimation(self, &soldierh_move_attack1);
         else
         // RAFAEL
@@ -1141,44 +1094,47 @@ void MONSTERINFO_ATTACK(soldier_attack)(edict_t *self)
     }
     // pmm
 
-    // PMM - added this so the soldiers now run toward you and shoot instead of just stopping and shooting
-    r = frandom();
+    if (is_sustain()) {
+        if (M_CheckClearShot(self, monster_flash_offset[MZ2_SOLDIER_MACHINEGUN_4]))
+            M_SetAnimation(self, &soldier_move_attack4);
+        return;
+    }
 
+    // PMM - added this so the soldiers now run toward you and shoot instead of just stopping and shooting
     // nb: run-shoot not limited by `M_CheckClearShot` since they will be far enough
     // away that it doesn't matter
 
-    if ((!(self->monsterinfo.aiflags & (AI_BLOCKED | AI_STAND_GROUND))) && (r < 0.25f && (self->count <= 3)) && (range_to(self, self->enemy) >= (RANGE_NEAR * 0.5f))) {
+    if (!(self->monsterinfo.aiflags & (AI_BLOCKED | AI_STAND_GROUND)) &&
+        frandom() < 0.25f && range_to(self, self->enemy) >= (RANGE_NEAR * 0.5f))
+    {
+        // [Paril-KEX]
         M_SetAnimation(self, &soldier_move_attack6);
-    } else {
-        if (self->count < 4) {
-            bool attack1_possible;
+        self->sounds = 0;
+        return;
+    }
 
-            // [Paril-KEX] shotgun guard only uses attack2 at close range
-            if ((!self->style && self->count >= 2 && self->count <= 3) && range_to(self, self->enemy) <= (RANGE_NEAR * 0.65f))
-                attack1_possible = false;
-            else
-                attack1_possible = M_CheckClearShot(self, monster_flash_offset[MZ2_SOLDIER_BLASTER_1]);
+    bool attack1_possible = false;
 
-            bool attack2_possible = M_CheckClearShot(self, monster_flash_offset[MZ2_SOLDIER_BLASTER_2]);
+    // [Paril-KEX] shotgun guard only uses attack2 at close range
+    if (soldier_style() != Shotgun || range_to(self, self->enemy) > (RANGE_NEAR * 0.65f))
+        attack1_possible = M_CheckClearShot(self, monster_flash_offset[MZ2_SOLDIER_BLASTER_1]);
 
-            if (attack1_possible && (!attack2_possible || brandom())) {
-                // RAFAEL
-                if (self->style == 1)
-                    M_SetAnimation(self, &soldierh_move_attack1);
-                else
-                    // RAFAEL
-                    M_SetAnimation(self, &soldier_move_attack1);
-            } else if (attack2_possible) {
-                // RAFAEL
-                if (self->style == 1)
-                    M_SetAnimation(self, &soldierh_move_attack2);
-                else
-                    // RAFAEL
-                    M_SetAnimation(self, &soldier_move_attack2);
-            }
-        } else if (M_CheckClearShot(self, monster_flash_offset[MZ2_SOLDIER_MACHINEGUN_4])) {
-            M_SetAnimation(self, &soldier_move_attack4);
-        }
+    bool attack2_possible = M_CheckClearShot(self, monster_flash_offset[MZ2_SOLDIER_BLASTER_2]);
+
+    if (attack1_possible && (!attack2_possible || brandom())) {
+        // RAFAEL
+        if (is_xatrix())
+            M_SetAnimation(self, &soldierh_move_attack1);
+        else
+        // RAFAEL
+            M_SetAnimation(self, &soldier_move_attack1);
+    } else if (attack2_possible) {
+        // RAFAEL
+        if (is_xatrix())
+            M_SetAnimation(self, &soldierh_move_attack2);
+        else
+        // RAFAEL
+            M_SetAnimation(self, &soldier_move_attack2);
     }
 }
 
@@ -1193,18 +1149,15 @@ void MONSTERINFO_SIGHT(soldier_sight)(edict_t *self, edict_t *other)
     else
         gi.sound(self, CHAN_VOICE, sound_sight2, 1, ATTN_NORM, 0);
 
-    if (self->enemy && (range_to(self, self->enemy) >= RANGE_NEAR) && visible(self, self->enemy)) { // Paril: don't run-shoot if we can't see them
+    // Paril: don't run-shoot if we can't see them
+    if (self->enemy && (range_to(self, self->enemy) >= RANGE_NEAR) && visible(self, self->enemy)) {
         // RAFAEL
-        if (self->style == 1 || frandom() > 0.75f) {
+        if (is_xatrix() || frandom() > 0.75f) {
         // RAFAEL
-            // RAFAEL + legacy bug fix
-            // don't use run+shoot for machinegun/laser because
-            // the animation is a bit weird
-            if (self->count < 4)
+            if (!is_sustain()) {
                 M_SetAnimation(self, &soldier_move_attack6);
-            else if (M_CheckClearShot(self, monster_flash_offset[MZ2_SOLDIER_MACHINEGUN_4]))
-            // RAFAEL
-                M_SetAnimation(self, &soldier_move_attack4);
+                self->sounds = 0;
+            }
         }
     }
 }
@@ -1225,7 +1178,7 @@ const mmove_t soldier_move_trip;
 
 static void soldier_stand_up(edict_t *self)
 {
-    soldierh_hyper_laser_sound_end(self);
+    soldierh_hyper_sound_end(self);
     M_SetAnimationEx(self, &soldier_move_trip, false);
     self->monsterinfo.nextframe = FRAME_runt08;
 }
@@ -1266,7 +1219,7 @@ static void soldier_fire5(edict_t *self)
 
 static void soldierh_hyperripper5(edict_t *self)
 {
-    if (self->style && self->count < 4)
+    if (soldier_style() == Ripper || soldier_style() == BlueHyper)
         soldier_fire(self, 8, true);
 }
 
@@ -1275,7 +1228,7 @@ static const mframe_t soldier_frames_attack5[] = {
     { ai_move, 11, monster_footstep },
     { ai_move, 0, monster_footstep },
     { ai_soldier_move },
-    { ai_soldier_move, 0, soldierh_hyper_laser_sound_start },
+    { ai_soldier_move, 0, soldierh_hyper_sound_start },
     { ai_soldier_move, 0, soldier_fire5 },
     { ai_soldier_move, 0, soldierh_hyperripper5 },
     { ai_soldier_move, 0, soldierh_hyperripper5 },
@@ -1285,7 +1238,7 @@ const mmove_t MMOVE_T(soldier_move_attack5) = { FRAME_attak501, FRAME_attak508, 
 static void monster_check_prone(edict_t *self)
 {
     // we're a shotgun guard waiting to cock
-    if (!self->style && self->count >= 2 && self->count <= 3 && self->dmg)
+    if (soldier_style() == Shotgun && self->dmg)
         return;
 
     // not going to shoot at this angle
@@ -1383,12 +1336,12 @@ static const mframe_t soldier_frames_death1[] = {
     { ai_move },
     { ai_move },
 
-    { ai_move, 0, soldierh_hyper_laser_sound_start },
+    { ai_move, 0, soldierh_hyper_sound_start },
     { ai_move, 0, soldier_fire6 },
     { ai_move },
     { ai_move },
     { ai_move, 0, soldier_fire7 },
-    { ai_move, 0, soldierh_hyper_laser_sound_end },
+    { ai_move, 0, soldierh_hyper_sound_end },
     { ai_move },
     { ai_move },
     { ai_move },
@@ -1619,7 +1572,7 @@ void DIE(soldier_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int 
 {
     int n;
 
-    soldierh_hyper_laser_sound_end(self);
+    soldierh_hyper_sound_end(self);
 
     // check for gib
     if (M_CheckGib(self, mod)) {
@@ -1644,13 +1597,11 @@ void DIE(soldier_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int 
     self->deadflag = true;
     self->takedamage = true;
 
-    n = self->count | 1;
-
-    if (n == 1)
+    if (is_light())
         gi.sound(self, CHAN_VOICE, sound_death_light, 1, ATTN_NORM, 0);
-    else if (n == 3)
+    else if (is_blitz())
         gi.sound(self, CHAN_VOICE, sound_death, 1, ATTN_NORM, 0);
-    else // (n == 5)
+    else
         gi.sound(self, CHAN_VOICE, sound_death_ss, 1, ATTN_NORM, 0);
 
     if (fabsf((self->s.origin[2] + self->viewheight) - point[2]) <= 4 && self->velocity[2] < 65) {
@@ -1698,16 +1649,16 @@ bool MONSTERINFO_SIDESTEP(soldier_sidestep)(edict_t *self)
         self->monsterinfo.active_move == &soldier_move_pain4)
         return false;
 
-    if (self->count <= 3) {
+    if (!is_sustain()) {
         if (self->monsterinfo.active_move != &soldier_move_attack6) {
             M_SetAnimation(self, &soldier_move_attack6);
-            soldierh_hyper_laser_sound_end(self);
+            soldierh_hyper_sound_end(self);
         }
     } else {
         if (self->monsterinfo.active_move != &soldier_move_start_run &&
             self->monsterinfo.active_move != &soldier_move_run) {
             M_SetAnimation(self, &soldier_move_start_run);
-            soldierh_hyper_laser_sound_end(self);
+            soldierh_hyper_sound_end(self);
         }
     }
 
@@ -1717,15 +1668,16 @@ bool MONSTERINFO_SIDESTEP(soldier_sidestep)(edict_t *self)
 bool MONSTERINFO_DUCK(soldier_duck)(edict_t *self, gtime_t eta)
 {
     self->monsterinfo.aiflags &= ~AI_HOLD_FRAME;
+    soldier_stop_charge(self);
 
     if (self->monsterinfo.active_move == &soldier_move_attack6)
         M_SetAnimation(self, &soldier_move_trip);
-    else if (self->dmg || brandom())
+    else if (self->dmg || (is_sustain() ? (frandom() > 0.5f + (skill->integer * 0.12f)) : brandom()))
         M_SetAnimation(self, &soldier_move_duck);
     else
         M_SetAnimation(self, &soldier_move_attack3);
 
-    soldierh_hyper_laser_sound_end(self);
+    soldierh_hyper_sound_end(self);
     return true;
 }
 

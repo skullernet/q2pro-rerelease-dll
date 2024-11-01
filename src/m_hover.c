@@ -282,9 +282,9 @@ static void hover_dying(edict_t *self)
     gi.multicast(self->s.origin, MULTICAST_PHS);
 
     if (brandom())
-        ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", 120, GIB_NONE, self->x.scale);
+        ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", 120, GIB_NONE);
     else
-        ThrowGib(self, "models/objects/gibs/sm_metal/tris.md2", 120, GIB_METALLIC, self->x.scale);
+        ThrowGib(self, "models/objects/gibs/sm_metal/tris.md2", 120, GIB_METALLIC);
 }
 
 static const mframe_t hover_frames_death1[] = {
@@ -531,8 +531,8 @@ static void hover_set_fly_parameters(edict_t *self)
     self->monsterinfo.fly_speed = 120;
     // Icarus prefers to keep its distance, but flies slower than the flyer.
     // he never pins because of this.
-    self->monsterinfo.fly_min_distance = 150;
-    self->monsterinfo.fly_max_distance = 350;
+    self->monsterinfo.fly_min_distance = 250;
+    self->monsterinfo.fly_max_distance = 450;
 }
 
 static void daed_precache(void)

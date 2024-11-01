@@ -48,6 +48,7 @@
 #define SPAWNFLAG_DOOR_ROTATING_Y_AXIS      128
 #define SPAWNFLAG_DOOR_ROTATING_INACTIVE    0x10000 // Paril: moved to non-reserved
 #define SPAWNFLAG_DOOR_ROTATING_SAFE_OPEN   0x20000
+#define SPAWNFLAG_DOOR_ROTATING_NO_COLLISION 0x40000
 
 // support routine for setting moveinfo sounds
 static int G_GetMoveinfoSoundIndex(edict_t *self, const char *default_value, const char *wanted_value)
@@ -587,7 +588,7 @@ void SP_func_plat(edict_t *ent)
     if (!ent->dmg)
         ent->dmg = 2;
 
-    if (!st.lip)
+    if (!ED_WasKeySpecified("lip"))
         st.lip = 8;
 
     // pos1 is the top position, pos2 is the bottom
@@ -1307,8 +1308,14 @@ void TOUCH(Touch_DoorTrigger)(edict_t *self, edict_t *other, const trace_t *tr, 
     if (!(other->svflags & SVF_MONSTER) && (!other->client))
         return;
 
-    if ((self->owner->spawnflags & SPAWNFLAG_DOOR_NOMONSTER) && (other->svflags & SVF_MONSTER))
-        return;
+    if (other->svflags & SVF_MONSTER) {
+        if (self->owner->spawnflags & SPAWNFLAG_DOOR_NOMONSTER)
+            return;
+        // [Paril-KEX] this is for PSX; the scale is so small that monsters walking
+        // around to path_corners often initiate doors unintentionally.
+        if (other->spawnflags & SPAWNFLAG_MONSTER_NO_IDLE_DOORS && !other->enemy)
+            return;
+    }
 
     if (level.time < self->touch_debounce_time)
         return;
@@ -1689,6 +1696,9 @@ void SP_func_door_rotating(edict_t *ent)
         VectorInverse(ent->movedir);
     }
 
+    if (ent->spawnflags & SPAWNFLAG_DOOR_ROTATING_NO_COLLISION)
+        ent->clipmask = CONTENTS_AREAPORTAL; // just because zero is automatic
+
     if (ent->health) {
         ent->takedamage = true;
         ent->die = door_killed;
@@ -2048,6 +2058,22 @@ static void train_resume(edict_t *self)
             for (int i = 0; i < 3; i++)
                 dest[i] -= 1;
     }
+
+    // PGM (Paril)
+    if (ent->speed) {
+        self->speed = ent->speed;
+        self->moveinfo.speed = ent->speed;
+        if (ent->accel)
+            self->moveinfo.accel = ent->accel;
+        else
+            self->moveinfo.accel = ent->speed;
+        if (ent->decel)
+            self->moveinfo.decel = ent->decel;
+        else
+            self->moveinfo.decel = ent->speed;
+        self->moveinfo.current_speed = 0;
+    }
+    // PGM
 
     self->s.sound = self->moveinfo.sound_middle;
 
@@ -2446,7 +2472,10 @@ void SP_func_door_secret(edict_t *ent)
     if (!ent->wait)
         ent->wait = 5;
 
-    ent->moveinfo.accel = ent->moveinfo.decel = ent->moveinfo.speed = 50;
+    if (!ent->speed)
+        ent->moveinfo.accel = ent->moveinfo.decel = ent->moveinfo.speed = 50;
+    else
+        ent->moveinfo.accel = ent->moveinfo.decel = ent->moveinfo.speed = ent->speed * 0.1f;
 
     // calculate positions
     AngleVectors(ent->s.angles, forward, right, up);
@@ -2489,7 +2518,7 @@ void USE(use_killbox)(edict_t *self, edict_t *other, edict_t *activator)
     self->solid = SOLID_TRIGGER;
     gi.linkentity(self);
 
-    KillBox(self, false, MOD_TELEFRAG, self->spawnflags & SPAWNFLAG_KILLBOX_EXACT_COLLISION);
+    KillBoxEx(self, false, MOD_TELEFRAG, self->spawnflags & SPAWNFLAG_KILLBOX_EXACT_COLLISION, false);
 
     self->solid = SOLID_NOT;
     gi.linkentity(self);
@@ -2639,6 +2668,10 @@ void SP_func_eye(edict_t *ent)
 
     if (!ent->speed)
         ent->speed = 45;
+
+    // set vision cone
+    if (ED_WasKeySpecified("vision_cone"))
+        ent->yaw_speed = ent->vision_cone;
 
     if (!ent->yaw_speed)
         ent->yaw_speed = 0.5f;

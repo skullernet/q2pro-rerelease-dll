@@ -305,6 +305,7 @@ void DIE(turret_driver_die)(edict_t *self, edict_t *inflictor, edict_t *attacker
         self->movetype = MOVETYPE_STEP;
 
         self->think = monster_think;
+        self->classname = "monster_infantry"; // [Paril-KEX] fix revive
     }
 
     infantry_die(self, inflictor, attacker, damage, point, mod);

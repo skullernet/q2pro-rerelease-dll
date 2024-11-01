@@ -278,7 +278,7 @@ static void makron_torso(edict_t *ent)
 
 static void makron_spawn_torso(edict_t *self)
 {
-    edict_t *tempent = ThrowGib(self, "models/monsters/boss3/rider/tris.md2", 0, GIB_NONE, self->x.scale);
+    edict_t *tempent = ThrowGib(self, "models/monsters/boss3/rider/tris.md2", 0, GIB_NONE);
     VectorCopy(self->s.origin, tempent->s.origin);
     VectorCopy(self->s.angles, tempent->s.angles);
     self->maxs[2] -= tempent->maxs[2];

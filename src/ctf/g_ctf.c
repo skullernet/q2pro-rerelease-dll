@@ -1178,7 +1178,7 @@ static void CTFGrappleDrawCable(edict_t *self)
         return;
 
     vec3_t start, dir;
-    P_ProjectSource(self->owner, self->owner->client->v_angle, (const vec3_t) { 7, 2, -9 }, start, dir);
+    P_ProjectSource(self->owner, self->owner->client->v_angle, (const vec3_t) { 7, 2, -9 }, start, dir, false);
 
     gi.WriteByte(svc_temp_entity);
     gi.WriteByte(TE_GRAPPLE_CABLE_2);
@@ -1306,7 +1306,7 @@ static void CTFGrappleFire(edict_t *ent, const vec3_t g_offset, int damage, effe
 
     vec3_t start, dir, offset = { 24, 8, -8 + 2 };
     VectorAdd(offset, g_offset, offset);
-    P_ProjectSource(ent, ent->client->v_angle, offset, start, dir);
+    P_ProjectSource(ent, ent->client->v_angle, offset, start, dir, false);
 
     if (ent->client->silencer_shots)
         volume = 0.2f;
@@ -2928,7 +2928,7 @@ void TOUCH(old_teleporter_touch)(edict_t *self, edict_t *other, const trace_t *t
     gi.linkentity(other);
 
     // kill anything at the destination
-    KillBox(other, true, MOD_TELEFRAG, false);
+    KillBox(other, true);
 
     // [Paril-KEX] move sphere, if we own it
     if (other->client->owned_sphere) {

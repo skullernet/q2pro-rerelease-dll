@@ -59,7 +59,7 @@ void P_AddWeaponKick(edict_t *ent, float scale, float pitch)
     ent->client->kick.time = level.time + ent->client->kick.total;
 }
 
-void P_ProjectSource(edict_t *ent, const vec3_t angles, const vec3_t g_distance, vec3_t result_start, vec3_t result_dir)
+void P_ProjectSource(edict_t *ent, const vec3_t angles, const vec3_t g_distance, vec3_t result_start, vec3_t result_dir, bool adjust_for_pierce)
 {
     vec3_t distance;
     VectorCopy(g_distance, distance);
@@ -89,9 +89,9 @@ void P_ProjectSource(edict_t *ent, const vec3_t angles, const vec3_t g_distance,
 
     trace_t tr = gi.trace(eye_position, NULL, NULL, end, ent, mask);
 
-    // if the point was a monster & close to us, use raw forward
+    // if the point was damageable, use raw forward
     // so railgun pierces properly
-    if (tr.startsolid || ((tr.contents & (CONTENTS_MONSTER | CONTENTS_PLAYER)) && (tr.fraction * 8192) < 128))
+    if ((tr.startsolid || adjust_for_pierce) && tr.ent->takedamage)
         VectorCopy(forward, result_dir);
     else {
         VectorSubtract(tr.endpos, result_start, result_dir);
@@ -212,6 +212,9 @@ bool Pickup_Weapon(edict_t *ent, edict_t *other)
             // RAFAEL: Don't get infinite ammo with trap
             if (G_CheckInfiniteAmmo(ammo))
                 Add_Ammo(other, ammo, 1000);
+            else if (level.is_psx && deathmatch->integer)
+                // in PSX, we get double ammo with pickups
+                Add_Ammo(other, ammo, ammo->quantity * 2);
             else
                 Add_Ammo(other, ammo, ammo->quantity);
         }
@@ -880,7 +883,7 @@ static void weapon_grenade_fire(edict_t *ent, bool held)
     P_GetThrowAngles(ent, angles);
 
     vec3_t start, dir;
-    P_ProjectSource(ent, angles, (const vec3_t) { 2, 0, -14 }, start, dir);
+    P_ProjectSource(ent, angles, (const vec3_t) { 2, 0, -14 }, start, dir, false);
 
     gtime_t timer = ent->client->grenade_time - level.time;
 
@@ -1105,7 +1108,7 @@ static void weapon_grenadelauncher_fire(edict_t *ent)
     P_GetThrowAngles(ent, angles);
 
     vec3_t start, dir;
-    P_ProjectSource(ent, angles, (const vec3_t) { 8, 0, -8 }, start, dir);
+    P_ProjectSource(ent, angles, (const vec3_t) { 8, 0, -8 }, start, dir, false);
 
     P_AddWeaponKick(ent, -2, -1);
 
@@ -1152,7 +1155,7 @@ static void Weapon_RocketLauncher_Fire(edict_t *ent)
     }
 
     vec3_t start, dir;
-    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 8, 8, -8 }, start, dir);
+    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 8, 8, -8 }, start, dir, false);
     fire_rocket(ent, start, dir, damage, 650, damage_radius, radius_damage);
 
     P_AddWeaponKick(ent, -2, -1);
@@ -1193,7 +1196,7 @@ static void Blaster_Fire(edict_t *ent, const vec3_t g_offset, int damage, bool h
     VectorAdd(offset, g_offset, offset);
 
     vec3_t start, dir;
-    P_ProjectSource(ent, ent->client->v_angle, offset, start, dir);
+    P_ProjectSource(ent, ent->client->v_angle, offset, start, dir, false);
 
     P_AddWeaponKick(ent, -2, -1);
     if (hyper)
@@ -1279,7 +1282,7 @@ static void Weapon_HyperBlaster_Fire(edict_t *ent)
                 damage = 15;
             else
                 damage = 20;
-            Blaster_Fire(ent, offset, damage, true, (ent->client->ps.gunframe % 4) ? EF_NONE : EF_HYPERBLASTER);
+            Blaster_Fire(ent, offset, damage, true, ((ent->client->ps.gunframe - 6) % 4) ? EF_NONE : EF_HYPERBLASTER);
             Weapon_PowerupSound(ent);
 
             G_RemoveAmmo(ent);
@@ -1349,7 +1352,7 @@ static void Machinegun_Fire(edict_t *ent)
     // get start / end positions
     vec3_t start, dir;
     // Paril: kill sideways angle on hitscan
-    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 0, 0, -8 }, start, dir);
+    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 0, 0, -8 }, start, dir, true);
     fire_bullet(ent, start, dir, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, (mod_t) { MOD_MACHINEGUN });
     Weapon_PowerupSound(ent);
 
@@ -1457,14 +1460,14 @@ static void Chaingun_Fire(edict_t *ent)
     ent->client->kick.time = level.time + ent->client->kick.total;
 
     vec3_t start, dir;
-    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 0, 0, -8 }, start, dir);
+    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 0, 0, -8 }, start, dir, true);
 
     for (i = 0; i < shots; i++) {
         // get start / end positions
         // Paril: kill sideways angle on hitscan
         r = crandom() * 4;
         u = crandom() * 4;
-        P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 0, r, u - 8 }, start, dir);
+        P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 0, r, u - 8 }, start, dir, true);
 
         fire_bullet(ent, start, dir, damage, kick, DEFAULT_BULLET_HSPREAD, DEFAULT_BULLET_VSPREAD, (mod_t) { MOD_CHAINGUN });
     }
@@ -1504,7 +1507,7 @@ static void weapon_shotgun_fire(edict_t *ent)
 
     vec3_t start, dir;
     // Paril: kill sideways angle on hitscan
-    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 0, 0, -8 }, start, dir);
+    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 0, 0, -8 }, start, dir, true);
 
     P_AddWeaponKick(ent, -2, -2);
 
@@ -1552,10 +1555,10 @@ static void weapon_supershotgun_fire(edict_t *ent)
     v[YAW] = ent->client->v_angle[YAW] - 5;
     v[ROLL] = ent->client->v_angle[ROLL];
     // Paril: kill sideways angle on hitscan
-    P_ProjectSource(ent, v, (const vec3_t) { 0, 0, -8 }, start, dir);
+    P_ProjectSource(ent, v, (const vec3_t) { 0, 0, -8 }, start, dir, true);
     fire_shotgun(ent, start, dir, damage, kick, DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD, DEFAULT_SSHOTGUN_COUNT / 2, (mod_t) { MOD_SSHOTGUN });
     v[YAW] = ent->client->v_angle[YAW] + 5;
-    P_ProjectSource(ent, v, (const vec3_t) { 0, 0, -8 }, start, dir);
+    P_ProjectSource(ent, v, (const vec3_t) { 0, 0, -8 }, start, dir, true);
     fire_shotgun(ent, start, dir, damage, kick, DEFAULT_SHOTGUN_HSPREAD, DEFAULT_SHOTGUN_VSPREAD, DEFAULT_SSHOTGUN_COUNT / 2, (mod_t) { MOD_SSHOTGUN });
 
     P_AddWeaponKick(ent, -2, -2);
@@ -1606,7 +1609,7 @@ static void weapon_railgun_fire(edict_t *ent)
     }
 
     vec3_t start, dir;
-    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 0, 7, -8 }, start, dir);
+    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 0, 7, -8 }, start, dir, true);
     fire_rail(ent, start, dir, damage, kick);
 
     P_AddWeaponKick(ent, -3, -3);
@@ -1668,7 +1671,7 @@ static void weapon_bfg_fire(edict_t *ent)
         damage *= damage_multiplier;
 
     vec3_t start, dir;
-    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 8, 8, -8 }, start, dir);
+    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 8, 8, -8 }, start, dir, false);
     fire_bfg(ent, start, dir, damage, 400, damage_radius);
 
     VectorScale(ent->client->v_forward, -2, ent->client->kick.origin);
@@ -1700,7 +1703,7 @@ void Weapon_BFG(edict_t *ent)
 static void weapon_disint_fire(edict_t *self)
 {
     vec3_t start, dir;
-    P_ProjectSource(self, self->client->v_angle, (const vec3_t) { 24, 8, -8 }, start, dir);
+    P_ProjectSource(self, self->client->v_angle, (const vec3_t) { 24, 8, -8 }, start, dir, false);
 
     P_AddWeaponKick(self, -2, -1);
 

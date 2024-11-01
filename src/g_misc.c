@@ -73,7 +73,7 @@ void TOUCH(gib_touch)(edict_t *self, edict_t *other, const trace_t *tr, bool oth
     }
 }
 
-edict_t *ThrowGib(edict_t *self, const char *gibname, int damage, gib_type_t type, float scale)
+edict_t *ThrowGibEx(edict_t *self, const char *gibname, int damage, gib_type_t type, int frame, float scale)
 {
     edict_t *gib;
     vec3_t   vd;
@@ -131,7 +131,10 @@ edict_t *ThrowGib(edict_t *self, const char *gibname, int damage, gib_type_t typ
         gib->s.skinnum = self->s.skinnum;
     else
         gib->s.skinnum = 0;
-    gib->s.frame = 0;
+    if (type & GIB_RANDFRAME)
+        gib->s.frame = irandom1(frame + 1);
+    else
+        gib->s.frame = frame;
     VectorClear(gib->mins);
     VectorClear(gib->maxs);
     gib->s.sound = 0;
@@ -238,7 +241,7 @@ void ThrowGibs(edict_t *self, int damage, const gib_def_t *gibs)
         if (self->x.scale)
             scale *= self->x.scale;
         for (int i = 0; i < gib->count; i++)
-            ThrowGib(self, gib->gibname, damage, gib->type, scale);
+            ThrowGibEx(self, gib->gibname, damage, gib->type, gib->frame, scale);
     }
 }
 
@@ -529,6 +532,7 @@ START_ON        only valid for TRIGGER_SPAWN walls
 #define SPAWNFLAG_WALL_START_ON         4
 #define SPAWNFLAG_WALL_ANIMATED         8
 #define SPAWNFLAG_WALL_ANIMATED_FAST    16
+#define SPAWNFLAG_SAFE_APPEAR           32
 
 void USE(func_wall_use)(edict_t *self, edict_t *other, edict_t *activator)
 {
@@ -536,7 +540,7 @@ void USE(func_wall_use)(edict_t *self, edict_t *other, edict_t *activator)
         self->solid = SOLID_BSP;
         self->svflags &= ~SVF_NOCLIENT;
         gi.linkentity(self);
-        KillBox(self, false, MOD_TELEFRAG, true);
+        KillBoxEx(self, false, MOD_TELEFRAG, true, self->spawnflags & SPAWNFLAG_SAFE_APPEAR);
     } else {
         self->solid = SOLID_NOT;
         self->svflags |= SVF_NOCLIENT;
@@ -657,7 +661,7 @@ void USE(func_object_use)(edict_t *self, edict_t *other, edict_t *activator)
     self->svflags &= ~SVF_NOCLIENT;
     self->use = NULL;
     func_object_release(self);
-    KillBox(self, false, MOD_TELEFRAG, true);
+    KillBox(self, false);
 }
 
 void SP_func_object(edict_t *self)
@@ -747,7 +751,7 @@ void DIE(func_explosive_explode)(edict_t *self, edict_t *inflictor, edict_t *att
         if (count > 8)
             count = 8;
         for (int i = 0; i < count; i++)
-            ThrowGib(self, "models/objects/debris1/tris.md2", 1, GIB_METALLIC | GIB_DEBRIS, self->x.scale);
+            ThrowGib(self, "models/objects/debris1/tris.md2", 1, GIB_METALLIC | GIB_DEBRIS);
     }
 
     // small chunks
@@ -755,7 +759,7 @@ void DIE(func_explosive_explode)(edict_t *self, edict_t *inflictor, edict_t *att
     if (count > 16)
         count = 16;
     for (int i = 0; i < count; i++)
-        ThrowGib(self, "models/objects/debris2/tris.md2", 2, GIB_METALLIC | GIB_DEBRIS, self->x.scale);
+        ThrowGib(self, "models/objects/debris2/tris.md2", 2, GIB_METALLIC | GIB_DEBRIS);
 
     // PMM - if we're part of a train, clean ourselves out of it
     if (self->flags & FL_TEAMSLAVE) {
@@ -820,7 +824,7 @@ void USE(func_explosive_spawn)(edict_t *self, edict_t *other, edict_t *activator
     self->svflags &= ~SVF_NOCLIENT;
     self->use = NULL;
     gi.linkentity(self);
-    KillBox(self, false, MOD_TELEFRAG, true);
+    KillBox(self, false);
 }
 
 void SP_func_explosive(edict_t *self)
@@ -969,6 +973,8 @@ void THINK(barrel_start)(edict_t *self)
 // PGM
 //=========
 
+#define SPAWNFLAG_EXPLOBOX_NO_MOVE  1
+
 void SP_misc_explobox(edict_t *self)
 {
     if (deathmatch->integer) {
@@ -999,7 +1005,10 @@ void SP_misc_explobox(edict_t *self)
     self->takedamage = true;
     self->flags |= FL_TRAP;
 
-    self->touch = barrel_touch;
+    if (self->spawnflags & SPAWNFLAG_EXPLOBOX_NO_MOVE)
+        self->flags |= FL_NO_KNOCKBACK;
+    else
+        self->touch = barrel_touch;
 
     // PGM - change so barrels will think and hence, blow up
     self->think = barrel_start;
@@ -1798,7 +1807,7 @@ void TOUCH(teleporter_touch)(edict_t *self, edict_t *other, const trace_t *tr, b
     gi.linkentity(other);
 
     // kill anything at the destination
-    KillBox(other, !!other->client, MOD_TELEFRAG, false);
+    KillBox(other, !!other->client);
 
     // [Paril-KEX] move sphere, if we own it
     if (other->client->owned_sphere) {
@@ -2225,11 +2234,28 @@ void SP_misc_player_mannequin(edict_t *self)
     gi.linkentity(self);
 }
 
+#define SPAWNFLAG_MODEL_TOGGLE      1
+#define SPAWNFLAG_MODEL_START_ON    2
+
+void USE(misc_model_use)(edict_t *self, edict_t *other, edict_t *activator)
+{
+    self->svflags ^= SVF_NOCLIENT;
+}
+
 /*QUAKED misc_model (1 0 0) (-8 -8 -8) (8 8 8)
 */
 void SP_misc_model(edict_t *ent)
 {
-    gi.setmodel(ent, ent->model);
+    if (ent->model && ent->model[0])
+        gi.setmodel(ent, ent->model);
+
+    if (ent->spawnflags & SPAWNFLAG_MODEL_TOGGLE) {
+        ent->use = misc_model_use;
+
+        if (!(ent->spawnflags & SPAWNFLAG_MODEL_START_ON))
+            ent->svflags |= SVF_NOCLIENT;
+    }
+
     gi.linkentity(ent);
 }
 

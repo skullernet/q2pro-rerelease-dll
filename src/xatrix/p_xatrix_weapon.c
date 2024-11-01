@@ -25,7 +25,7 @@ static void weapon_ionripper_fire(edict_t *ent)
     tempang[YAW] += crandom();
 
     vec3_t start, dir;
-    P_ProjectSource(ent, tempang, (const vec3_t) { 16, 7, -8 }, start, dir);
+    P_ProjectSource(ent, tempang, (const vec3_t) { 16, 7, -8 }, start, dir, false);
 
     P_AddWeaponKick(ent, -3, -3);
 
@@ -74,7 +74,7 @@ static void weapon_phalanx_fire(edict_t *ent)
 
     if (ent->client->ps.gunframe == 8) {
         v[YAW] -= 1.5f;
-        P_ProjectSource(ent, v, (const vec3_t) { 0, 8, -8 }, start, dir);
+        P_ProjectSource(ent, v, (const vec3_t) { 0, 8, -8 }, start, dir, false);
 
         radius_damage = 30;
         damage_radius = 120;
@@ -90,7 +90,7 @@ static void weapon_phalanx_fire(edict_t *ent)
         G_RemoveAmmo(ent);
     } else {
         v[YAW] += 1.5f;
-        P_ProjectSource(ent, v, (const vec3_t) { 0, 8, -8 }, start, dir);
+        P_ProjectSource(ent, v, (const vec3_t) { 0, 8, -8 }, start, dir, false);
 
         fire_plasma(ent, start, dir, damage, 725, damage_radius, radius_damage);
 
@@ -136,7 +136,7 @@ static void weapon_trap_fire(edict_t *ent, bool held)
     P_GetThrowAngles(ent, angles);
 
     vec3_t start, dir;
-    P_ProjectSource(ent, angles, (const vec3_t) { 8, 0, -8 }, start, dir);
+    P_ProjectSource(ent, angles, (const vec3_t) { 8, 0, -8 }, start, dir, false);
 
     if (ent->health > 0) {
         float frac = 1.0f - TO_SEC(ent->client->grenade_time - level.time) / TRAP_TIMER_SEC;

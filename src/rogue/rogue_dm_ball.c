@@ -432,7 +432,7 @@ void THINK(DBall_BallRespawn)(edict_t *self)
     gi.linkentity(self);
 
     // kill anything at the destination
-    KillBox(self, false, MOD_TELEFRAG, false);
+    KillBox(self, false);
 }
 
 // ************************

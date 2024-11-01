@@ -545,8 +545,8 @@ void DIE(turret_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int d
     VectorAdd(self->s.origin, forward, self->s.origin);
 
     for (int i = 0; i < 2; i++) {
-        ThrowGib(self, "models/objects/debris1/tris.md2", 2, GIB_METALLIC | GIB_DEBRIS, self->x.scale);
-        ThrowGib(self, "models/objects/debris1/tris.md2", 1, GIB_METALLIC | GIB_DEBRIS, self->x.scale);
+        ThrowGib(self, "models/objects/debris1/tris.md2", 2, GIB_METALLIC | GIB_DEBRIS);
+        ThrowGib(self, "models/objects/debris1/tris.md2", 1, GIB_METALLIC | GIB_DEBRIS);
     }
 
     gi.WriteByte(svc_temp_entity);
@@ -581,7 +581,7 @@ void DIE(turret_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int d
         self->target_ent = NULL;
     }
 
-    edict_t *gib = ThrowGib(self, "models/monsters/turret/tris.md2", damage, GIB_SKINNED | GIB_METALLIC | GIB_HEAD | GIB_DEBRIS, self->x.scale);
+    edict_t *gib = ThrowGib(self, "models/monsters/turret/tris.md2", damage, GIB_SKINNED | GIB_METALLIC | GIB_HEAD | GIB_DEBRIS);
     gib->s.frame = 14;
 }
 

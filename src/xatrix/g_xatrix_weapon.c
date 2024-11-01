@@ -130,31 +130,39 @@ void THINK(heat_think)(edict_t *self)
     vec3_t fwd;
     AngleVectors(self->s.angles, fwd, NULL, NULL);
 
-    // acquire new target
-    while ((target = findradius(target, self->s.origin, 1024)) != NULL) {
-        if (self->owner == target)
-            continue;
-        if (!target->client)
-            continue;
-        if (target->health <= 0)
-            continue;
-        if (!visible(self, target))
-            continue;
-        //if (!infront(self, target))
-        //  continue;
+    // try to stay on current target if possible
+    if (self->enemy) {
+        acquire = self->enemy;
 
-        VectorSubtract(self->s.origin, target->s.origin, vec);
-        len = VectorNormalize(vec);
-        dot = DotProduct(vec, fwd);
+        if (acquire->health <= 0 || !visible(self, acquire))
+            self->enemy = acquire = NULL;
+    }
 
-        // targets that require us to turn less are preferred
-        if (dot >= olddot)
-            continue;
+    if (!acquire) {
+        // acquire new target
+        while ((target = findradius(target, self->s.origin, 1024)) != NULL) {
+            if (self->owner == target)
+                continue;
+            if (!target->client)
+                continue;
+            if (target->health <= 0)
+                continue;
+            if (!visible(self, target))
+                continue;
 
-        if (!acquire || dot < olddot || len < oldlen) {
-            acquire = target;
-            oldlen = len;
-            olddot = dot;
+            VectorSubtract(self->s.origin, target->s.origin, vec);
+            len = VectorNormalize(vec);
+            dot = DotProduct(vec, fwd);
+
+            // targets that require us to turn less are preferred
+            if (dot >= olddot)
+                continue;
+
+            if (!acquire || dot < olddot || len < oldlen) {
+                acquire = target;
+                oldlen = len;
+                olddot = dot;
+            }
         }
     }
 
@@ -172,7 +180,7 @@ void THINK(heat_think)(edict_t *self)
         VectorNormalize(self->movedir);
         vectoangles(self->movedir, self->s.angles);
 
-        if (!self->enemy) {
+        if (self->enemy != acquire) {
             gi.sound(self, CHAN_WEAPON, gi.soundindex("weapons/railgr1a.wav"), 1, 0.25f, 0);
             self->enemy = acquire;
         }
@@ -212,6 +220,11 @@ void fire_heat(edict_t *self, const vec3_t start, const vec3_t dir, int damage, 
     heat->dmg_radius = damage_radius;
     heat->s.sound = gi.soundindex("weapons/rockfly.wav");
 
+    if (visible(heat, self->enemy)) {
+        heat->enemy = self->enemy;
+        gi.sound(heat, CHAN_WEAPON, gi.soundindex("weapons/railgr1a.wav"), 1.f, 0.25f, 0);
+    }
+
     gi.linkentity(heat);
 }
 
@@ -235,10 +248,10 @@ void TOUCH(plasma_touch)(edict_t *ent, edict_t *other, const trace_t *tr, bool o
         PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
 
     // calculate position for the explosion entity
-    VectorMA(ent->s.origin, -0.02f, ent->velocity, origin);
+    VectorAdd(ent->s.origin, tr->plane.normal, origin);
 
     if (other->takedamage)
-        T_Damage(other, ent, ent->owner, ent->velocity, ent->s.origin, tr->plane.normal, ent->dmg, 0, DAMAGE_ENERGY, (mod_t) { MOD_PHALANX });
+        T_Damage(other, ent, ent->owner, ent->velocity, ent->s.origin, tr->plane.normal, ent->dmg, ent->dmg, DAMAGE_ENERGY, (mod_t) { MOD_PHALANX });
 
     T_RadiusDamage(ent, ent->owner, ent->radius_dmg, other, ent->dmg_radius, DAMAGE_ENERGY, (mod_t) { MOD_PHALANX });
 

@@ -791,11 +791,16 @@ static void P_WorldEffects(void)
         // Paril: almost-drowning sounds
         } else if (current_player->air_finished <= level.time + SEC(3)) {
             if (current_player->client->next_drown_time < level.time) {
-                gi.sound(current_player, CHAN_VOICE, gi.soundindex(va("player/wade%d.wav", 1 + ((int)TO_SEC(level.time) % 3))), 1, ATTN_NORM, 0);
+                const char *fmt = use_psx_assets ? "player/breathout%d.wav" : "player/wade%d.wav";
+                gi.sound(current_player, CHAN_VOICE, gi.soundindex(va(fmt, 1 + ((int)TO_SEC(level.time) % 3))), 1, ATTN_NORM, 0);
                 current_player->client->next_drown_time = level.time + SEC(1);
             }
         }
     } else {
+        if (waterlevel == WATER_WAIST && level.is_psx)
+            if ((int)(current_client->bobtime + bobmove) != bobcycle_run)
+                gi.sound(current_player, CHAN_VOICE, gi.soundindex(va("player/wade%d.wav", irandom2(1, 4))), 1, ATTN_NORM, 0);
+
         current_player->air_finished = level.time + SEC(12);
         current_player->dmg = 2;
     }

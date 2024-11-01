@@ -189,7 +189,9 @@ void USE(Item_TriggeredSpawn)(edict_t *self, edict_t *other, edict_t *activator)
         self->velocity[2] = 300;
     }
 
-    if (self->item->id != IT_KEY_POWER_CUBE && self->item->id != IT_KEY_EXPLOSIVE_CHARGES) // leave them be on key_power_cube..
+    if (self->spawnflags & SPAWNFLAG_ITEM_NO_DROP)
+        self->spawnflags &= ~SPAWNFLAG_ITEM_TRIGGER_SPAWN;
+    else if (self->item->id != IT_KEY_POWER_CUBE && self->item->id != IT_KEY_EXPLOSIVE_CHARGES) // leave them be on key_power_cube..
         self->spawnflags &= SPAWNFLAG_ITEM_NO_TOUCH;
 
     droptofloor(self);

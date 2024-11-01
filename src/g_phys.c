@@ -51,6 +51,9 @@ contents_t G_GetClipMask(edict_t *ent)
     if ((ent->svflags & (SVF_MONSTER | SVF_PLAYER)) && (ent->svflags & SVF_DEADMONSTER))
         mask &= ~(CONTENTS_MONSTER | CONTENTS_PLAYER);
 
+    // remove special mask value
+    mask &= ~CONTENTS_AREAPORTAL;
+
     return mask;
 }
 
@@ -345,6 +348,9 @@ SV_AddGravity
 */
 void SV_AddGravity(edict_t *ent)
 {
+    if (ent->no_gravity_time > level.time)
+        return;
+
     float gravity = ent->gravity * level.gravity * FRAME_TIME_SEC;
     VectorMA(ent->velocity, gravity, ent->gravityVector, ent->velocity);
 }
@@ -454,6 +460,10 @@ static bool SV_Push(edict_t *pusher, vec3_t move, vec3_t amove)
     VectorAdd(pusher->s.origin, move, pusher->s.origin);
     VectorAdd(pusher->s.angles, amove, pusher->s.angles);
     gi.linkentity(pusher);
+
+    // no clip mask, so it won't move anything
+    if (!G_GetClipMask(pusher))
+        return true;
 
     // see if any solid entities are inside the final position
     check = g_edicts + 1;
@@ -884,8 +894,11 @@ static void SV_Physics_Step(edict_t *ent)
     edict_t   *groundentity;
     contents_t mask = G_GetClipMask(ent);
 
+    // [Paril-KEX]
+    if (ent->no_gravity_time > level.time)
+        ent->groundentity = NULL;
     // airborne monsters should always check for ground
-    if (!ent->groundentity)
+    else if (!ent->groundentity)
         M_CheckGround(ent, mask);
 
     groundentity = ent->groundentity;
@@ -937,7 +950,7 @@ static void SV_Physics_Step(edict_t *ent)
         ent->velocity[2] *= newspeed;
     }
 
-    if (!VectorEmpty(ent->velocity)) {
+    if (!VectorEmpty(ent->velocity) || ent->no_gravity_time > level.time) {
         // apply friction
         if ((wasonground || (ent->flags & (FL_SWIM | FL_FLY))) && !(ent->monsterinfo.aiflags & AI_ALTERNATE_FLY)) {
             vel = ent->velocity;

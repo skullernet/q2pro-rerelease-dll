@@ -53,7 +53,7 @@ static bool stalker_ok_to_transition(edict_t *self)
         margin = self->mins[2] - 8;
     } else {
         // her stalkers are just better
-        if (self->monsterinfo.aiflags & AI_SPAWNED_WIDOW)
+        if (self->monsterinfo.commander && self->monsterinfo.commander->inuse && !strncmp(self->monsterinfo.commander->classname, "monster_widow", 13))
             max_dist = 256;
         else
             max_dist = 180;

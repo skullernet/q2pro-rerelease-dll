@@ -471,14 +471,25 @@ static void HelpComputer(edict_t *ent)
     if (level.is_n64) {
         sb_xv(0), sb_yv(54), sb_cstring(game.helpmessage1);
     } else {
+        const char *first_message = game.helpmessage1;
+        const char *first_title = level.primary_objective_title;
+
+        const char *second_message = game.helpmessage2;
+        const char *second_title = level.secondary_objective_title;
+
+        if (level.is_psx) {
+            SWAP(const char *, first_message, second_message);
+            SWAP(const char *, first_title, second_title);
+        }
+
         int y = 54;
-        if (game.helpmessage1[0]) {
-            sb_xv(0), sb_yv(y), sb_cstring2("Primary Objective"), sb_yv(y + 11), sb_cstring(game.helpmessage1);
+        if (first_message[0]) {
+            sb_xv(0), sb_yv(y), sb_cstring2(first_title), sb_yv(y + 11), sb_cstring(first_message);
             y += 58;
         }
 
-        if (game.helpmessage2[0]) {
-            sb_xv(0), sb_yv(y), sb_cstring2("Secondary Objective"), sb_yv(y + 11), sb_cstring(game.helpmessage2);
+        if (second_message[0]) {
+            sb_xv(0), sb_yv(y), sb_cstring2(second_title), sb_yv(y + 11), sb_cstring(second_message);
         }
     }
 

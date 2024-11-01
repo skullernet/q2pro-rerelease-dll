@@ -161,7 +161,10 @@ void THINK(latched_trigger_think)(edict_t *self)
 
 void SP_trigger_multiple(edict_t *ent)
 {
-    if (ent->sounds == 1)
+    // [Paril-KEX] PSX
+    if (st.noise && *st.noise)
+        ent->noise_index = gi.soundindex(st.noise);
+    else if (ent->sounds == 1)
         ent->noise_index = gi.soundindex("misc/secret.wav");
     else if (ent->sounds == 2)
         ent->noise_index = gi.soundindex("misc/talk.wav");
@@ -183,7 +186,8 @@ void SP_trigger_multiple(edict_t *ent)
         return;
     }
 
-    ent->touch = Touch_Multi;
+    if (ent->model || !VectorEmpty(ent->mins) || !VectorEmpty(ent->maxs))
+        ent->touch = Touch_Multi;
 
     // PGM
     if (ent->spawnflags & (SPAWNFLAG_TRIGGER_TRIGGERED | SPAWNFLAG_TRIGGER_TOGGLE)) {
@@ -259,6 +263,8 @@ trigger_key
 ==============================================================================
 */
 
+#define SPAWNFLAGS_TRIGGER_KEY_BECOME_RELAY 1
+
 /*QUAKED trigger_key (.5 .5 .5) (-8 -8 -8) (8 8 8)
 A relay trigger that only fires it's targets if player has the proper key.
 Use "item" to specify the required key, for example "key_data_cd"
@@ -332,7 +338,10 @@ void USE(trigger_key_use)(edict_t *self, edict_t *other, edict_t *activator)
 
     G_UseTargets(self, activator);
 
-    self->use = NULL;
+    if (self->spawnflags & SPAWNFLAGS_TRIGGER_KEY_BECOME_RELAY)
+        self->use = trigger_relay_use;
+    else
+        self->use = NULL;
 }
 
 void SP_trigger_key(edict_t *self)
@@ -442,6 +451,7 @@ trigger_push
 #define SPAWNFLAG_PUSH_SILENT       4
 #define SPAWNFLAG_PUSH_START_OFF    8
 #define SPAWNFLAG_PUSH_CLIP         16
+#define SPAWNFLAG_PUSH_ADDITIVE     32
 // PGM
 
 void TOUCH(trigger_push_touch)(edict_t *self, edict_t *other, const trace_t *tr, bool other_touching_self)
@@ -453,10 +463,18 @@ void TOUCH(trigger_push_touch)(edict_t *self, edict_t *other, const trace_t *tr,
             return;
     }
 
-    if (strcmp(other->classname, "grenade") == 0) {
-        VectorScale(self->movedir, self->speed * 10, other->velocity);
-    } else if (other->health > 0) {
-        VectorScale(self->movedir, self->speed * 10, other->velocity);
+    if (strcmp(other->classname, "grenade") == 0 || other->health > 0) {
+        if (self->spawnflags & SPAWNFLAG_PUSH_ADDITIVE) {
+            float max_speed = self->speed * 10;
+            if (DotProduct(other->velocity, self->movedir) < max_speed) {
+                float speed_adjust = max_speed * FRAME_TIME_SEC * 2;
+                VectorMA(other->velocity, speed_adjust, self->movedir, other->velocity);
+                other->no_gravity_time = level.time + SEC(0.1f);
+                if (self->movedir[2] > 0 && other->groundentity)
+                    other->velocity[2] = max(other->velocity[2], 181);
+            }
+        } else
+            VectorScale(self->movedir, self->speed * 10, other->velocity);
 
         if (other->client) {
             // don't take falling damage immediately from this
@@ -595,7 +613,7 @@ trigger_hurt
 ==============================================================================
 */
 
-/*QUAKED trigger_hurt (.5 .5 .5) ? START_OFF TOGGLE SILENT NO_PROTECTION SLOW NO_PLAYERS NO_MONSTERS
+/*QUAKED trigger_hurt (.5 .5 .5) ? START_OFF TOGGLE SILENT NO_PROTECTION SLOW NO_PLAYERS NO_MONSTERS PASSIVE
 Any entity that touches this will be hurt.
 
 It does dmg points of damage each server frame
@@ -616,6 +634,7 @@ NO_PROTECTION   *nothing* stops the damage
 #define SPAWNFLAG_HURT_NO_PLAYERS       32
 #define SPAWNFLAG_HURT_NO_MONSTERS      64
 #define SPAWNFLAG_HURT_CLIPPED          128
+#define SPAWNFLAG_HURT_PASSIVE          BIT(16)
 
 void USE(hurt_use)(edict_t *self, edict_t *other, edict_t *activator)
 {
@@ -627,30 +646,84 @@ void USE(hurt_use)(edict_t *self, edict_t *other, edict_t *activator)
 
     if (!(self->spawnflags & SPAWNFLAG_HURT_TOGGLE))
         self->use = NULL;
+
+    if (self->spawnflags & SPAWNFLAG_HURT_PASSIVE) {
+        if (self->solid == SOLID_TRIGGER) {
+            if (self->spawnflags & SPAWNFLAG_HURT_SLOW)
+                self->nextthink = level.time + SEC(1);
+            else
+                self->nextthink = level.time + HZ(10);
+        } else
+            self->nextthink = 0;
+    }
+}
+
+static bool can_hurt(edict_t *self, edict_t *other)
+{
+    if (!other->inuse)
+        return false;
+    if (!other->takedamage)
+        return false;
+    if (!(other->svflags & SVF_MONSTER) && !(other->flags & FL_DAMAGEABLE) && (!other->client) && (strcmp(other->classname, "misc_explobox") != 0))
+        return false;
+    if ((self->spawnflags & SPAWNFLAG_HURT_NO_MONSTERS) && (other->svflags & SVF_MONSTER))
+        return false;
+    if ((self->spawnflags & SPAWNFLAG_HURT_NO_PLAYERS) && (other->client))
+        return false;
+
+    if (self->spawnflags & SPAWNFLAG_HURT_CLIPPED) {
+        trace_t clip = gix.clip(other->s.origin, other->mins, other->maxs, other->s.origin, self, G_GetClipMask(other));
+
+        if (clip.fraction == 1.0f)
+            return false;
+    }
+
+    return true;
+}
+
+void THINK(hurt_think)(edict_t *self)
+{
+    edict_t *list[MAX_EDICTS_OLD];
+    damageflags_t dflags;
+    int count;
+
+    if (self->spawnflags & SPAWNFLAG_HURT_NO_PROTECTION)
+        dflags = DAMAGE_NO_PROTECTION;
+    else
+        dflags = DAMAGE_NONE;
+
+    count = gi.BoxEdicts(self->absmin, self->absmax, list, q_countof(list), AREA_SOLID);
+
+    for (int i = 0; i < count; i++) {
+        edict_t *other = list[i];
+        if (!can_hurt(self, other))
+            continue;
+
+        if (!(self->spawnflags & SPAWNFLAG_HURT_SILENT)) {
+            if (self->fly_sound_debounce_time < level.time) {
+                gi.sound(other, CHAN_AUTO, self->noise_index, 1, ATTN_NORM, 0);
+                self->fly_sound_debounce_time = level.time + SEC(1);
+            }
+        }
+
+        T_Damage(other, self, self, vec3_origin, other->s.origin, vec3_origin, self->dmg, self->dmg, dflags, (mod_t) { MOD_TRIGGER_HURT });
+    }
+
+    if (self->spawnflags & SPAWNFLAG_HURT_SLOW)
+        self->nextthink = level.time + SEC(1);
+    else
+        self->nextthink = level.time + HZ(10);
 }
 
 void TOUCH(hurt_touch)(edict_t *self, edict_t *other, const trace_t *tr, bool other_touching_self)
 {
     damageflags_t dflags;
 
-    if (!other->takedamage)
-        return;
-    if (!(other->svflags & SVF_MONSTER) && !(other->flags & FL_DAMAGEABLE) && (!other->client) && (strcmp(other->classname, "misc_explobox") != 0))
-        return;
-    if ((self->spawnflags & SPAWNFLAG_HURT_NO_MONSTERS) && (other->svflags & SVF_MONSTER))
-        return;
-    if ((self->spawnflags & SPAWNFLAG_HURT_NO_PLAYERS) && (other->client))
-        return;
-
     if (self->timestamp > level.time)
         return;
 
-    if (self->spawnflags & SPAWNFLAG_HURT_CLIPPED) {
-        trace_t clip = gix.clip(other->s.origin, other->mins, other->maxs, other->s.origin, self, G_GetClipMask(other));
-
-        if (clip.fraction == 1.0f)
-            return;
-    }
+    if (!can_hurt(self, other))
+        return;
 
     if (self->spawnflags & SPAWNFLAG_HURT_SLOW)
         self->timestamp = level.time + SEC(1);
@@ -677,7 +750,18 @@ void SP_trigger_hurt(edict_t *self)
     InitTrigger(self);
 
     self->noise_index = gi.soundindex("world/electro.wav");
-    self->touch = hurt_touch;
+
+    if (self->spawnflags & SPAWNFLAG_HURT_PASSIVE) {
+        self->think = hurt_think;
+
+        if (!(self->spawnflags & SPAWNFLAG_HURT_START_OFF)) {
+            if (self->spawnflags & SPAWNFLAG_HURT_SLOW)
+                self->nextthink = level.time + SEC(1);
+            else
+                self->nextthink = level.time + HZ(10);
+        }
+    } else
+        self->touch = hurt_touch;
 
     if (!self->dmg)
         self->dmg = 5;
@@ -1175,5 +1259,27 @@ void SP_trigger_coop_relay(edict_t *self)
     } else
         self->use = trigger_coop_relay_use;
     self->svflags |= SVF_NOCLIENT;
+    gi.linkentity(self);
+}
+
+/*QUAKED trigger_safe_fall (.5 .5 .5) ?
+Players that touch this trigger are granted one (1)
+free safe fall damage exemption.
+
+They must already be in the air to get this ability.
+*/
+
+void TOUCH(trigger_safe_fall_touch)(edict_t *self, edict_t *other, const trace_t *tr, bool other_touching_self)
+{
+    if (other->client && !other->groundentity)
+        other->client->landmark_free_fall = true;
+}
+
+void SP_trigger_safe_fall(edict_t *self)
+{
+    InitTrigger(self);
+    self->touch = trigger_safe_fall_touch;
+    self->svflags |= SVF_NOCLIENT;
+    self->solid = SOLID_TRIGGER;
     gi.linkentity(self);
 }

@@ -694,7 +694,7 @@ static void reloogie(edict_t *self)
 {
     if (frandom() > 0.8f && self->health < self->max_health)
         M_SetAnimation(self, &gekk_move_idle2);
-    else if (self->enemy->health >= 0 && frandom() > 0.7f && (range_to(self, self->enemy) <= RANGE_NEAR))
+    else if (self->enemy->health > 0 && frandom() > 0.7f && (range_to(self, self->enemy) <= RANGE_NEAR))
         M_SetAnimation(self, &gekk_move_spit);
 }
 

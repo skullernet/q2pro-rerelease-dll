@@ -159,11 +159,12 @@ static void Widow2Spawn(edict_t *self)
 
         self->monsterinfo.monster_used++;
         ent->monsterinfo.commander = self;
+        ent->monsterinfo.slots_from_commander = 1;
 
         ent->nextthink = level.time;
         ent->think(ent);
 
-        ent->monsterinfo.aiflags |= AI_SPAWNED_WIDOW | AI_DO_NOT_COUNT | AI_IGNORE_SHOTS;
+        ent->monsterinfo.aiflags |= AI_SPAWNED_COMMANDER | AI_DO_NOT_COUNT | AI_IGNORE_SHOTS;
 
         if (!coop->integer) {
             designated_enemy = self->enemy;
@@ -848,8 +849,8 @@ void DIE(widow2_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int d
             ThrowWidowGibSized(self, "models/monsters/blackwidow2/gib3/tris.md2", clipped, GIB_METALLIC, NULL, 0, false);
             ThrowWidowGibSized(self, "models/monsters/blackwidow/gib3/tris.md2", clipped, GIB_METALLIC, NULL, 0, false);
         }
-        ThrowGib(self, "models/objects/gibs/chest/tris.md2", damage, GIB_NONE, self->x.scale);
-        ThrowGib(self, "models/objects/gibs/head2/tris.md2", damage, GIB_HEAD, self->x.scale);
+        ThrowGib(self, "models/objects/gibs/chest/tris.md2", damage, GIB_NONE);
+        ThrowGib(self, "models/objects/gibs/head2/tris.md2", damage, GIB_HEAD);
         return;
     }
 

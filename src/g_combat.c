@@ -28,7 +28,7 @@ bool CanDamage(edict_t *targ, edict_t *inflictor)
     if (targ->solid == SOLID_BSP) {
         closest_point_to_box(inflictor_center, targ->absmin, targ->absmax, dest);
 
-        trace = gi.trace(inflictor_center, NULL, NULL, dest, inflictor, MASK_SOLID);
+        trace = gi.trace(inflictor_center, NULL, NULL, dest, inflictor, MASK_SOLID | CONTENTS_PROJECTILECLIP);
         if (trace.fraction == 1.0f)
             return true;
     }
@@ -40,7 +40,7 @@ bool CanDamage(edict_t *targ, edict_t *inflictor)
     else
         VectorCopy(targ->s.origin, targ_center);
 
-    trace = gi.trace(inflictor_center, NULL, NULL, targ_center, inflictor, MASK_SOLID);
+    trace = gi.trace(inflictor_center, NULL, NULL, targ_center, inflictor, MASK_SOLID | CONTENTS_PROJECTILECLIP);
     if (trace.fraction == 1.0f)
         return true;
 
@@ -48,7 +48,7 @@ bool CanDamage(edict_t *targ, edict_t *inflictor)
         VectorCopy(targ_center, dest);
         dest[0] += (i & 1) ? -15.0f : 15.0f;
         dest[1] += (i & 2) ? -15.0f : 15.0f;
-        trace = gi.trace(inflictor_center, NULL, NULL, dest, inflictor, MASK_SOLID);
+        trace = gi.trace(inflictor_center, NULL, NULL, dest, inflictor, MASK_SOLID | CONTENTS_PROJECTILECLIP);
         if (trace.fraction == 1.0f)
             return true;
     }

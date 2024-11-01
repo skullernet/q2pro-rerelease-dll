@@ -51,6 +51,8 @@ extern game_import_ex_t gix;
 extern filesystem_api_v1_t *fs;
 extern debug_draw_api_v1_t *draw;
 
+extern bool use_psx_assets;
+
 // edict->spawnflags
 // these are set with checkboxes on each entity in the map editor.
 // the following 8 are reserved and should never be used by any entity.
@@ -133,6 +135,7 @@ typedef enum {
     GIB_DEBRIS      = BIT(3), // explode outwards rather than in velocity, no blood
     GIB_SKINNED     = BIT(4), // use skinnum
     GIB_UPRIGHT     = BIT(5), // stay upright on ground
+    GIB_RANDFRAME   = BIT(6), // randomize frame
 } gib_type_t;
 
 // monster ai flags
@@ -163,9 +166,9 @@ typedef enum {
 // PMM - FIXME - last second added for E3 .. there's probably a better way to do this but
 // this works
 #define AI_DO_NOT_COUNT         BIT_ULL(21) // set for healed monsters
-#define AI_SPAWNED_CARRIER      BIT_ULL(22) // both do_not_count and spawned are set for spawned monsters
-#define AI_SPAWNED_MEDIC_C      BIT_ULL(23) // both do_not_count and spawned are set for spawned monsters
-#define AI_SPAWNED_WIDOW        BIT_ULL(24) // both do_not_count and spawned are set for spawned monsters
+#define AI_SPAWNED_COMMANDER    BIT_ULL(22) // both do_not_count and spawned are set for spawned monsters
+#define AI_SPAWNED_NEEDS_GIB    BIT_ULL(23) // only return commander slots when gibbed
+#define AI_RESERVED_24          BIT_ULL(24)
 #define AI_BLOCKED              BIT_ULL(25) // used by blocked_checkattack: set to say I'm attacking while blocked
                                             // (prevents run-attacks)
 // ROGUE
@@ -185,8 +188,10 @@ typedef enum {
 #define AI_REACHED_HOLD_COMBAT  BIT_ULL(37)
 #define AI_THIRD_EYE            BIT_ULL(38)
 
-// mask to catch all three flavors of spawned
-#define AI_SPAWNED_MASK         (AI_SPAWNED_CARRIER | AI_SPAWNED_MEDIC_C | AI_SPAWNED_WIDOW)
+// flags saved when monster is respawned
+#define AI_RESPAWN_MASK         (AI_STINKY | AI_SPAWNED_COMMANDER | AI_SPAWNED_NEEDS_GIB)
+// flags saved when a monster dies
+#define AI_DEATH_MASK           (AI_DOUBLE_TROUBLE | AI_GOOD_GUY | AI_RESPAWN_MASK)
 
 // monster attack state
 typedef enum {
@@ -657,6 +662,7 @@ typedef struct {
 //
 typedef struct {
     bool in_frame;
+    bool is_spawning; // whether we'return still doing SpawnEntities
     gtime_t time;
 
     char level_name[MAX_QPATH]; // the descriptive name (Outer Base, etc)
@@ -702,7 +708,7 @@ typedef struct {
     int      disguise_icon; // [Paril-KEX]
     // ROGUE
 
-    bool is_n64;
+    bool is_n64, is_psx;
     gtime_t coop_level_restart_time; // restart the level after this time
     bool instantitems; // instantitems 1 set in worldspawn
 
@@ -742,6 +748,12 @@ typedef struct {
     bool story_active;
     gtime_t next_auto_save;
 
+    const char *primary_objective_string;
+    const char *secondary_objective_string;
+
+    const char *primary_objective_title;
+    const char *secondary_objective_title;
+
     float skyrotate;
     int skyautorotate;
 } level_locals_t;
@@ -758,9 +770,9 @@ typedef struct {
     int         skyautorotate;
     const char *nextmap;
 
-    int         lip;
-    int         distance;
-    int         height;
+    float       lip;
+    float       distance;
+    float       height;
     const char *noise;
     float       pausetime;
     const char *item;
@@ -792,6 +804,12 @@ typedef struct {
     const char *reinforcements; // [Paril-KEX]
     const char *noise_start, *noise_middle, *noise_end; // [Paril-KEX]
     int loop_count; // [Paril-KEX]
+
+    const char *primary_objective_string;
+    const char *secondary_objective_string;
+
+    const char *primary_objective_title;
+    const char *secondary_objective_title;
 } spawn_temp_t;
 
 typedef enum {
@@ -960,8 +978,9 @@ typedef struct {
     gtime_t blind_fire_delay;
     vec3_t  blind_fire_target;
     // used by the spawners to not spawn too much and keep track of #s of monsters spawned
-    int      monster_slots; // nb: for spawned monsters, this is how many slots we took from our commander
-    int      monster_used;
+    int      slots_from_commander; // for spawned monsters, this is how many slots we took from our commander
+    int      monster_slots; // for commanders, total slots we can occupy
+    int      monster_used; // for commanders, total slots currently used
     edict_t *commander;
     // powerup timers, used by widow, our friend
     gtime_t quad_time;
@@ -1143,6 +1162,7 @@ static inline bool brandom(void)
 
 #define random_element(array)   ((array)[irandom1(q_countof(array))])
 
+extern cvar_t *developer;
 extern cvar_t *deathmatch;
 extern cvar_t *coop;
 extern cvar_t *skill;
@@ -1254,7 +1274,8 @@ extern cvar_t *g_monster_footsteps;
 #define SPAWNFLAG_ITEM_TRIGGER_SPAWN    0x00000001
 #define SPAWNFLAG_ITEM_NO_TOUCH         0x00000002
 #define SPAWNFLAG_ITEM_TOSS_SPAWN       0x00000004
-#define SPAWNFLAG_ITEM_MAX              0x00000008
+#define SPAWNFLAG_ITEM_NO_DROP          0x00000008
+#define SPAWNFLAG_ITEM_MAX              0x00000016
 // 8 bits reserved for editor flags & power cube bits
 // (see SPAWNFLAG_NOT_EASY above)
 #define SPAWNFLAG_ITEM_DROPPED          0x00010000
@@ -1333,7 +1354,12 @@ edict_t *findradius2(edict_t *from, const vec3_t org, float rad);
 
 void G_PlayerNotifyGoal(edict_t *player);
 
-bool KillBox(edict_t *ent, bool from_spawning, mod_id_t mod, bool bsp_clipping);
+bool KillBoxEx(edict_t *ent, bool from_spawning, mod_id_t mod, bool bsp_clipping, bool allow_safety);
+
+static inline bool KillBox(edict_t *ent, bool from_spawning)
+{
+    return KillBoxEx(ent, from_spawning, MOD_TELEFRAG, true, false);
+}
 
 //
 // g_spawn.c
@@ -1375,6 +1401,8 @@ void target_laser_off(edict_t *self);
 #define SPAWNFLAG_LASER_FAT         0x0040
 #define SPAWNFLAG_LASER_ZAP         0x80000000
 #define SPAWNFLAG_LASER_LIGHTNING   0x00010000
+#define SPAWNFLAG_LASER_REACTOR     0x00020000 // PSX reactor effect instead of beam
+#define SPAWNFLAG_LASER_NO_PROTECTION 0x00040000 // no protection
 
 #define SPAWNFLAG_HEALTHBAR_PVS_ONLY    1
 
@@ -1451,15 +1479,15 @@ void monster_fire_bullet(edict_t *self, const vec3_t start, const vec3_t dir, in
                          int vspread, monster_muzzleflash_id_t flashtype);
 void monster_fire_shotgun(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int kick, int hspread,
                           int vspread, int count, monster_muzzleflash_id_t flashtype);
-void monster_fire_blaster(edict_t *self, const vec3_t start, const vec3_t dir, int damage, int speed,
-                          monster_muzzleflash_id_t flashtype, effects_t effect);
+edict_t *monster_fire_blaster(edict_t *self, const vec3_t start, const vec3_t dir, int damage, int speed,
+                              monster_muzzleflash_id_t flashtype, effects_t effect);
 void monster_fire_flechette(edict_t *self, const vec3_t start, const vec3_t dir, int damage, int speed,
                             monster_muzzleflash_id_t flashtype);
 void monster_fire_grenade(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int speed,
                           monster_muzzleflash_id_t flashtype, float right_adjust, float up_adjust);
 void monster_fire_rocket(edict_t *self, const vec3_t start, const vec3_t dir, int damage, int speed,
                          monster_muzzleflash_id_t flashtype);
-void monster_fire_railgun(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int kick,
+bool monster_fire_railgun(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int kick,
                           monster_muzzleflash_id_t flashtype);
 void monster_fire_bfg(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int speed, int kick,
                       float damage_radius, monster_muzzleflash_id_t flashtype);
@@ -1503,6 +1531,8 @@ void monster_fire_ionripper(edict_t *self, const vec3_t start, const vec3_t dir,
                             monster_muzzleflash_id_t flashtype, effects_t effect);
 void monster_fire_heat(edict_t *self, const vec3_t start, const vec3_t dir, int damage, int speed,
                        monster_muzzleflash_id_t flashtype, float lerp_factor);
+#define SPAWNFLAG_DABEAM_SECONDARY  1
+#define SPAWNFLAG_DABEAM_SPAWNED    2
 void monster_fire_dabeam(edict_t *self, int damage, bool secondary, void (*update_func)(edict_t *self));
 void dabeam_update(edict_t *self, bool damage);
 void monster_fire_blueblaster(edict_t *self, const vec3_t start, const vec3_t dir, int damage, int speed,
@@ -1542,6 +1572,7 @@ int M_PickReinforcements(edict_t *self, int max_slots);
 #define SPAWNFLAG_MONSTER_SUPER_STEP    BIT(17)
 #define SPAWNFLAG_MONSTER_NO_DROP       BIT(18)
 #define SPAWNFLAG_MONSTER_SCENIC        BIT(19)
+#define SPAWNFLAG_MONSTER_NO_IDLE_DOORS BIT(20)
 
 // fixbot spawnflags
 #define SPAWNFLAG_FIXBOT_FIXIT      4
@@ -1554,14 +1585,15 @@ int M_PickReinforcements(edict_t *self, int max_slots);
 //
 typedef struct {
     const char *gibname;
-    uint16_t count;
-    uint16_t type;
+    uint8_t count;
+    uint8_t type;
+    uint8_t frame;
     float scale;
 } gib_def_t;
 
 void ThrowClientHead(edict_t *self, int damage);
 void gib_die(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod);
-edict_t *ThrowGib(edict_t *self, const char *gibname, int damage, gib_type_t type, float scale);
+edict_t *ThrowGibEx(edict_t *self, const char *gibname, int damage, gib_type_t type, int frame, float scale);
 void ThrowGibs(edict_t *self, int damage, const gib_def_t *gibs);
 void PrecacheGibs(const gib_def_t *gibs);
 void BecomeExplosion1(edict_t *self);
@@ -1601,10 +1633,16 @@ float range_to(edict_t *self, edict_t *other);
 bool FindTarget(edict_t *self);
 void FoundTarget(edict_t *self);
 void HuntTarget(edict_t *self, bool animate_state);
+bool infront_cone(edict_t *self, edict_t *other, float cone);
 bool infront(edict_t *self, edict_t *other);
 bool visible_ex(edict_t *self, edict_t *other, bool through_glass);
-bool visible(edict_t *self, edict_t *other);
 bool FacingIdeal(edict_t *self);
+
+static inline bool visible(edict_t *self, edict_t *other)
+{
+    return visible_ex(self, other, true);
+}
+
 
 // [Paril-KEX] generic function
 bool M_CheckAttack_Base(edict_t *self, float stand_ground_chance, float melee_chance, float near_chance,
@@ -1619,8 +1657,8 @@ void fire_bullet(edict_t *self, const vec3_t start, const vec3_t aimdir, int dam
 void fire_shotgun(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int kick,
                   int hspread, int vspread, int count, mod_t mod);
 void blaster_touch(edict_t *self, edict_t *other, const trace_t *tr, bool other_touching_self);
-void fire_blaster(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int speed,
-                  effects_t effect, mod_t mod);
+edict_t *fire_blaster(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int speed,
+                      effects_t effect, mod_t mod);
 void Grenade_Explode(edict_t *ent);
 void fire_grenade(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int speed, gtime_t timer,
                   float damage_radius, float right_adjust, float up_adjust, bool monster);
@@ -1629,7 +1667,7 @@ void fire_grenade2(edict_t *self, const vec3_t start, const vec3_t aimdir, int d
 void rocket_touch(edict_t *ent, edict_t *other, const trace_t *tr, bool other_touching_self);
 edict_t *fire_rocket(edict_t *self, const vec3_t start, const vec3_t dir, int damage, int speed,
                      float damage_radius, int radius_damage);
-void fire_rail(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int kick);
+bool fire_rail(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int kick);
 void fire_bfg(edict_t *self, const vec3_t start, const vec3_t dir, int damage, int speed, float damage_radius);
 // RAFAEL
 void fire_ionripper(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int speed, effects_t effect);
@@ -1711,7 +1749,7 @@ void G_EndOfUnitMessage(void);
 // p_weapon.c
 //
 void PlayerNoise(edict_t *who, const vec3_t where, player_noise_t type);
-void P_ProjectSource(edict_t *ent, const vec3_t angles, const vec3_t distance, vec3_t result_start, vec3_t result_dir);
+void P_ProjectSource(edict_t *ent, const vec3_t angles, const vec3_t distance, vec3_t result_start, vec3_t result_dir, bool adjust_for_pierce);
 void NoAmmoWeaponChange(edict_t *ent, bool sound);
 void G_RemoveAmmo(edict_t *ent);
 void G_RemoveAmmoEx(edict_t *ent, int quantity);
@@ -1921,6 +1959,8 @@ const char *G_GetL10nString(const char *key);
 // ZOID
 
 //============================================================================
+
+#define PSX_PHYSICS_SCALAR  0.875f
 
 // client_t->anim_priority
 typedef enum {
@@ -2489,6 +2529,8 @@ struct edict_s {
 
     const char *style_on, *style_off;
     int crosslevel_flags;
+    gtime_t no_gravity_time;
+    float vision_cone;
     // NOTE: if adding new elements, make sure to add them
     // in g_save.cpp too!
 };
@@ -2570,6 +2612,11 @@ static inline void pierce_end(pierce_t *p)
         ent->solid = p->solids[i];
         gi.linkentity(ent);
     }
+}
+
+static inline edict_t *ThrowGib(edict_t *self, const char *gibname, int damage, gib_type_t type)
+{
+    return ThrowGibEx(self, gibname, damage, type, 0, self->x.scale);
 }
 
 static inline bool M_CheckGib(edict_t *self, mod_t mod)

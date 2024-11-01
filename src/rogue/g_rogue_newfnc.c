@@ -245,7 +245,7 @@ void USE(force_wall_use)(edict_t *self, edict_t *other, edict_t *activator)
         self->nextthink = level.time + HZ(10);
         self->solid = SOLID_BSP;
         gi.linkentity(self);
-        KillBox(self, false, MOD_TELEFRAG, true); // Is this appropriate?
+        KillBox(self, false); // Is this appropriate?
     }
 }
 

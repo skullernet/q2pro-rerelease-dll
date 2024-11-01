@@ -303,7 +303,7 @@ void TOUCH(blaster_touch)(edict_t *self, edict_t *other, const trace_t *tr, bool
     G_FreeEdict(self);
 }
 
-void fire_blaster(edict_t *self, const vec3_t start, const vec3_t dir, int damage, int speed, effects_t effect, mod_t mod)
+edict_t *fire_blaster(edict_t *self, const vec3_t start, const vec3_t dir, int damage, int speed, effects_t effect, mod_t mod)
 {
     edict_t *bolt;
     trace_t  tr;
@@ -338,6 +338,8 @@ void fire_blaster(edict_t *self, const vec3_t start, const vec3_t dir, int damag
         VectorAdd(tr.endpos, tr.plane.normal, bolt->s.origin);
         bolt->touch(bolt, tr.ent, &tr, false);
     }
+
+    return bolt;
 }
 
 #define SPAWNFLAG_GRENADE_HAND  1
@@ -348,7 +350,7 @@ void fire_blaster(edict_t *self, const vec3_t start, const vec3_t dir, int damag
 fire_grenade
 =================
 */
-void THINK(Grenade_Explode)(edict_t *ent)
+static void Grenade_ExplodeReal(edict_t *ent, edict_t *other, const vec3_t normal)
 {
     vec3_t   origin;
     mod_id_t mod;
@@ -357,20 +359,15 @@ void THINK(Grenade_Explode)(edict_t *ent)
         PlayerNoise(ent->owner, ent->s.origin, PNOISE_IMPACT);
 
     // FIXME: if we are onground then raise our Z just a bit since we are a point?
-    if (ent->enemy) {
-        float  points;
-        vec3_t v;
+    if (other) {
         vec3_t dir;
 
-        VectorAvg(ent->enemy->mins, ent->enemy->maxs, v);
-        VectorAdd(v, ent->enemy->s.origin, v);
-        points = ent->dmg - 0.5f * Distance(ent->s.origin, v);
-        VectorSubtract(ent->enemy->s.origin, ent->s.origin, dir);
+        VectorSubtract(other->s.origin, ent->s.origin, dir);
         if (ent->spawnflags & SPAWNFLAG_GRENADE_HAND)
             mod = MOD_HANDGRENADE;
         else
             mod = MOD_GRENADE;
-        T_Damage(ent->enemy, ent, ent->owner, dir, ent->s.origin, vec3_origin, points, points, DAMAGE_RADIUS, (mod_t) { mod });
+        T_Damage(other, ent, ent->owner, dir, ent->s.origin, normal, ent->dmg, ent->dmg, mod == MOD_HANDGRENADE ? DAMAGE_RADIUS : DAMAGE_NONE, (mod_t) { mod });
     }
 
     if (ent->spawnflags & SPAWNFLAG_GRENADE_HELD)
@@ -379,9 +376,9 @@ void THINK(Grenade_Explode)(edict_t *ent)
         mod = MOD_HG_SPLASH;
     else
         mod = MOD_G_SPLASH;
-    T_RadiusDamage(ent, ent->owner, ent->dmg, ent->enemy, ent->dmg_radius, DAMAGE_NONE, (mod_t) { mod });
+    T_RadiusDamage(ent, ent->owner, ent->dmg, other, ent->dmg_radius, DAMAGE_NONE, (mod_t) { mod });
 
-    VectorMA(ent->s.origin, -0.02f, ent->velocity, origin);
+    VectorAdd(ent->s.origin, normal, origin);
     gi.WriteByte(svc_temp_entity);
     if (ent->waterlevel) {
         if (ent->groundentity)
@@ -398,6 +395,13 @@ void THINK(Grenade_Explode)(edict_t *ent)
     gi.multicast(ent->s.origin, MULTICAST_PHS);
 
     G_FreeEdict(ent);
+}
+
+void THINK(Grenade_Explode)(edict_t *ent)
+{
+    vec3_t normal;
+    VectorScale(ent->velocity, -0.02f, normal);
+    Grenade_ExplodeReal(ent, NULL, normal);
 }
 
 void TOUCH(Grenade_Touch)(edict_t *ent, edict_t *other, const trace_t *tr, bool other_touching_self)
@@ -420,8 +424,7 @@ void TOUCH(Grenade_Touch)(edict_t *ent, edict_t *other, const trace_t *tr, bool 
         return;
     }
 
-    ent->enemy = other;
-    Grenade_Explode(ent);
+    Grenade_ExplodeReal(ent, other, tr->plane.normal);
 }
 
 void THINK(Grenade4_Think)(edict_t *self)
@@ -573,13 +576,13 @@ void TOUCH(rocket_touch)(edict_t *ent, edict_t *other, const trace_t *tr, bool o
     VectorAdd(ent->s.origin, tr->plane.normal, origin);
 
     if (other->takedamage) {
-        T_Damage(other, ent, ent->owner, ent->velocity, ent->s.origin, tr->plane.normal, ent->dmg, 0, DAMAGE_NONE, (mod_t) { MOD_ROCKET });
+        T_Damage(other, ent, ent->owner, ent->velocity, ent->s.origin, tr->plane.normal, ent->dmg, ent->dmg, DAMAGE_NONE, (mod_t) { MOD_ROCKET });
         // don't throw any debris in net games
     } else if (!deathmatch->integer && !coop->integer && tr->surface &&
                !(tr->surface->flags & (SURF_WARP | SURF_TRANS33 | SURF_TRANS66 | SURF_FLOWING))) {
         int n = irandom1(5);
         while (n--)
-            ThrowGib(ent, "models/objects/debris2/tris.md2", 2, GIB_METALLIC | GIB_DEBRIS, ent->x.scale);
+            ThrowGib(ent, "models/objects/debris2/tris.md2", 2, GIB_METALLIC | GIB_DEBRIS);
     }
 
     T_RadiusDamage(ent, ent->owner, ent->radius_dmg, other, ent->dmg_radius, DAMAGE_NONE, (mod_t) { MOD_R_SPLASH });
@@ -667,7 +670,7 @@ static bool binary_positional_search(const vec3_t viewer, const vec3_t start, co
 fire_rail
 =================
 */
-void fire_rail(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int kick)
+bool fire_rail(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int kick)
 {
     contents_t mask = MASK_PROJECTILE;
 
@@ -739,6 +742,8 @@ void fire_rail(edict_t *self, const vec3_t start, const vec3_t aimdir, int damag
 
     if (self->client)
         PlayerNoise(self, tr.endpos, PNOISE_IMPACT);
+
+    return pierce.count;
 }
 
 static void bfg_laser_pos(const vec3_t p, float dist, vec3_t out)
@@ -771,7 +776,7 @@ static void bfg_spawn_laser(edict_t *self)
 {
     vec3_t end;
     bfg_laser_pos(self->s.origin, 256, end);
-    trace_t tr = gi.trace(self->s.origin, NULL, NULL, end, self, MASK_OPAQUE);
+    trace_t tr = gi.trace(self->s.origin, NULL, NULL, end, self, MASK_OPAQUE | CONTENTS_PROJECTILECLIP);
 
     if (tr.fraction == 1.0f)
         return;
@@ -933,7 +938,7 @@ void THINK(bfg_think)(edict_t *self)
         VectorMA(start, 2048, dir, end);
 
         // [Paril-KEX] don't fire a laser if we're blocked by the world
-        tr = gi.trace(start, NULL, NULL, point, NULL, MASK_SOLID);
+        tr = gi.trace(start, NULL, NULL, point, NULL, MASK_SOLID | CONTENTS_PROJECTILECLIP);
 
         if (tr.fraction < 1.0f)
             continue;
@@ -942,7 +947,7 @@ void THINK(bfg_think)(edict_t *self)
         pierce_begin(&pierce);
 
         do {
-            tr = gi.trace(start, NULL, NULL, end, self, CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_PLAYER | CONTENTS_DEADMONSTER);
+            tr = gi.trace(start, NULL, NULL, end, self, CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_PLAYER | CONTENTS_DEADMONSTER | CONTENTS_PROJECTILECLIP);
 
             // didn't hit anything, so we're done
             if (!tr.ent || tr.fraction == 1.0f)
@@ -954,13 +959,16 @@ void THINK(bfg_think)(edict_t *self)
 
             // if we hit something that's not a monster or player we're done
             if (!(tr.ent->svflags & SVF_MONSTER) && !(tr.ent->flags & FL_DAMAGEABLE) && (!tr.ent->client)) {
+                vec3_t pos;
+                VectorAdd(tr.endpos, tr.plane.normal, pos);
+
                 gi.WriteByte(svc_temp_entity);
                 gi.WriteByte(TE_LASER_SPARKS);
                 gi.WriteByte(4);
-                gi.WritePosition(tr.endpos);
+                gi.WritePosition(pos);
                 gi.WriteDir(tr.plane.normal);
-                gi.WriteByte(self->s.skinnum);
-                gi.multicast(tr.endpos, MULTICAST_PVS);
+                gi.WriteByte(208);
+                gi.multicast(pos, MULTICAST_PVS);
                 break;
             }
         } while (pierce_mark(&pierce, tr.ent));

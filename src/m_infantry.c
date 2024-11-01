@@ -426,9 +426,9 @@ void DIE(infantry_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int
         ThrowGibs(self, damage, infantry_gibs);
 
         if (self->monsterinfo.active_move != &infantry_move_death3)
-            ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_HEAD | GIB_SKINNED, self->x.scale);
+            ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_HEAD | GIB_SKINNED);
         else
-            ThrowGib(self, "models/monsters/infantry/gibs/head.md2", damage, GIB_HEAD | GIB_SKINNED, self->x.scale);
+            ThrowGib(self, "models/monsters/infantry/gibs/head.md2", damage, GIB_HEAD | GIB_SKINNED);
 
         self->deadflag = true;
         return;
@@ -456,7 +456,7 @@ void DIE(infantry_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int
 
     // don't always pop a head gib, it gets old
     if (n != 2 && frandom() <= 0.25f) {
-        edict_t *head = ThrowGib(self, "models/monsters/infantry/gibs/head.md2", damage, GIB_NONE, self->x.scale);
+        edict_t *head = ThrowGib(self, "models/monsters/infantry/gibs/head.md2", damage, GIB_NONE);
 
         if (head) {
             VectorCopy(self->s.angles, head->s.angles);

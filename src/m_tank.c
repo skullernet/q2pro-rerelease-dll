@@ -307,7 +307,7 @@ void MONSTERINFO_SETSKIN(tank_setskin)(edict_t *self)
 }
 
 // [Paril-KEX]
-static bool M_AdjustBlindfireTarget(edict_t *self, const vec3_t start, const vec3_t target, const vec3_t right, vec3_t out_dir)
+bool M_AdjustBlindfireTarget(edict_t *self, const vec3_t start, const vec3_t target, const vec3_t right, vec3_t out_dir)
 {
     for (int i = 0; i < 3; i++) {
         vec3_t end;
@@ -894,7 +894,7 @@ void DIE(tank_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int dam
         self->s.skinnum /= 2;
 
         if (!self->style)
-            ThrowGib(self, "models/monsters/tank/gibs/barm.md2", damage, GIB_SKINNED | GIB_UPRIGHT, self->x.scale);
+            ThrowGib(self, "models/monsters/tank/gibs/barm.md2", damage, GIB_SKINNED | GIB_UPRIGHT);
 
         ThrowGibs(self, damage, tank_gibs);
 
@@ -912,7 +912,7 @@ void DIE(tank_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int dam
         self->style = 1;
         AngleVectors(self->s.angles, f, r, u);
 
-        edict_t *arm = ThrowGib(self, "models/monsters/tank/gibs/barm.md2", damage, GIB_SKINNED | GIB_UPRIGHT, self->x.scale);
+        edict_t *arm = ThrowGib(self, "models/monsters/tank/gibs/barm.md2", damage, GIB_SKINNED | GIB_UPRIGHT);
         VectorMA(self->s.origin, -16, r, arm->s.origin);
         VectorMA(arm->s.origin, 23, u, arm->s.origin);
         VectorCopy(arm->s.origin, arm->s.old_origin);

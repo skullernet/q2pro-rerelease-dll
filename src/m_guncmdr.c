@@ -294,7 +294,7 @@ const mmove_t MMOVE_T(guncmdr_move_death1) = { FRAME_c_death101, FRAME_c_death11
 
 static void guncmdr_pain5_to_death1(edict_t *self)
 {
-    if (self->health < 0)
+    if (self->health <= 0)
         M_SetAnimationEx(self, &guncmdr_move_death1, false);
 }
 
@@ -308,7 +308,7 @@ const mmove_t MMOVE_T(guncmdr_move_death2) = { FRAME_c_death201, FRAME_c_death20
 
 static void guncmdr_pain5_to_death2(edict_t *self)
 {
-    if (self->health < 0 && brandom())
+    if (self->health <= 0 && brandom())
         M_SetAnimationEx(self, &guncmdr_move_death2, false);
 }
 
@@ -381,7 +381,7 @@ const mmove_t MMOVE_T(guncmdr_move_death6) = { FRAME_c_death601, FRAME_c_death61
 
 static void guncmdr_pain6_to_death6(edict_t *self)
 {
-    if (self->health < 0)
+    if (self->health <= 0)
         M_SetAnimationEx(self, &guncmdr_move_death6, false);
 }
 
@@ -693,9 +693,9 @@ void DIE(guncmdr_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int 
         ThrowGibs(self, damage, guncmdr_gibs);
 
         if (self->monsterinfo.active_move != &guncmdr_move_death5)
-            ThrowGib(self, "models/monsters/gunner/gibs/head.md2", damage, GIB_SKINNED | GIB_HEAD, self->x.scale);
+            ThrowGib(self, "models/monsters/gunner/gibs/head.md2", damage, GIB_SKINNED | GIB_HEAD);
         else
-            ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_SKINNED | GIB_HEAD, self->x.scale);
+            ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_SKINNED | GIB_HEAD);
 
         self->deadflag = true;
         return;
@@ -727,7 +727,7 @@ void DIE(guncmdr_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int 
     if (fabsf((self->s.origin[2] + self->viewheight) - point[2]) <= 4 && self->velocity[2] < 65) {
         M_SetAnimation(self, &guncmdr_move_death5);
 
-        edict_t *head = ThrowGib(self, "models/monsters/gunner/gibs/head.md2", damage, GIB_NONE, self->x.scale);
+        edict_t *head = ThrowGib(self, "models/monsters/gunner/gibs/head.md2", damage, GIB_NONE);
         if (head) {
             VectorCopy(self->s.angles, head->s.angles);
             VectorCopy(self->s.origin, head->s.origin);

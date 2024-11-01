@@ -18,6 +18,8 @@ void THINK(info_player_start_drop)(edict_t *self)
     gi.linkentity(self);
 }
 
+#define SPAWNFLAG_SPAWN_RIDE    1
+
 /*QUAKED info_player_start (1 0 0) (-16 -16 -24) (16 16 32)
 The normal starting point for a level.
 */
@@ -29,10 +31,13 @@ void SP_info_player_start(edict_t *self)
 
     // [Paril-KEX] on n64, since these can spawn riding elevators,
     // allow them to "ride" the elevators so respawning works
-    if (level.is_n64) {
+    if (level.is_n64 || level.is_psx || (self->spawnflags & SPAWNFLAG_SPAWN_RIDE)) {
         self->think = info_player_start_drop;
         self->nextthink = level.time + FRAME_TIME;
     }
+
+    if (level.is_psx)
+        self->s.origin[2] -= player_mins[2] * (1 - PSX_PHYSICS_SCALAR);
 }
 
 /*QUAKED info_player_deathmatch (1 0 1) (-16 -16 -24) (16 16 32)
@@ -626,7 +631,7 @@ void DIE(player_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int d
                 count = 4;
 
             while (count--)
-                ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_NONE, self->x.scale);
+                ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_NONE);
         // PMM
         }
         self->flags &= ~FL_NOGIB;
@@ -835,6 +840,9 @@ void InitClientPersistant(edict_t *ent, gclient_t *client)
             if (level.start_items && *level.start_items)
                 Player_GiveStartItems(ent, level.start_items);
 
+            // power armor from start items
+            G_CheckPowerArmor(ent);
+
             // ZOID
             bool give_grapple = (!strcmp(g_allow_grapple->string, "auto")) ?
                                 (ctf->integer ? !level.no_grapple : 0) :
@@ -860,7 +868,7 @@ void InitClientPersistant(edict_t *ent, gclient_t *client)
         client->pers.lives = g_coop_num_lives->integer + 1;
 
     if (ent->client->pers.autoshield >= AUTO_SHIELD_AUTO)
-        ent->flags |= FL_WANTS_POWER_ARMOR;
+        client->pers.savedFlags |= FL_WANTS_POWER_ARMOR;
 
     client->pers.connected = true;
     client->pers.spawned = true;
@@ -1436,7 +1444,7 @@ void DIE(body_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int dam
     if (self->s.modelindex == MODELINDEX_PLAYER && self->health < self->gib_health) {
         gi.sound(self, CHAN_BODY, gi.soundindex("misc/udeath.wav"), 1, ATTN_NORM, 0);
         for (int n = 0; n < 4; n++)
-            ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_NONE, self->x.scale);
+            ThrowGib(self, "models/objects/gibs/sm_meat/tris.md2", damage, GIB_NONE);
         self->s.origin[2] -= 48;
         ThrowClientHead(self, damage);
     }
@@ -1939,7 +1947,7 @@ void PutClientInServer(edict_t *ent)
 
     gi.linkentity(ent);
 
-    if (!KillBox(ent, true, MOD_TELEFRAG_SPAWN, false)) {
+    if (!KillBoxEx(ent, true, MOD_TELEFRAG_SPAWN, false, false)) {
         // could't spawn in?
     }
 
@@ -2560,7 +2568,14 @@ void ClientThink(edict_t *ent, usercmd_t *ucmd)
         }
 
         // PGM  trigger_gravity support
-        client->ps.pmove.gravity = (int)(level.gravity * ent->gravity);
+        if (ent->no_gravity_time > level.time) {
+            client->ps.pmove.gravity = 0;
+            //client->ps.pmove.pm_flags |= PMF_NO_GROUND_SEEK;
+        } else {
+            client->ps.pmove.gravity = (int)(level.gravity * ent->gravity);
+            //client->ps.pmove.pm_flags &= ~PMF_NO_GROUND_SEEK;
+        }
+
         pm.s = client->ps.pmove;
 
         for (i = 0; i < 3; i++) {

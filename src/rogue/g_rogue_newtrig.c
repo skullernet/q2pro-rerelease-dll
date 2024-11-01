@@ -79,7 +79,7 @@ void TOUCH(trigger_teleport_touch)(edict_t *self, edict_t *other, const trace_t 
     gi.linkentity(other);
 
     // kill anything at the destination
-    KillBox(other, !!other->client, MOD_TELEFRAG, true);
+    KillBox(other, !!other->client);
 
     // [Paril-KEX] move sphere, if we own it
     if (other->client && other->client->owned_sphere) {

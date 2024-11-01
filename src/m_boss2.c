@@ -20,6 +20,22 @@ static int sound_pain3;
 static int sound_death;
 static int sound_search1;
 
+// he fly
+static void boss2_set_fly_parameters(edict_t *self, bool firing)
+{
+    self->monsterinfo.fly_thrusters = false;
+    if (firing) {
+        self->monsterinfo.fly_acceleration = 1.5f;
+        self->monsterinfo.fly_speed        = 10.0f;
+    } else {
+        self->monsterinfo.fly_acceleration = 3.0f;
+        self->monsterinfo.fly_speed        = 80.0f;
+    }
+    // BOSS2 stays far-ish away if he's in the open
+    self->monsterinfo.fly_min_distance = 400;
+    self->monsterinfo.fly_max_distance = 600;
+}
+
 void MONSTERINFO_SEARCH(boss2_search)(edict_t *self)
 {
     if (brandom())
@@ -458,6 +474,8 @@ void MONSTERINFO_STAND(boss2_stand)(edict_t *self)
 
 void MONSTERINFO_RUN(boss2_run)(edict_t *self)
 {
+    boss2_set_fly_parameters(self, false);
+
     if (self->monsterinfo.aiflags & AI_STAND_GROUND)
         M_SetAnimation(self, &boss2_move_stand);
     else
@@ -477,6 +495,8 @@ void MONSTERINFO_ATTACK(boss2_attack)(edict_t *self)
         M_SetAnimation(self, (self->spawnflags & SPAWNFLAG_BOSS2_N64) ? &boss2_move_attack_hb : &boss2_move_attack_pre_mg);
     else
         M_SetAnimation(self, (self->spawnflags & SPAWNFLAG_BOSS2_N64) ? &boss2_move_attack_rocket2 : &boss2_move_attack_rocket);
+
+    boss2_set_fly_parameters(self, true);
 }
 
 static void boss2_attack_mg(edict_t *self)
@@ -538,10 +558,10 @@ static const gib_def_t boss2_gibs[] = {
     { "models/monsters/boss2/gibs/wing.md2", 2, GIB_SKINNED | GIB_UPRIGHT },
     { "models/monsters/boss2/gibs/larm.md2", 1, GIB_SKINNED | GIB_UPRIGHT },
     { "models/monsters/boss2/gibs/rarm.md2", 1, GIB_SKINNED | GIB_UPRIGHT },
-    { "models/monsters/boss2/gibs/larm.md2", 1, GIB_SKINNED | GIB_UPRIGHT, 2.0f },
-    { "models/monsters/boss2/gibs/rarm.md2", 1, GIB_SKINNED | GIB_UPRIGHT, 2.0f },
-    { "models/monsters/boss2/gibs/larm.md2", 1, GIB_SKINNED | GIB_UPRIGHT, 1.35f },
-    { "models/monsters/boss2/gibs/rarm.md2", 1, GIB_SKINNED | GIB_UPRIGHT, 1.35f },
+    { "models/monsters/boss2/gibs/larm.md2", 1, GIB_SKINNED | GIB_UPRIGHT, 0, 2.0f },
+    { "models/monsters/boss2/gibs/rarm.md2", 1, GIB_SKINNED | GIB_UPRIGHT, 0, 2.0f },
+    { "models/monsters/boss2/gibs/larm.md2", 1, GIB_SKINNED | GIB_UPRIGHT, 0, 1.35f },
+    { "models/monsters/boss2/gibs/rarm.md2", 1, GIB_SKINNED | GIB_UPRIGHT, 0, 1.35f },
     { "models/monsters/boss2/gibs/head.md2", 1, GIB_SKINNED | GIB_METALLIC | GIB_HEAD },
     { 0 }
 };
@@ -643,7 +663,7 @@ void SP_monster_boss2(edict_t *self)
 
     self->health = 2000 * st.health_multiplier;
     self->gib_health = -200;
-    self->mass = 1000;
+    self->mass = 2000;
 
     self->yaw_speed = 50;
 
@@ -666,6 +686,9 @@ void SP_monster_boss2(edict_t *self)
 
     // [Paril-KEX]
     self->monsterinfo.aiflags |= AI_IGNORE_SHOTS;
+
+    self->monsterinfo.aiflags |= AI_ALTERNATE_FLY;
+    boss2_set_fly_parameters(self, false);
 
     flymonster_start(self);
 }

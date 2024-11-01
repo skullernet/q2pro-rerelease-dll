@@ -392,7 +392,7 @@ bool visible_ex(edict_t *self, edict_t *other, bool through_glass)
     VectorCopy(other->s.origin, spot2);
     spot2[2] += other->viewheight;
 
-    contents_t mask = MASK_OPAQUE;
+    contents_t mask = MASK_OPAQUE | CONTENTS_PROJECTILECLIP;
 
     if (!through_glass)
         mask |= CONTENTS_WINDOW;
@@ -401,9 +401,23 @@ bool visible_ex(edict_t *self, edict_t *other, bool through_glass)
     return trace.fraction == 1.0f || trace.ent == other; // PGM
 }
 
-bool visible(edict_t *self, edict_t *other)
+/*
+=============
+infront
+
+returns 1 if the entity is in front (in sight) of self
+=============
+*/
+bool infront_cone(edict_t *self, edict_t *other, float cone)
 {
-    return visible_ex(self, other, true);
+    vec3_t vec;
+    vec3_t forward;
+
+    AngleVectors(self->s.angles, forward, NULL, NULL);
+    VectorSubtract(other->s.origin, self->s.origin, vec);
+    VectorNormalize(vec);
+
+    return DotProduct(vec, forward) > cone;
 }
 
 /*
@@ -415,21 +429,18 @@ returns 1 if the entity is in front (in sight) of self
 */
 bool infront(edict_t *self, edict_t *other)
 {
-    vec3_t vec;
-    float  dot;
-    vec3_t forward;
+    float cone = self->vision_cone;
 
-    AngleVectors(self->s.angles, forward, NULL, NULL);
-    VectorSubtract(other->s.origin, self->s.origin, vec);
-    VectorNormalize(vec);
-    dot = DotProduct(vec, forward);
+    if (cone < -1.0f) {
+        // [Paril-KEX] if we're an ambush monster, reduce our cone of
+        // vision to not ruin surprises, unless we already had an enemy.
+        if (self->spawnflags & SPAWNFLAG_MONSTER_AMBUSH && !self->monsterinfo.trail_time && !self->enemy)
+            cone = 0.15f;
+        else
+            cone = -0.30f;
+    }
 
-    // [Paril-KEX] if we're an ambush monster, reduce our cone of
-    // vision to not ruin surprises, unless we already had an enemy.
-    if (self->spawnflags & SPAWNFLAG_MONSTER_AMBUSH && !self->monsterinfo.trail_time && !self->enemy)
-        return dot > 0.15f;
-
-    return dot > -0.30f;
+    return infront_cone(self, other, cone);
 }
 
 //============================================================================
@@ -846,7 +857,7 @@ bool M_CheckAttack_Base(edict_t *self, float stand_ground_chance, float melee_ch
             VectorCopy(self->enemy->s.origin, spot2);
             spot2[2] += self->enemy->viewheight;
 
-            tr = gi.trace(spot1, NULL, NULL, spot2, self, MASK_SOLID | CONTENTS_MONSTER | CONTENTS_PLAYER | CONTENTS_SLIME | CONTENTS_LAVA);
+            tr = gi.trace(spot1, NULL, NULL, spot2, self, MASK_SOLID | CONTENTS_MONSTER | CONTENTS_PLAYER | CONTENTS_SLIME | CONTENTS_LAVA | CONTENTS_PROJECTILECLIP);
         } else {
             tr.ent = world;
             tr.fraction = 0;
@@ -1176,7 +1187,7 @@ static bool ai_checkattack(edict_t *self, float dist)
     // check knowledge of enemy
     enemy_vis = visible(self, self->enemy);
     if (enemy_vis) {
-        self->monsterinfo.had_visibility = true;
+        self->monsterinfo.had_visibility = visible_ex(self, self->enemy, false);
         self->enemy->show_hostile = level.time + SEC(1); // wake up other monsters
         self->monsterinfo.search_time = level.time + SEC(5);
         VectorCopy(self->enemy->s.origin, self->monsterinfo.saved_goal);
@@ -1187,6 +1198,8 @@ static bool ai_checkattack(edict_t *self, float dist)
 
             if (self->monsterinfo.move_block_change_time < level.time)
                 self->monsterinfo.aiflags &= ~AI_TEMP_MELEE_COMBAT;
+
+            self->monsterinfo.checkattack_time = level.time + random_time_sec(0.05f, 0.2f);
         }
         self->monsterinfo.trail_time = level.time;
         VectorMA(self->monsterinfo.last_sighting, -0.1f, self->enemy->velocity, self->monsterinfo.blind_fire_target);
@@ -1351,7 +1364,7 @@ void ai_run(edict_t *self, float dist)
     if (self->monsterinfo.aiflags & AI_SOUND_TARGET) {
         bool touching_noise = SV_CloseEnough(self, self->enemy, dist * (TICK_RATE / 10));
 
-        if ((!self->enemy) || (touching_noise && FacingIdeal(self))) {
+        if ((!self->enemy || !self->enemy->inuse) || (touching_noise && FacingIdeal(self))) {
             self->monsterinfo.aiflags |= (AI_STAND_GROUND | AI_TEMP_STAND_GROUND);
             self->s.angles[YAW] = self->ideal_yaw;
             self->monsterinfo.stand(self);

@@ -158,7 +158,7 @@ static void berserk_attack_spike(edict_t *self)
 {
     vec3_t aim = { MELEE_DISTANCE, 0, -24 };
 
-    if (!fire_hit(self, aim, irandom2(5, 11), 80)) //    Faster attack -- upwards and backwards
+    if (!fire_hit(self, aim, irandom2(5, 11), 400)) // Faster attack -- upwards and backwards
         self->monsterinfo.melee_debounce_time = level.time + SEC(1.2f);
 }
 
@@ -183,7 +183,7 @@ static void berserk_attack_club(edict_t *self)
 {
     vec3_t aim = { MELEE_DISTANCE, self->mins[0], -4 };
 
-    if (!fire_hit(self, aim, irandom2(15, 21), 400)) // Slower attack
+    if (!fire_hit(self, aim, irandom2(15, 21), 250)) // Slower attack
         self->monsterinfo.melee_debounce_time = level.time + SEC(2.5f);
 }
 

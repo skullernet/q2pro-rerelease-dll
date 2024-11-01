@@ -210,6 +210,13 @@ void SP_target_secret(edict_t *ent)
 }
 
 //==========================================================
+
+static const char *G_ExpandArgument(const char *fmt, const char *arg)
+{
+    char *p = strstr(fmt, "{}");
+    return p ? va("%.*s%s%s", (int)(p - fmt), fmt, arg, p + 2) : fmt;
+}
+
 // [Paril-KEX] notify this player of a goal change
 void G_PlayerNotifyGoal(edict_t *player)
 {
@@ -273,7 +280,7 @@ void G_PlayerNotifyGoal(edict_t *player)
 
         if (*game.helpmessage1)
             // [Sam-KEX] Print objective to screen
-            gi.cprintf(player, PRINT_TYPEWRITER, "Primary Objective:\n%s", game.helpmessage1);
+            gi.cprintf(player, PRINT_TYPEWRITER, "%s", G_ExpandArgument(level.primary_objective_string, game.helpmessage1));
     }
 
     if (player->client->pers.game_help2changed != game.help2changed) {
@@ -283,7 +290,7 @@ void G_PlayerNotifyGoal(edict_t *player)
 
         if (*game.helpmessage2)
             // [Sam-KEX] Print objective to screen
-            gi.cprintf(player, PRINT_TYPEWRITER, "Secondary Objective:\n%s", game.helpmessage2);
+            gi.cprintf(player, PRINT_TYPEWRITER, "%s", G_ExpandArgument(level.secondary_objective_string, game.helpmessage2));
     }
 }
 
@@ -538,7 +545,9 @@ void USE(use_target_spawner)(edict_t *self, edict_t *other, edict_t *activator)
     ED_CallSpawn(ent);
     gi.linkentity(ent);
 
-    KillBox(ent, false, MOD_TELEFRAG, false);
+    if (ent->solid == SOLID_BBOX || (G_GetClipMask(ent) & (CONTENTS_PLAYER)))
+        KillBox(ent, false);
+
     if (self->speed)
         VectorCopy(self->movedir, ent->velocity);
 
@@ -680,6 +689,14 @@ void THINK(target_laser_think)(edict_t *self)
 
     contents_t mask = (self->spawnflags & SPAWNFLAG_LASER_STOPWINDOW) ? MASK_SHOT : (CONTENTS_SOLID | CONTENTS_MONSTER | CONTENTS_PLAYER | CONTENTS_DEADMONSTER);
 
+    if (!self->dmg)
+        mask &= ~(CONTENTS_MONSTER | CONTENTS_PLAYER | CONTENTS_DEADMONSTER);
+
+    damageflags_t dmg = DAMAGE_ENERGY;
+
+    if (self->spawnflags & SPAWNFLAG_LASER_NO_PROTECTION)
+        dmg |= DAMAGE_NO_PROTECTION;
+
     pierce_begin(&pierce);
 
     do {
@@ -692,7 +709,7 @@ void THINK(target_laser_think)(edict_t *self)
         // hurt it if we can
         if (self->dmg > 0 && (tr.ent->takedamage) && !(tr.ent->flags & FL_IMMUNE_LASER) && self->damage_debounce_time <= level.time) {
             damaged_thing = true;
-            T_Damage(tr.ent, self, self->activator, self->movedir, tr.endpos, vec3_origin, self->dmg, 1, DAMAGE_ENERGY, (mod_t) { MOD_TARGET_LASER });
+            T_Damage(tr.ent, self, self->activator, self->movedir, tr.endpos, vec3_origin, self->dmg, 1, dmg, (mod_t) { MOD_TARGET_LASER });
         }
 
         // if we hit something that's not a monster or player or is immune to lasers, we're done
@@ -769,20 +786,9 @@ void THINK(target_laser_start)(edict_t *self)
         }
     }
 
-    if (self->spawnflags & SPAWNFLAG_LASER_LIGHTNING) {
-        self->s.renderfx |= RF_BEAM_LIGHTNING; // tell renderer it is lightning
-        if (!self->s.skinnum)
-            self->s.skinnum = 0xf3f3f1f1; // default lightning color
-    }
-
-    // set the beam diameter
-    // [Paril-KEX] lab has this set prob before lightning was implemented
-    if (!level.is_n64 && (self->spawnflags & SPAWNFLAG_LASER_FAT))
-        self->s.frame = 16;
-    else
-        self->s.frame = 4;
-
     // set the color
+    // [Paril-KEX] moved it here so that color takes place
+    // before lightning/reactor check
     if (!self->s.skinnum) {
         if (self->spawnflags & SPAWNFLAG_LASER_RED)
             self->s.skinnum = 0xf2f2f0f0;
@@ -794,6 +800,15 @@ void THINK(target_laser_start)(edict_t *self)
             self->s.skinnum = 0xdcdddedf;
         else if (self->spawnflags & SPAWNFLAG_LASER_ORANGE)
             self->s.skinnum = 0xe0e1e2e3;
+    }
+
+    if (self->spawnflags & SPAWNFLAG_LASER_REACTOR)
+        self->spawnflags |= SPAWNFLAG_LASER_LIGHTNING;
+
+    if (self->spawnflags & SPAWNFLAG_LASER_LIGHTNING) {
+        self->s.renderfx |= RF_BEAM_LIGHTNING; // tell renderer it is lightning
+        if (!self->s.skinnum)
+            self->s.skinnum = 0xf3f3f1f1; // default lightning color
     }
 
     if (!self->enemy)  {
@@ -816,9 +831,6 @@ void THINK(target_laser_start)(edict_t *self)
     self->use = target_laser_use;
     self->think = target_laser_think;
 
-    if (!self->dmg)
-        self->dmg = 1;
-
     VectorSet(self->mins, -8, -8, -8);
     VectorSet(self->maxs, 8, 8, 8);
     gi.linkentity(self);
@@ -831,6 +843,20 @@ void THINK(target_laser_start)(edict_t *self)
 
 void SP_target_laser(edict_t *self)
 {
+    // set the beam diameter
+    // [Paril-KEX] lab has this set prob before lightning was implemented
+    // [Paril-KEX] moved this here because st
+    if (!ED_WasKeySpecified("frame")) {
+        if (!level.is_n64 && (self->spawnflags & SPAWNFLAG_LASER_FAT))
+            self->s.frame = 16;
+        else
+            self->s.frame = 4;
+    }
+
+    // [Paril-KEX] moved this here because st
+    if (!ED_WasKeySpecified("dmg"))
+        self->dmg = 1;
+
     // let everything else get spawned before we start firing
     self->think = target_laser_start;
     self->flags |= FL_TRAP_LASER_FIELD;

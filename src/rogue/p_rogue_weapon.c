@@ -12,7 +12,7 @@ static void weapon_prox_fire(edict_t *ent)
     P_GetThrowAngles(ent, angles);
 
     vec3_t start, dir;
-    P_ProjectSource(ent, angles, (const vec3_t) { 8, 0, -8 }, start, dir);
+    P_ProjectSource(ent, angles, (const vec3_t) { 8, 0, -8 }, start, dir, false);
 
     P_AddWeaponKick(ent, -2, -1);
 
@@ -46,7 +46,7 @@ static void weapon_tesla_fire(edict_t *ent, bool held)
     P_GetThrowAngles(ent, angles);
 
     vec3_t start, dir;
-    P_ProjectSource(ent, angles, (const vec3_t) { 0, 0, -22 }, start, dir);
+    P_ProjectSource(ent, angles, (const vec3_t) { 0, 0, -22 }, start, dir, false);
 
     if (ent->health > 0) {
         float frac = 1.0f - TO_SEC(ent->client->grenade_time - level.time) / GRENADE_TIMER_SEC;
@@ -99,7 +99,7 @@ static void weapon_chainfist_fire(edict_t *ent)
     // set start point
     vec3_t start, dir;
 
-    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 0, 0, -4 }, start, dir);
+    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 0, 0, -4 }, start, dir, false);
 
     if (fire_player_melee(ent, start, dir, CHAINFIST_REACH, damage, 100, (mod_t) { MOD_CHAINFIST })) {
         if (ent->client->empty_click_sound < level.time) {
@@ -139,7 +139,7 @@ static void weapon_chainfist_fire(edict_t *ent)
 static void chainfist_smoke(edict_t *ent)
 {
     vec3_t start, dir;
-    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 8, 8, -4 }, start, dir);
+    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 8, 8, -4 }, start, dir, false);
 
     gi.WriteByte(svc_temp_entity);
     gi.WriteByte(TE_CHAINFIST_SMOKE);
@@ -197,7 +197,7 @@ static void weapon_tracker_fire(edict_t *self)
         damage *= damage_multiplier; // pgm
 
     vec3_t start, dir;
-    P_ProjectSource(self, self->client->v_angle, (const vec3_t) { 24, 8, -8 }, start, dir);
+    P_ProjectSource(self, self->client->v_angle, (const vec3_t) { 24, 8, -8 }, start, dir, false);
 
     VectorMA(start, 8192, dir, end);
 
@@ -288,7 +288,7 @@ static void weapon_etf_rifle_fire(edict_t *ent)
 
     vec3_t start, dir, angles;
     VectorAdd(ent->client->v_angle, ent->client->kick.angles, angles);
-    P_ProjectSource(ent, angles, offset, start, dir);
+    P_ProjectSource(ent, angles, offset, start, dir, false);
     fire_flechette(ent, start, dir, damage, 1150, kick);
     Weapon_PowerupSound(ent);
 
@@ -375,7 +375,7 @@ static void Heatbeam_Fire(edict_t *ent)
 
     // This offset is the "view" offset for the beam start (used by trace)
     vec3_t start, dir;
-    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 7, 2, -3 }, start, dir);
+    P_ProjectSource(ent, ent->client->v_angle, (const vec3_t) { 7, 2, -3 }, start, dir, false);
 
     // This offset is the entity offset
     fire_heatbeam(ent, start, dir, (const vec3_t) { 2, 7, -3 }, damage, kick, false);

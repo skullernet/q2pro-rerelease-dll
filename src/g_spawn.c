@@ -68,6 +68,7 @@ void SP_trigger_flashlight(edict_t *self); // [Paril-KEX]
 void SP_trigger_fog(edict_t *self); // [Paril-KEX]
 void SP_trigger_coop_relay(edict_t *self); // [Paril-KEX]
 void SP_trigger_health_relay(edict_t *self); // [Paril-KEX]
+void SP_trigger_safe_fall(edict_t *ent); // [Paril-KEX]
 
 void SP_target_temp_entity(edict_t *ent);
 void SP_target_speaker(edict_t *ent);
@@ -277,6 +278,7 @@ static const spawn_func_t spawn_funcs[] = {
     { "trigger_fog", SP_trigger_fog }, // [Paril-KEX]
     { "trigger_coop_relay", SP_trigger_coop_relay }, // [Paril-KEX]
     { "trigger_health_relay", SP_trigger_health_relay }, // [Paril-KEX]
+    { "trigger_safe_fall", SP_trigger_safe_fall }, // [Paril-KEX]
 
     { "target_temp_entity", SP_target_temp_entity },
     { "target_speaker", SP_target_speaker },
@@ -530,7 +532,7 @@ static const spawn_field_t entity_fields[] = {
 
     // [Paril-KEX] func_eye stuff
     { "eye_position", FOFS(move_origin), F_VECTOR },
-    { "vision_cone", FOFS(yaw_speed), F_FLOAT },
+    { "vision_cone", FOFS(vision_cone), F_FLOAT },
 
     // [Paril-KEX] for trigger_coop_relay
     { "message2", FOFS(map), F_LSTRING },
@@ -559,9 +561,9 @@ static const spawn_field_t entity_fields[] = {
 
 // temp spawn vars -- only valid when the spawn function is called
 static const spawn_field_t temp_fields[] = {
-    { "lip", STOFS(lip), F_INT },
-    { "distance", STOFS(distance), F_INT },
-    { "height", STOFS(height), F_INT },
+    { "lip", STOFS(lip), F_FLOAT },
+    { "distance", STOFS(distance), F_FLOAT },
+    { "height", STOFS(height), F_FLOAT },
     { "noise", STOFS(noise), F_LSTRING },
     { "pausetime", STOFS(pausetime), F_FLOAT },
     { "item", STOFS(item), F_LSTRING },
@@ -594,6 +596,11 @@ static const spawn_field_t temp_fields[] = {
     { "noise_middle", STOFS(noise_middle), F_LSTRING },
     { "noise_end", STOFS(noise_end), F_LSTRING },
     { "loop_count", STOFS(loop_count), F_INT },
+
+    { "primary_objective_string", STOFS(primary_objective_string), F_LSTRING },
+    { "secondary_objective_string", STOFS(secondary_objective_string), F_LSTRING },
+    { "primary_objective_title", STOFS(primary_objective_title), F_LSTRING },
+    { "secondary_objective_title", STOFS(secondary_objective_title), F_LSTRING },
 };
 
 static byte entity_bitmap[(q_countof(entity_fields) + 7) / 8];
@@ -647,6 +654,9 @@ void ED_CallSpawn(edict_t *ent)
                     ent->classname = item->classname;
                 }
             }
+
+            if (level.is_psx)
+                ent->s.origin[2] += 15 * (1 - PSX_PHYSICS_SCALAR);
 
             SpawnItem(ent, item);
             return;
@@ -1215,6 +1225,7 @@ void SpawnEntities(const char *mapname, const char *entities, const char *spawnp
 
     memset(&level, 0, sizeof(level));
     memset(g_edicts, 0, game.maxentities * sizeof(g_edicts[0]));
+    level.is_spawning = true;
 
     // all other flags are not important atm
     //globals.server_flags &= SERVER_FLAG_LOADING;
@@ -1223,6 +1234,7 @@ void SpawnEntities(const char *mapname, const char *entities, const char *spawnp
     Q_strlcpy(game.spawnpoint, spawnpoint, sizeof(game.spawnpoint));
 
     level.is_n64 = strncmp(level.mapname, "q64/", 4) == 0;
+    level.is_psx = strncmp(level.mapname, "psx/", 4) == 0;
 
     level.coop_scale_players = 0;
     level.coop_health_scaling = Q_clipf(g_coop_health_scaling->value, 0, 1);
@@ -1307,6 +1319,8 @@ void SpawnEntities(const char *mapname, const char *entities, const char *spawnp
             DMGame.PostInitSetup();
     }
     // ROGUE
+
+    level.is_spawning = false;
 }
 
 //===================================================================
@@ -1652,6 +1666,13 @@ void SP_worldspawn(edict_t *ent)
 
     gi.configstring(CS_MAXCLIENTS, va("%d", game.maxclients));
 
+#define DEF_STR(a, b)   ((a) && *(a) ? (a) : (b))
+    level.primary_objective_string   = DEF_STR(st.primary_objective_string,   "Primary Objective:\n{}");
+    level.secondary_objective_string = DEF_STR(st.secondary_objective_string, "Secondary Objective:\n{}");
+    level.primary_objective_title    = DEF_STR(st.primary_objective_title,    "Primary Objective");
+    level.secondary_objective_title  = DEF_STR(st.secondary_objective_title,  "Secondary Objective");
+#undef DEF_STR
+
     // statusbar prog
     G_InitStatusbar();
 
@@ -1740,6 +1761,12 @@ void SP_worldspawn(edict_t *ent)
     gi.soundindex("player/wade1.wav");
     gi.soundindex("player/wade2.wav");
     gi.soundindex("player/wade3.wav");
+
+    if (use_psx_assets) {
+        gi.soundindex("player/breathout1.wav");
+        gi.soundindex("player/breathout2.wav");
+        gi.soundindex("player/breathout3.wav");
+    }
 
     gi.soundindex("items/pkup.wav");   // bonus item pickup
     gi.soundindex("world/land.wav");   // landing thud

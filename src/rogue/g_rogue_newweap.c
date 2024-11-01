@@ -81,9 +81,10 @@ void fire_flechette(edict_t *self, const vec3_t start, const vec3_t dir, int dam
 #define PROX_BOUND_SIZE     96
 #define PROX_DAMAGE_RADIUS  192
 #define PROX_HEALTH         20
-#define PROX_DAMAGE         90
+#define PROX_DAMAGE         60
+#define PROX_DAMAGE_OPEN_MULT 1.5f // expands 60 to 90 when it opens
 
-void THINK(Prox_Explode)(edict_t *ent)
+static void Prox_ExplodeReal(edict_t *ent, edict_t *other, const vec3_t normal)
 {
     vec3_t   origin;
     edict_t *owner;
@@ -100,14 +101,20 @@ void THINK(Prox_Explode)(edict_t *ent)
         PlayerNoise(owner, ent->s.origin, PNOISE_IMPACT);
     }
 
+    if (other) {
+        vec3_t dir;
+        VectorSubtract(other->s.origin, ent->s.origin, dir);
+        T_Damage(other, ent, owner, dir, ent->s.origin, normal, ent->dmg, ent->dmg, DAMAGE_NONE, (mod_t) { MOD_PROX });
+    }
+
     // play quad sound if appopriate
-    if (ent->dmg > PROX_DAMAGE)
+    if (ent->dmg > PROX_DAMAGE * PROX_DAMAGE_OPEN_MULT)
         gi.sound(ent, CHAN_ITEM, gi.soundindex("items/damage3.wav"), 1, ATTN_NORM, 0);
 
     ent->takedamage = false;
-    T_RadiusDamage(ent, owner, ent->dmg, ent, PROX_DAMAGE_RADIUS, DAMAGE_NONE, (mod_t) { MOD_PROX });
+    T_RadiusDamage(ent, owner, ent->dmg, other, PROX_DAMAGE_RADIUS, DAMAGE_NONE, (mod_t) { MOD_PROX });
 
-    VectorMA(ent->s.origin, -0.02f, ent->velocity, origin);
+    VectorAdd(ent->s.origin, normal, origin);
     gi.WriteByte(svc_temp_entity);
     if (ent->groundentity)
         gi.WriteByte(TE_GRENADE_EXPLOSION);
@@ -117,6 +124,13 @@ void THINK(Prox_Explode)(edict_t *ent)
     gi.multicast(ent->s.origin, MULTICAST_PHS);
 
     G_FreeEdict(ent);
+}
+
+void THINK(Prox_Explode)(edict_t *ent)
+{
+    vec3_t normal;
+    VectorScale(ent->velocity, -0.02f, normal);
+    Prox_ExplodeReal(ent, NULL, normal);
 }
 
 void DIE(prox_die)(edict_t *self, edict_t *inflictor, edict_t *attacker, int damage, const vec3_t point, mod_t mod)
@@ -232,7 +246,7 @@ void THINK(prox_open)(edict_t *ent)
         if (g_dm_strong_mines->integer)
             ent->timestamp = level.time + PROX_TIME_TO_LIVE;
         else {
-            switch (ent->dmg / PROX_DAMAGE) {
+            switch ((int)(ent->dmg / (PROX_DAMAGE * PROX_DAMAGE_OPEN_MULT))) {
             default:
             case 1:
                 ent->timestamp = level.time + PROX_TIME_TO_LIVE;
@@ -252,8 +266,10 @@ void THINK(prox_open)(edict_t *ent)
         ent->think = prox_seek;
         ent->nextthink = level.time + SEC(0.2f);
     } else {
-        if (ent->s.frame == 0)
+        if (ent->s.frame == 0) {
             gi.sound(ent, CHAN_VOICE, gi.soundindex("weapons/proxopen.wav"), 1, ATTN_NORM, 0);
+            ent->dmg *= PROX_DAMAGE_OPEN_MULT;
+        }
         ent->s.frame++;
         ent->think = prox_open;
         ent->nextthink = level.time + HZ(10);
@@ -284,7 +300,7 @@ void TOUCH(prox_land)(edict_t *ent, edict_t *other, const trace_t *tr, bool othe
 
     if (VectorEmpty(tr->plane.normal) || (other->svflags & SVF_MONSTER) || other->client || (other->flags & FL_DAMAGEABLE)) {
         if (other != ent->teammaster)
-            Prox_Explode(ent);
+            Prox_ExplodeReal(ent, other, tr->plane.normal);
         return;
     }
 

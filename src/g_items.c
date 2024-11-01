@@ -1066,26 +1066,28 @@ void THINK(droptofloor)(edict_t *ent)
     ent->movetype = MOVETYPE_TOSS;
     ent->touch = Touch_Item;
 
-    VectorCopy(ent->s.origin, dest);
-    dest[2] -= 128;
+    if (!(ent->spawnflags & SPAWNFLAG_ITEM_NO_DROP)) {
+        VectorCopy(ent->s.origin, dest);
+        dest[2] -= 128;
 
-    tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID);
-    if (tr.startsolid) {
-        if (G_FixStuckObject(ent, ent->s.origin) == NO_GOOD_POSITION) {
-            // RAFAEL
-            if (strcmp(ent->classname, "item_foodcube") == 0)
-                ent->velocity[2] = 0;
-            else {
-            // RAFAEL
-                gi.dprintf("%s: droptofloor: startsolid\n", etos(ent));
-                G_FreeEdict(ent);
-                return;
-            // RAFAEL
+        tr = gi.trace(ent->s.origin, ent->mins, ent->maxs, dest, ent, MASK_SOLID);
+        if (tr.startsolid) {
+            if (G_FixStuckObject(ent, ent->s.origin) == NO_GOOD_POSITION) {
+                // RAFAEL
+                if (strcmp(ent->classname, "item_foodcube") == 0)
+                    ent->velocity[2] = 0;
+                else {
+                // RAFAEL
+                    gi.dprintf("%s: droptofloor: startsolid\n", etos(ent));
+                    G_FreeEdict(ent);
+                    return;
+                // RAFAEL
+                }
+                // RAFAEL
             }
-            // RAFAEL
-        }
-    } else
-        VectorCopy(tr.endpos, ent->s.origin);
+        } else
+            VectorCopy(tr.endpos, ent->s.origin);
+    }
 
     if (ent->team) {
         ent->flags &= ~FL_TEAMSLAVE;
@@ -1340,8 +1342,10 @@ void SpawnItem(edict_t *ent, const gitem_t *item)
     ent->item = item;
     ent->nextthink = level.time + HZ(5); // items start after other solids
     ent->think = droptofloor;
-    ent->s.effects = item->world_model_flags;
-    ent->s.renderfx = RF_GLOW;
+    if (!(level.is_spawning && ED_WasKeySpecified("effects")) && !ent->s.effects)
+        ent->s.effects = item->world_model_flags;
+    if (!(level.is_spawning && ED_WasKeySpecified("renderfx")) && !ent->s.renderfx)
+        ent->s.renderfx = RF_GLOW;
     if (ent->model)
         gi.modelindex(ent->model);
 
@@ -1558,7 +1562,7 @@ const gitem_t itemlist[] = {
         .pickup_name = "Chainfist",
         .pickup_name_definite = "the Chainfist",
         .chain = IT_WEAPON_BLASTER,
-        .flags = IF_WEAPON | IF_STAY_COOP | IF_NO_HASTE,
+        .flags = IF_WEAPON | IF_STAY_COOP,
         .vwep_model = "#w_chainfist.md2",
         .precaches = "weapons/sawidle.wav weapons/sawhit.wav weapons/sawslice.wav",
     },

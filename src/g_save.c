@@ -19,6 +19,14 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 #include "g_local.h"
 #include "g_ptrs.h"
 
+#define SAVE_MAGIC1     "SSV2"
+#define SAVE_MAGIC2     "SAV2"
+
+#define SAVE_VERSION_MINIMUM            1
+#define SAVE_VERSION_PLAYERSTATE_EXT    2
+#define SAVE_VERSION_PSX                3
+#define SAVE_VERSION_CURRENT            3
+
 #if USE_ZLIB
 #include <zlib.h>
 #ifdef __GNUC__
@@ -199,6 +207,7 @@ static const save_field_t monsterinfo_fields[] = {
     F(jump_height),
     T(blind_fire_delay),
     V(blind_fire_target),
+    I(slots_from_commander),
     I(monster_slots),
     I(monster_used),
     E(commander),
@@ -472,6 +481,8 @@ static const save_field_t entityfields[] = {
     L(style_off),
 
     H(crosslevel_flags),
+    T(no_gravity_time),
+    F(vision_cone),
 #undef _OFS
 };
 
@@ -526,6 +537,11 @@ static const save_field_t levelfields[] = {
     E(health_bar_entities[1]),
     O(story_active),
     T(next_auto_save),
+
+    L(primary_objective_string),
+    L(secondary_objective_string),
+    L(primary_objective_title),
+    L(secondary_objective_title),
 
     F(skyrotate),
     I(skyautorotate),
@@ -1433,7 +1449,7 @@ static void read_max_ammo(int16_t *max_ammo)
 
 static void read_stats(int16_t *stats)
 {
-    if (line.version == 1) {
+    if (line.version < SAVE_VERSION_PLAYERSTATE_EXT) {
         parse_short_v(stats, 32);
         return;
     }
@@ -1601,10 +1617,6 @@ static void read_fields(const save_field_t *fields, int count, void *base)
 
 //=========================================================
 
-#define SAVE_MAGIC1     "SSV2"
-#define SAVE_MAGIC2     "SAV2"
-#define SAVE_VERSION    "2"
-
 /*
 ============
 WriteGame
@@ -1631,7 +1643,7 @@ void WriteGame(const char *filename, qboolean autosave)
         gi.error("Couldn't open %s", filename);
 
     memset(&block, 0, sizeof(block));
-    gzprintf(fp, SAVE_MAGIC1 " version " SAVE_VERSION "\n");
+    gzprintf(fp, SAVE_MAGIC1 " version %d\n", SAVE_VERSION_CURRENT);
 
     game.autosaved = autosave;
     write_fields("game", gamefields, q_countof(gamefields), &game);
@@ -1665,7 +1677,7 @@ void ReadGame(const char *filename)
     expect(SAVE_MAGIC1);
     expect("version");
     line.version = parse_int32();
-    if (line.version < 1 || line.version > 2)
+    if (line.version < SAVE_VERSION_MINIMUM || line.version > SAVE_VERSION_CURRENT)
         gi.error("Savegame has bad version");
 
     int maxclients = game.maxclients;
@@ -1714,7 +1726,7 @@ void WriteLevel(const char *filename)
         gi.error("Couldn't open %s", filename);
 
     memset(&block, 0, sizeof(block));
-    gzprintf(fp, SAVE_MAGIC2 " version " SAVE_VERSION "\n");
+    gzprintf(fp, SAVE_MAGIC2 " version %d\n", SAVE_VERSION_CURRENT);
 
     // write out level_locals_t
     write_fields("level", levelfields, q_countof(levelfields), &level);
@@ -1772,7 +1784,7 @@ void ReadLevel(const char *filename)
     expect(SAVE_MAGIC2);
     expect("version");
     line.version = parse_int32();
-    if (line.version < 1 || line.version > 2)
+    if (line.version < SAVE_VERSION_MINIMUM || line.version > SAVE_VERSION_CURRENT)
         gi.error("Savegame has bad version");
 
     // wipe all the entities
@@ -1793,8 +1805,16 @@ void ReadLevel(const char *filename)
         ent = &g_edicts[entnum];
         if (ent->inuse)
             parse_error("duplicate entity: %d", entnum);
+
         G_InitEdict(ent);
         read_fields(entityfields, q_countof(entityfields), ent);
+
+        if (line.version < SAVE_VERSION_PSX) {
+            if (ent->svflags & SVF_MONSTER)
+                ent->vision_cone = -2.0f;
+            if (!strcmp(ent->classname, "func_plat2"))
+                ent->wait = 2.0f;
+        }
 
         // let the server rebuild world links for this ent
         gi.linkentity(ent);

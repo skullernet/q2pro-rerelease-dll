@@ -562,7 +562,7 @@ Kills all entities that would touch the proposed new positioning
 of ent.
 =================
 */
-bool KillBox(edict_t *ent, bool from_spawning, mod_id_t mod, bool bsp_clipping)
+bool KillBoxEx(edict_t *ent, bool from_spawning, mod_id_t mod, bool bsp_clipping, bool allow_safety)
 {
     // don't telefrag as spectator...
     if (ent->movetype == MOVETYPE_NOCLIP)
@@ -605,6 +605,9 @@ bool KillBox(edict_t *ent, bool from_spawning, mod_id_t mod, bool bsp_clipping)
             ent->clipmask &= ~CONTENTS_PLAYER;
             continue;
         }
+
+        if (allow_safety && G_FixStuckObject(hit, hit->s.origin) != NO_GOOD_POSITION)
+            continue;
 
         T_Damage(hit, ent, ent, vec3_origin, ent->s.origin, vec3_origin, 100000, 0, DAMAGE_NO_PROTECTION, (mod_t) { mod });
     }

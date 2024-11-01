@@ -12,6 +12,8 @@ game_import_ex_t    gix;
 filesystem_api_v1_t *fs;
 debug_draw_api_v1_t *draw;
 
+bool use_psx_assets;
+
 game_export_t  globals;
 spawn_temp_t   st;
 
@@ -19,6 +21,7 @@ const trace_t null_trace;
 
 edict_t *g_edicts;
 
+cvar_t *developer;
 cvar_t *deathmatch;
 cvar_t *coop;
 cvar_t *skill;
@@ -143,6 +146,7 @@ is loaded.
 */
 static void PreInitGame(void)
 {
+    developer = gi.cvar("developer", "0", 0);
     maxclients = gi.cvar("maxclients", "8", CVAR_SERVERINFO | CVAR_LATCH);
     deathmatch = gi.cvar("deathmatch", "0", CVAR_LATCH);
     coop = gi.cvar("coop", "0", CVAR_LATCH);
@@ -369,6 +373,9 @@ static void InitGame(void)
     G_LoadL10nFile();
 
     Nav_Init();
+
+    cv = gi.cvar("game", NULL, 0);
+    use_psx_assets = cv && !strcmp(cv->string, "psx");
 }
 
 //===================================================================
@@ -911,7 +918,7 @@ static void G_RunFrame_(bool main_loop)
 
         for (int i = 1; i <= game.maxclients; i++) {
             edict_t *player = &g_edicts[i];
-            if (player->inuse && player->health >= 0) {
+            if (player->inuse && player->health > 0) {
                 reset_coop_respawn = false;
                 break;
             }

@@ -1098,7 +1098,7 @@ static void Cmd_Wave_f(edict_t *ent)
     const char *other_notify_msg = NULL, *other_notify_none_msg = NULL;
 
     vec3_t start, dir;
-    P_ProjectSource(ent, ent->client->v_angle, vec3_origin, start, dir);
+    P_ProjectSource(ent, ent->client->v_angle, vec3_origin, start, dir, false);
 
     // see who we're aiming at
     edict_t *aiming_at = NULL;

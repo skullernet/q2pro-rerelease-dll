@@ -69,7 +69,9 @@ void PlayerTrail_Destroy(edict_t *player)
 {
     for (int i = game.maxclients + BODY_QUEUE_SIZE + 1; i < globals.num_edicts; i++) {
         edict_t *ent = &g_edicts[i];
-        if (!ent->inuse || !ent->classname || strcmp(ent->classname, "player_trail"))
+        if (!ent->inuse || !ent->classname)
+            continue;
+        if (strcmp(ent->classname, "player_trail") && strcmp(ent->classname, "player_noise"))
             continue;
         if (!player || ent->owner == player)
             G_FreeEdict(ent);

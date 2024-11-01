@@ -176,7 +176,7 @@ static void G_IdealHoverPosition(edict_t *ent, vec3_t pos)
         phi = acosf(frandom());
     // non-buzzards pick a level around the center
     else
-        phi = acosf(crandom() * 0.06f);
+        phi = acosf(crandom() * 0.7f);
 
     vec3_t d = {
         sinf(phi) * cosf(theta),
@@ -370,9 +370,10 @@ static bool SV_alternate_flystep(edict_t *ent, vec3_t move, bool relink, edict_t
     // the closer we are to zero, the more we can change dir.
     // if we're pushed past our max speed we shouldn't
     // turn at all.
+    bool following_paths = ent->monsterinfo.aiflags & (AI_PATHING | AI_COMBAT_POINT | AI_LOST_SIGHT);
     float turn_factor;
 
-    if (((ent->monsterinfo.fly_thrusters && !ent->monsterinfo.fly_pinned) || ent->monsterinfo.aiflags & (AI_PATHING | AI_COMBAT_POINT | AI_LOST_SIGHT)) && DotProduct(dir, wanted_dir) > 0.0f)
+    if (((ent->monsterinfo.fly_thrusters && !ent->monsterinfo.fly_pinned) || following_paths) && DotProduct(dir, wanted_dir) > 0.0f)
         turn_factor = 0.45f;
     else
         turn_factor = min(1.0f, 0.84f + (0.08f * (current_speed / ent->monsterinfo.fly_speed)));
@@ -420,11 +421,14 @@ static bool SV_alternate_flystep(edict_t *ent, vec3_t move, bool relink, edict_t
     // down so we don't fly past it.
     float speed_factor;
 
-    if (!ent->enemy || (ent->monsterinfo.fly_thrusters && !ent->monsterinfo.fly_pinned) || (ent->monsterinfo.aiflags & (AI_PATHING | AI_COMBAT_POINT | AI_LOST_SIGHT)))
-        speed_factor = 1;
-    else if (DotProduct(aim_fwd, wanted_dir) < -0.25f && !VectorEmpty(dir))
-        speed_factor = 0;
-    else
+    if (!ent->enemy || (ent->monsterinfo.fly_thrusters && !ent->monsterinfo.fly_pinned) || following_paths) {
+        // Paril: only do this correction if we are following paths. we want to move backwards
+        // away from players.
+        if (following_paths && DotProduct(aim_fwd, wanted_dir) < -0.25f && !VectorEmpty(dir))
+            speed_factor = 0;
+        else
+            speed_factor = 1;
+    } else
         speed_factor = min(1.0f, dist_to_wanted / ent->monsterinfo.fly_speed);
 
     if (bad_movement_direction)
@@ -1115,9 +1119,19 @@ static bool M_NavPathToGoal(edict_t *self, float dist, const vec3_t goal)
     // mark us as *trying* now (nav_pos is valid)
     self->monsterinfo.aiflags |= AI_PATHING;
 
-    if ((self->monsterinfo.nav_path.returnCode != PathReturnCode_TraversalPending &&
-         Distance(self->monsterinfo.nav_path.firstMovePoint, self->s.origin) <= VectorLength(self->size) * 0.5f) ||
-        self->monsterinfo.nav_path_cache_time <= level.time)
+    vec3_t ground_origin, mon_mins, mon_maxs;
+
+    VectorCopy(self->s.origin, ground_origin);
+    ground_origin[2] += self->mins[2] - player_mins[2];
+
+    VectorAdd(ground_origin, player_mins, mon_mins);
+    VectorAdd(ground_origin, player_maxs, mon_maxs);
+
+    vec_t *path_to = self->monsterinfo.nav_path.firstMovePoint;
+
+    if (self->monsterinfo.nav_path_cache_time <= level.time ||
+        (self->monsterinfo.nav_path.returnCode != PathReturnCode_TraversalPending &&
+         boxes_intersect(mon_mins, mon_maxs, path_to, path_to)))
     {
         PathRequest request = { 0 };
         if (self->enemy)
@@ -1129,6 +1143,13 @@ static bool M_NavPathToGoal(edict_t *self, float dist, const vec3_t goal)
             request.debugging.drawTime = 1.5f;
         VectorCopy(self->s.origin, request.start);
         request.pathFlags = PathFlags_Walk;
+
+        request.nodeSearch.minHeight = -(self->mins[2] * 2);
+        request.nodeSearch.maxHeight =  (self->maxs[2] * 2);
+
+        // FIXME remove hardcoding
+        if (!strcmp(self->classname, "monster_guardian"))
+            request.nodeSearch.radius = 2048;
 
         if (self->monsterinfo.can_jump || (self->flags & FL_FLY)) {
             if (self->monsterinfo.jump_height) {
@@ -1160,7 +1181,7 @@ static bool M_NavPathToGoal(edict_t *self, float dist, const vec3_t goal)
     float old_yaw = self->s.angles[YAW];
     float old_ideal_yaw = self->ideal_yaw;
 
-    vec_t *path_to = (self->monsterinfo.nav_path.returnCode == PathReturnCode_TraversalPending) ?
+    path_to = (self->monsterinfo.nav_path.returnCode == PathReturnCode_TraversalPending) ?
         self->monsterinfo.nav_path.secondMovePoint : self->monsterinfo.nav_path.firstMovePoint;
 
     if (self->monsterinfo.random_change_time >= level.time &&
