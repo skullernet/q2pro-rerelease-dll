@@ -483,12 +483,12 @@ static void HelpComputer(edict_t *ent)
         }
 
         int y = 54;
-        if (first_message[0]) {
+        if (first_message[0] && first_title) {
             sb_xv(0), sb_yv(y), sb_cstring2(first_title), sb_yv(y + 11), sb_cstring(first_message);
             y += 58;
         }
 
-        if (second_message[0]) {
+        if (second_message[0] && second_title) {
             sb_xv(0), sb_yv(y), sb_cstring2(second_title), sb_yv(y + 11), sb_cstring(second_message);
         }
     }

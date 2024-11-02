@@ -1773,6 +1773,13 @@ void ReadLevel(const char *filename)
     // base state
     gi.FreeTags(TAG_LEVEL);
 
+    // clear old pointers
+    for (i = 0; i < q_countof(levelfields); i++) {
+        const save_field_t *f = &levelfields[i];
+        if (f->type == F_LSTRING)
+            *(char **)((byte *)&level + f->ofs) = NULL;
+    }
+
     fp = gzopen(filename, "rb");
     if (!fp)
         gi.error("Couldn't open %s", filename);
