@@ -480,17 +480,43 @@ static bool Nav_LinkAccessible(const nav_path_t *path, const nav_node_t *node, c
     }
 }
 
-static nav_node_t *Nav_ClosestNodeTo(const vec3_t p)
+#define Vector2Subtract(a,b,c)  ((c)[0]=(a)[0]-(b)[0],(c)[1]=(a)[1]-(b)[1])
+#define Dot2Product(x,y)        ((x)[0]*(y)[0]+(x)[1]*(y)[1])
+#define Vector2Length(v)        (sqrtf(Dot2Product((v),(v))))
+
+static const nav_node_t *Nav_ClosestNodeTo(nav_path_t *path, const vec3_t p)
 {
+    const PathRequest *req = path->request;
     float w = INFINITY;
-    nav_node_t *c = NULL;
+    const nav_node_t *c = NULL;
+
+    float min_z = p[2] - req->nodeSearch.minHeight;
+    float max_z = p[2] + req->nodeSearch.maxHeight;
 
     for (int i = 0; i < nav_data.num_nodes; i++) {
-        float l = DistanceSquared(nav_data.nodes[i].origin, p);
+        const nav_node_t *node = &nav_data.nodes[i];
+        if (!Nav_NodeAccessible(path, node))
+            continue;
+
+        if (node->origin[2] < min_z || node->origin[2] > max_z)
+            continue;
+
+        vec2_t d;
+        Vector2Subtract(node->origin, p, d);
+
+        float l = Vector2Length(d);
+        if (l > req->nodeSearch.radius)
+            continue;
+
+        vec3_t end = { 0, 0, 32 };
+        VectorAdd(end, node->origin, end);
+        trace_t tr = gi.trace(p, NULL, NULL, end, NULL, MASK_SOLID | CONTENTS_PLAYERCLIP | CONTENTS_MONSTERCLIP);
+        if (tr.fraction < 1.0f)
+            continue;
 
         if (l < w) {
             w = l;
-            c = &nav_data.nodes[i];
+            c = node;
         }
     }
 
@@ -508,10 +534,15 @@ static const nav_link_t *Nav_GetLink(const nav_node_t *a, const nav_node_t *b)
 
 static bool Nav_TouchingNode(const vec3_t pos, float move_dist, const nav_node_t *node)
 {
-    float touch_radius = node->radius + move_dist;
-    return fabsf(pos[0] - node->origin[0]) < touch_radius &&
-           fabsf(pos[1] - node->origin[1]) < touch_radius &&
-           fabsf(pos[2] - node->origin[2]) < touch_radius * 4;
+    return Distance(node->origin, pos) <= move_dist;
+}
+
+static bool Nav_NodeReached(const vec3_t pos, const nav_node_t *node)
+{
+    vec3_t d;
+    VectorSubtract(node->origin, pos, d);
+
+    return Vector2Length(d) <= node->radius && fabsf(d[2]) <= 64;
 }
 
 static void Nav_PushOpenSet(nav_ctx_t *ctx, const nav_node_t *node, float f)
@@ -576,7 +607,7 @@ static void Nav_ReachedGoal(nav_path_t *path, int current)
             // to skip the first node if we're either past it
             // or touching it
             if (!link->traversal) {
-                if (Nav_TouchingNode(request->start, request->moveDist, &nav_data.nodes[ctx->went_to[0]])) {
+                if (Nav_NodeReached(request->start, &nav_data.nodes[ctx->went_to[0]])) {
                     first_point++;
                 }
             }
@@ -649,13 +680,13 @@ static void Nav_Path(nav_path_t *path)
         return;
     }
 
-    path->start = Nav_ClosestNodeTo(request->start);
+    path->start = Nav_ClosestNodeTo(path, request->start);
     if (!path->start) {
         info->returnCode = PathReturnCode_NoStartNode;
         return;
     }
 
-    path->goal = Nav_ClosestNodeTo(request->goal);
+    path->goal = Nav_ClosestNodeTo(path, request->goal);
     if (!path->goal) {
         info->returnCode = PathReturnCode_NoGoalNode;
         return;

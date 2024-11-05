@@ -1150,6 +1150,8 @@ static bool M_NavPathToGoal(edict_t *self, float dist, const vec3_t goal)
         // FIXME remove hardcoding
         if (!strcmp(self->classname, "monster_guardian"))
             request.nodeSearch.radius = 2048;
+        else
+            request.nodeSearch.radius = 512;
 
         if (self->monsterinfo.can_jump || (self->flags & FL_FLY)) {
             if (self->monsterinfo.jump_height) {
