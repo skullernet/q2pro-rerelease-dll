@@ -502,8 +502,8 @@ void SP_target_splash(edict_t *self)
         self->count = 32;
 
     // N64 "sparks" are blue, not yellow.
-    if (level.is_n64 && self->sounds == 1)
-        self->sounds = 7;
+    if (level.is_n64 && self->sounds == SPLASH_SPARKS)
+        self->sounds = SPLASH_ELECTRIC_N64;
 
     self->svflags = SVF_NOCLIENT;
 }
