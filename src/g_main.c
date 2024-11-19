@@ -375,7 +375,7 @@ static void InitGame(void)
     Nav_Init();
 
     cv = gi.cvar("game", NULL, 0);
-    use_psx_assets = cv && !strcmp(cv->string, "psx");
+    use_psx_assets = cv && !strncmp(cv->string, "psx", 3);
 }
 
 //===================================================================
