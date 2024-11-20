@@ -2474,9 +2474,9 @@ static edict_t *pm_passent;
 static contents_t pm_clipmask;
 
 // pmove doesn't need to know about passent and contentmask
-static trace_t PM_trace(const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end)
+static trace_t PM_trace(const vec3_t start, const vec3_t mins, const vec3_t maxs, const vec3_t end, int contentmask)
 {
-    return gi.trace(start, mins, maxs, end, pm_passent, pm_clipmask);
+    return gi.trace(start, mins, maxs, end, pm_passent, contentmask ? contentmask : pm_clipmask);
 }
 
 /*

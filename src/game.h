@@ -24,7 +24,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 // game.h -- game dll information visible to server
 //
 
-#define GAME_API_VERSION    3301
+#define GAME_API_VERSION    3302
 
 // edict->svflags
 
