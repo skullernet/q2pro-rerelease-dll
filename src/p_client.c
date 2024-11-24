@@ -2133,9 +2133,6 @@ void ClientBegin(edict_t *ent)
         return;
     }
 
-    // [Paril-KEX] set enter time now, so we can send messages slightly
-    // after somebody first joins
-    ent->client->resp.entertime = level.time;
     ent->client->pers.spawned = true;
 
     // if there is already a body waiting for us (a loadgame), just
@@ -2159,6 +2156,10 @@ void ClientBegin(edict_t *ent)
         spawn_from_begin = false;
     }
 
+    // [Paril-KEX] set enter time now, so we can send messages slightly
+    // after somebody first joins
+    ent->client->resp.entertime = level.time;
+
     // make sure we have a known default
     ent->svflags |= SVF_PLAYER;
 
@@ -2175,9 +2176,6 @@ void ClientBegin(edict_t *ent)
 
     // make sure all view stuff is valid
     ClientEndServerFrame(ent);
-
-    // [Paril-KEX] send them goal, if needed
-    G_PlayerNotifyGoal(ent);
 
     // [Paril-KEX] we're going to set this here just to be certain
     // that the level entry timer only starts when a player is actually
