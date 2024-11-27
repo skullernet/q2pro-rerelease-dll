@@ -322,6 +322,7 @@ edict_t *fire_blaster(edict_t *self, const vec3_t start, const vec3_t dir, int d
     bolt->flags |= FL_DODGE;
     bolt->solid = SOLID_BBOX;
     bolt->s.effects |= effect;
+    bolt->s.renderfx |= RF_NOSHADOW;
     bolt->s.modelindex = gi.modelindex("models/objects/laser/tris.md2");
     bolt->s.sound = gi.soundindex("misc/lasfly.wav");
     bolt->owner = self;
