@@ -807,7 +807,7 @@ static void write_uint64_hex(const char *name, uint64_t v)
     gzprintf(fp, "%*s %#"PRIx64"\n", indent(name), v);
 }
 
-static void write_short_v(const char *name, int16_t *v, int n)
+static void write_short_v(const char *name, const int16_t *v, int n)
 {
     gzprintf(fp, "%*s ", indent(name));
     for (int i = 0; i < n; i++)
@@ -815,7 +815,7 @@ static void write_short_v(const char *name, int16_t *v, int n)
     gzprintf(fp, "\n");
 }
 
-static void write_int_v(const char *name, int *v, int n)
+static void write_int_v(const char *name, const int *v, int n)
 {
     gzprintf(fp, "%*s ", indent(name));
     for (int i = 0; i < n; i++)
@@ -823,7 +823,7 @@ static void write_int_v(const char *name, int *v, int n)
     gzprintf(fp, "\n");
 }
 
-static void write_float_v(const char *name, float *v, int n)
+static void write_float_v(const char *name, const float *v, int n)
 {
     gzprintf(fp, "%*s ", indent(name));
     for (int i = 0; i < n; i++)
@@ -839,7 +839,7 @@ static void write_string(const char *name, const char *s)
     gzprintf(fp, "%*s \"%s\"\n", indent(name), buffer);
 }
 
-static void write_byte_v(const char *name, byte *p, int n)
+static void write_byte_v(const char *name, const byte *p, int n)
 {
     if (n == 1) {
         write_int(name, *p);
@@ -852,12 +852,12 @@ static void write_byte_v(const char *name, byte *p, int n)
     gzprintf(fp, "\n");
 }
 
-static void write_vector(const char *name, vec_t *v)
+static void write_vector(const char *name, const vec_t *v)
 {
     gzprintf(fp, "%*s %.6g %.6g %.6g\n", indent(name), v[0], v[1], v[2]);
 }
 
-static void write_pointer(const char *name, void *p, ptr_type_t type)
+static void write_pointer(const char *name, const void *p, ptr_type_t type)
 {
     const save_ptr_t *ptr;
     int i;
@@ -872,7 +872,7 @@ static void write_pointer(const char *name, void *p, ptr_type_t type)
     gi.error("unknown pointer of type %d: %p", type, p);
 }
 
-static void write_inventory(int *inven)
+static void write_inventory(const int *inven)
 {
     begin_block("inventory");
     for (int i = IT_NULL + 1; i < IT_TOTAL; i++) {
@@ -884,7 +884,7 @@ static void write_inventory(int *inven)
     end_block();
 }
 
-static void write_max_ammo(int16_t *max_ammo)
+static void write_max_ammo(const int16_t *max_ammo)
 {
     begin_block("max_ammo");
     for (int i = AMMO_BULLETS; i < AMMO_MAX; i++)
@@ -902,7 +902,7 @@ static const struct {
     { "selected_item_name", STAT_SELECTED_ITEM_NAME },
 };
 
-static void write_stats(int16_t *stats)
+static void write_stats(const int16_t *stats)
 {
     int i;
 
@@ -919,9 +919,9 @@ static void write_stats(int16_t *stats)
     end_block();
 }
 
-static void write_fields(const char *name, const save_field_t *fields, int count, void *base);
+static void write_fields(const char *name, const save_field_t *fields, int count, const void *base);
 
-static void write_reinforcements(reinforcement_list_t *list)
+static void write_reinforcements(const reinforcement_list_t *list)
 {
     if (!list->num_reinforcements)
         return;
@@ -932,7 +932,7 @@ static void write_reinforcements(reinforcement_list_t *list)
     end_block();
 }
 
-static void write_level_entries(level_entry_t *entries)
+static void write_level_entries(const level_entry_t *entries)
 {
     if (!memcmp(entries, &empty.level_entries, sizeof(empty.level_entries)))
         return;
@@ -946,9 +946,9 @@ static void write_level_entries(level_entry_t *entries)
 
 static const vec3_t default_gravity = { 0, 0, -1 };
 
-static void write_field(const save_field_t *field, void *base)
+static void write_field(const save_field_t *field, const void *base)
 {
-    void *p = (byte *)base + field->ofs;
+    const void *p = (const byte *)base + field->ofs;
 
     switch (field->type) {
     case F_BYTE:
@@ -994,8 +994,8 @@ static void write_field(const save_field_t *field, void *base)
         break;
 
     case F_ZSTRING:
-        if (*(char *)p)
-            write_string(field->name, (char *)p);
+        if (*(const char *)p)
+            write_string(field->name, (const char *)p);
         break;
     case F_LSTRING:
     case F_GSTRING:
@@ -1037,7 +1037,7 @@ static void write_field(const save_field_t *field, void *base)
         break;
 
     case F_STATS:
-        write_stats((int16_t *)p);
+        write_stats((const int16_t *)p);
         break;
 
     case F_MOVEINFO:
@@ -1075,7 +1075,7 @@ static void write_field(const save_field_t *field, void *base)
     }
 }
 
-static void write_fields(const char *name, const save_field_t *fields, int count, void *base)
+static void write_fields(const char *name, const save_field_t *fields, int count, const void *base)
 {
     begin_block(name);
     for (int i = 0; i < count; i++)
@@ -1224,7 +1224,7 @@ skip:
 
 static void expect(const char *what)
 {
-    char *token = parse();
+    const char *token = parse();
 
     if (strcmp(token, what))
         parse_error("expected %s, got %s", what, COM_MakePrintable(token));
@@ -1232,7 +1232,7 @@ static void expect(const char *what)
 
 static void unknown(const char *what)
 {
-    char *token = COM_MakePrintable(line.token);
+    const char *token = COM_MakePrintable(line.token);
 
     if (g_strict_saves->integer)
         parse_error("unknown %s: %s", what, token);
@@ -1293,7 +1293,7 @@ static unsigned parse_uint(unsigned v_max)
 
 static int parse_array(int count)
 {
-    char *tok = parse();
+    const char *tok = parse();
     if (!strcmp(tok, "}"))
         return -1;
     return parse_uint_tok(tok, count - 1);
@@ -1421,7 +1421,7 @@ static void read_inventory(int *inven)
 {
     expect("{");
     while (1) {
-        char *tok = parse();
+        const char *tok = parse();
         if (!strcmp(tok, "}"))
             break;
         const gitem_t *item = FindItemByClassname(tok);
@@ -1436,7 +1436,7 @@ static void read_max_ammo(int16_t *max_ammo)
 {
     expect("{");
     while (1) {
-        char *tok = parse();
+        const char *tok = parse();
         if (!strcmp(tok, "}"))
             break;
         const gitem_t *item = FindItemByClassname(tok);
@@ -1456,7 +1456,7 @@ static void read_stats(int16_t *stats)
 
     expect("{");
     while (1) {
-        char *tok = parse();
+        const char *tok = parse();
         if (!strcmp(tok, "}"))
             break;
         int i;
@@ -1596,7 +1596,7 @@ static void read_field(const save_field_t *field, void *base)
 static void read_fields(const save_field_t *fields, int count, void *base)
 {
     const save_field_t *f;
-    char *tok;
+    const char *tok;
     int i;
 
     expect("{");
