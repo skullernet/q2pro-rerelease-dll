@@ -75,6 +75,42 @@ void monster_fire_bfg(edict_t *self, const vec3_t start, const vec3_t aimdir, in
     monster_muzzleflash(self, start, flashtype);
 }
 
+void M_BossPredictiveRocket(edict_t *self, const float *offset, float speed, monster_muzzleflash_id_t mz)
+{
+    vec3_t forward, right;
+    vec3_t start, dir;
+
+    AngleVectors(self->s.angles, forward, right, NULL);
+
+    for (int i = 0; i < 4; i++, mz++) {
+        M_ProjectFlashSource(self, monster_flash_offset[mz], forward, right, start);
+        PredictAim(self, self->enemy, start, speed, false, offset[i], dir, NULL);
+        monster_fire_rocket(self, start, dir, 50, speed, mz);
+    }
+}
+
+void M_BossRocket(edict_t *self, monster_muzzleflash_id_t mz)
+{
+    vec3_t forward, right;
+    vec3_t start, dir, vec;
+
+    AngleVectors(self->s.angles, forward, right, NULL);
+
+    static const float offset[4] = { -15, 0, 0, -15 };
+    static const float spread[4] = { 0.4f, 0.025f, -0.025f, -0.4f };
+
+    for (int i = 0; i < 4; i++, mz++) {
+        M_ProjectFlashSource(self, monster_flash_offset[mz], forward, right, start);
+        VectorCopy(self->enemy->s.origin, vec);
+        vec[2] += offset[i];
+        VectorSubtract(vec, start, dir);
+        VectorNormalize(dir);
+        VectorMA(dir, spread[i], right, dir);
+        VectorNormalize(dir);
+        monster_fire_rocket(self, start, dir, 50, 500, mz);
+    }
+}
+
 // [Paril-KEX]
 void M_ProjectFlashSource(edict_t *self, const vec3_t g_offset, const vec3_t forward, const vec3_t right, vec3_t start)
 {

@@ -171,55 +171,18 @@ static void CarrierGrenade(edict_t *self)
     monster_fire_grenade(self, start, aim, 50, 600, flash_number, (crandom_open() * 10.0f), 200.0f + (crandom_open() * 10.0f));
 }
 
-static void CarrierPredictiveRocket(edict_t *self)
-{
-    vec3_t forward, right;
-    vec3_t start;
-    vec3_t dir;
-
-    AngleVectors(self->s.angles, forward, right, NULL);
-
-    static const float offset[4] = { -0.3f, -0.15f, 0, 0.15f };
-
-    for (int i = 0; i < 4; i++) {
-        monster_muzzleflash_id_t mz = MZ2_CARRIER_ROCKET_1 + i;
-        M_ProjectFlashSource(self, monster_flash_offset[mz], forward, right, start);
-        PredictAim(self, self->enemy, start, CARRIER_ROCKET_SPEED, false, offset[i], dir, NULL);
-        monster_fire_rocket(self, start, dir, 50, CARRIER_ROCKET_SPEED, mz);
-    }
-}
-
 static void CarrierRocket(edict_t *self)
 {
-    vec3_t forward, right;
-    vec3_t start;
-    vec3_t dir;
-    vec3_t vec;
-
     if (!self->enemy)
         return;
 
     if (self->enemy->client && brandom()) {
-        CarrierPredictiveRocket(self);
+        static const float offset[4] = { -0.3f, -0.15f, 0, 0.15f };
+        M_BossPredictiveRocket(self, offset, CARRIER_ROCKET_SPEED, MZ2_CARRIER_ROCKET_1);
         return;
     }
 
-    AngleVectors(self->s.angles, forward, right, NULL);
-
-    static const float z_add[4] = { -15, 0, 0, -15 };
-    static const float spread[4] = { 0.4f, 0.025f, -0.025f, -0.4f };
-
-    for (int i = 0; i < 4; i++) {
-        monster_muzzleflash_id_t mz = MZ2_CARRIER_ROCKET_1 + i;
-        M_ProjectFlashSource(self, monster_flash_offset[mz], forward, right, start);
-        VectorCopy(self->enemy->s.origin, vec);
-        vec[2] += z_add[i];
-        VectorSubtract(vec, start, dir);
-        VectorNormalize(dir);
-        VectorMA(dir, spread[i], right, dir);
-        VectorNormalize(dir);
-        monster_fire_rocket(self, start, dir, 50, 500, mz);
-    }
+    M_BossRocket(self, MZ2_CARRIER_ROCKET_1);
 }
 
 static void carrier_firebullet_right(edict_t *self)

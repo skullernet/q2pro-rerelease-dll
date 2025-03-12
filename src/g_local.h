@@ -1491,6 +1491,8 @@ bool monster_fire_railgun(edict_t *self, const vec3_t start, const vec3_t aimdir
                           monster_muzzleflash_id_t flashtype);
 void monster_fire_bfg(edict_t *self, const vec3_t start, const vec3_t aimdir, int damage, int speed, int kick,
                       float damage_radius, monster_muzzleflash_id_t flashtype);
+void M_BossPredictiveRocket(edict_t *self, const float *offset, float speed, monster_muzzleflash_id_t mz);
+void M_BossRocket(edict_t *self, monster_muzzleflash_id_t mz);
 bool M_CheckClearShot(edict_t *self, const vec3_t offset);
 bool M_CheckClearShotEx(edict_t *self, const vec3_t offset, vec3_t start);
 void M_ProjectFlashSource(edict_t *self, const vec3_t offset, const vec3_t forward, const vec3_t right, vec3_t start);

@@ -49,86 +49,18 @@ static void boss2_reattack_mg(edict_t *self);
 
 #define BOSS2_ROCKET_SPEED  750
 
-static void Boss2PredictiveRocket(edict_t *self)
-{
-    vec3_t forward, right;
-    vec3_t start;
-    vec3_t dir;
-
-    AngleVectors(self->s.angles, forward, right, NULL);
-
-    // 1
-    M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_1], forward, right, start);
-    PredictAim(self, self->enemy, start, BOSS2_ROCKET_SPEED, false, -0.10f, dir, NULL);
-    monster_fire_rocket(self, start, dir, 50, BOSS2_ROCKET_SPEED, MZ2_BOSS2_ROCKET_1);
-
-    // 2
-    M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_2], forward, right, start);
-    PredictAim(self, self->enemy, start, BOSS2_ROCKET_SPEED, false, -0.05f, dir, NULL);
-    monster_fire_rocket(self, start, dir, 50, BOSS2_ROCKET_SPEED, MZ2_BOSS2_ROCKET_2);
-
-    // 3
-    M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_3], forward, right, start);
-    PredictAim(self, self->enemy, start, BOSS2_ROCKET_SPEED, false, 0.05f, dir, NULL);
-    monster_fire_rocket(self, start, dir, 50, BOSS2_ROCKET_SPEED, MZ2_BOSS2_ROCKET_3);
-
-    // 4
-    M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_4], forward, right, start);
-    PredictAim(self, self->enemy, start, BOSS2_ROCKET_SPEED, false, 0.10f, dir, NULL);
-    monster_fire_rocket(self, start, dir, 50, BOSS2_ROCKET_SPEED, MZ2_BOSS2_ROCKET_4);
-}
-
 static void Boss2Rocket(edict_t *self)
 {
-    vec3_t forward, right;
-    vec3_t start;
-    vec3_t dir;
-    vec3_t vec;
+    if (!self->enemy)
+        return;
 
-    if (self->enemy && self->enemy->client && frandom() < 0.9f) {
-        Boss2PredictiveRocket(self);
+    if (self->enemy->client && frandom() < 0.9f) {
+        static const float offset[4] = { -0.10f, -0.05f, 0.05f, 0.10f };
+        M_BossPredictiveRocket(self, offset, BOSS2_ROCKET_SPEED, MZ2_BOSS2_ROCKET_1);
         return;
     }
 
-    AngleVectors(self->s.angles, forward, right, NULL);
-
-    // 1
-    M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_1], forward, right, start);
-    VectorCopy(self->enemy->s.origin, vec);
-    vec[2] -= 15;
-    VectorSubtract(vec, start, dir);
-    VectorNormalize(dir);
-    VectorMA(dir, 0.4f, right, dir);
-    VectorNormalize(dir);
-    monster_fire_rocket(self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_1);
-
-    // 2
-    M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_2], forward, right, start);
-    VectorCopy(self->enemy->s.origin, vec);
-    VectorSubtract(vec, start, dir);
-    VectorNormalize(dir);
-    VectorMA(dir, 0.025f, right, dir);
-    VectorNormalize(dir);
-    monster_fire_rocket(self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_2);
-
-    // 3
-    M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_3], forward, right, start);
-    VectorCopy(self->enemy->s.origin, vec);
-    VectorSubtract(vec, start, dir);
-    VectorNormalize(dir);
-    VectorMA(dir, -0.025f, right, dir);
-    VectorNormalize(dir);
-    monster_fire_rocket(self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_3);
-
-    // 4
-    M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_4], forward, right, start);
-    VectorCopy(self->enemy->s.origin, vec);
-    vec[2] -= 15;
-    VectorSubtract(vec, start, dir);
-    VectorNormalize(dir);
-    VectorMA(dir, -0.4f, right, dir);
-    VectorNormalize(dir);
-    monster_fire_rocket(self, start, dir, 50, 500, MZ2_BOSS2_ROCKET_4);
+    M_BossRocket(self, MZ2_BOSS2_ROCKET_1);
 }
 
 static void Boss2Rocket64(edict_t *self)
@@ -138,6 +70,9 @@ static void Boss2Rocket64(edict_t *self)
     vec3_t dir;
     vec3_t vec;
     float  time, dist;
+
+    if (!self->enemy)
+        return;
 
     AngleVectors(self->s.angles, forward, right, NULL);
     M_ProjectFlashSource(self, monster_flash_offset[MZ2_BOSS2_ROCKET_1], forward, right, start);
@@ -149,13 +84,11 @@ static void Boss2Rocket64(edict_t *self)
     VectorMA(start, -2 * scale, right, start);
     VectorMA(start, -8 * scale * count, right, start);
 
-    if (self->enemy && self->enemy->client && frandom() < 0.9f) {
-        // 1
+    if (self->enemy->client && frandom() < 0.9f) {
         dist = Distance(self->enemy->s.origin, start);
         time = dist / BOSS2_ROCKET_SPEED;
         VectorMA(self->enemy->s.origin, time - 0.3f, self->enemy->velocity, vec);
     } else {
-        // 1
         VectorCopy(self->enemy->s.origin, vec);
         vec[2] -= 15;
     }
