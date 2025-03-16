@@ -847,7 +847,7 @@ static void G_SetClientEffects(edict_t *ent)
     ent->x.morefx = EFX_NONE;
     ent->s.renderfx &= RF_STAIR_STEP;
     ent->s.renderfx |= RF_IR_VISIBLE;
-    ent->x.alpha = 1.0f;
+    ent->x.alpha = 0.0f;
 
     if (ent->health <= 0 || level.intermissiontime)
         return;
