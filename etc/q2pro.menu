@@ -106,7 +106,7 @@ begin sound
     title "Sound Setup"
     values "sound engine" s_enable "no sound" "software" "OpenAL"
     range "sound latency" s_mixahead 0.05 0.2
-    range "effects volume" s_volume 0 1
+    range "sound volume" s_volume 0 1
     range "music volume" ogg_volume 0 1
     toggle "enable music" ogg_enable
     toggle "shuffle tracks" ogg_shuffle
@@ -133,7 +133,7 @@ begin effects
     values "dynamic lighting" gl_dynamic "no" "yes" "only switchable"
     values "entity cel-shading" gl_celshading no 1x 2x 3x
     toggle "entity glowing" cl_noglow ~
-    toggle "ground shadows" gl_shadows
+    values "ground shadows" gl_shadows no yes fade
     toggle "screen blending" gl_polyblend
     toggle "screen warping" gl_waterwarp
     toggle "fog" gl_fog
