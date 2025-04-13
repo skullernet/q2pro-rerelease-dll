@@ -759,8 +759,6 @@ static int ED_ParsePowerArmor(const char *value)
 
 static void ED_LoadField(const spawn_field_t *f, const char *value, byte *b)
 {
-    float   v;
-    vec3_t  vec;
     uint64_t l;
 
     // found it
@@ -769,13 +767,9 @@ static void ED_LoadField(const spawn_field_t *f, const char *value, byte *b)
         *(char **)(b + f->ofs) = ED_NewString(value);
         break;
     case F_VECTOR:
-        if (sscanf(value, "%f %f %f", &vec[0], &vec[1], &vec[2]) != 3) {
-            gi.dprintf("%s: couldn't parse '%s'\n", __func__, f->name);
-            VectorClear(vec);
-        }
-        ((float *)(b + f->ofs))[0] = vec[0];
-        ((float *)(b + f->ofs))[1] = vec[1];
-        ((float *)(b + f->ofs))[2] = vec[2];
+        ((float *)(b + f->ofs))[0] = Q_atof(COM_Parse(&value));
+        ((float *)(b + f->ofs))[1] = Q_atof(COM_Parse(&value));
+        ((float *)(b + f->ofs))[2] = Q_atof(COM_Parse(&value));
         break;
     case F_INT:
         *(int *)(b + f->ofs) = Q_atoi(value);
@@ -784,9 +778,8 @@ static void ED_LoadField(const spawn_field_t *f, const char *value, byte *b)
         *(float *)(b + f->ofs) = Q_atof(value);
         break;
     case F_ANGLEHACK:
-        v = Q_atof(value);
         ((float *)(b + f->ofs))[0] = 0;
-        ((float *)(b + f->ofs))[1] = v;
+        ((float *)(b + f->ofs))[1] = Q_atof(value);
         ((float *)(b + f->ofs))[2] = 0;
         break;
     case F_EFFECTS:
