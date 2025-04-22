@@ -109,6 +109,7 @@ edict_t *ThrowGibEx(edict_t *self, const char *gibname, int damage, gib_type_t t
     gib->s.modelindex = gi.modelindex(gibname);
     gib->s.modelindex2 = 0;
     gib->x.scale = scale;
+    gib->x.alpha = self->x.alpha;
     gib->solid = SOLID_NOT;
     gib->svflags |= SVF_DEADMONSTER;
     gib->svflags &= ~SVF_MONSTER;
