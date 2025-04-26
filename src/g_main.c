@@ -295,7 +295,7 @@ static void InitGame(void)
     ai_model_scale = gi.cvar("ai_model_scale", "0", 0);
     ai_allow_dm_spawn = gi.cvar("ai_allow_dm_spawn", "0", 0);
     ai_movement_disabled = gi.cvar("ai_movement_disabled", "0", 0);
-    g_monster_footsteps = gi.cvar("g_monster_footsteps", "0", 0);
+    g_monster_footsteps = gi.cvar("g_monster_footsteps", "1", 0);
 
     g_frames_per_frame = gi.cvar("g_frames_per_frame", "1", 0);
 
